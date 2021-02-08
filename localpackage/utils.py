@@ -3,13 +3,13 @@ from datetime import datetime
 sexes=['Male','Female']
 regions=['UK','EW','EN','SC','WA','NI','GB']
 years=[2008,2018]
-
+points=['TRIAL', 'LIFE', 'RETIREMENT']
+fr=['Y','M','W','D']
 
 defaultdiscountRate=-0.5/100
 defaultOgden=8
 Ogden=[7,8]
 names=['Uninjured','Injured','joint']
-fr=['Y','M','W','D']
 InjuredContDetailsdefault={'employed':False,'qualification':'D','disabled':True} #default
 UninjuredContDetailsdefault={'employed':True,'qualification':'D','disabled':False} #default
 Ogden7={'year':2008,'region':'UK','yrAttainedIn':2011}

@@ -74,6 +74,14 @@ class baseperson():
             age=point
         elif type(point) is datetime:
             age=(point-self.dob).days/365.25
+        elif type(point) is str: #for entries like TRIAL, LIFE
+            point=point.upper()
+            if point=='TRIAL':
+                age=self.getAge()
+            elif point=='LIFE':
+                age=125
+            else:
+                print('Wrong string passed to getAgeFromPoint. Must be LIFE or TRIAL')
         else:
             #Error, wrong type
             print('Wrong type passed to getAgeFromPoint')
