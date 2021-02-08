@@ -11,9 +11,9 @@ def hello_world(request):
         `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
     """
     request_json = request.get_json()
-    x=json.loads(request_json)
-    g = game(attributes=x)
-    rows = x['rows']
+#    x=json.loads(request_json)
+#    g = game(attributes=x)
+#    rows = x['rows']
 
     if request.args and 'message' in request.args:
         return request.args.get('message')

@@ -34,7 +34,7 @@ print(json.dumps(eg))
 print(receiver().receive(gamejs=json.dumps(eg)))
 url="https://europe-west2-ogden8.cloudfunctions.net/ogden"
 js=json.dumps(eg)
-r=requests.post(url,json=js)
+r=requests.post(url,json={"message":"William"})
 print(r.text)
 
 
