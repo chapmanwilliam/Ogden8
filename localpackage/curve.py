@@ -147,7 +147,7 @@ class curve():
                     ages=np.arange(start=fromAge,stop=toAge, step=timeInterval)
                 if en:
                     ages=np.arange(start=fromAge+1,stop=toAge, step=timeInterval)
-                result= np.sum(np.array([self.Multiplier(fromAge=age,options=options,cont=cont, calc=calc) for age in ages]),axis=0)
+                result= np.sum(np.array([self.Multiplier(fromAge=age,options=options,cont=cont, calc=calc) for age in ages]),axis=0).tolist()
             else: #this is continuous
                 interest,past=self.cont(fromAge,min(self.getAge(),toAge),options)
                 if options=='A':

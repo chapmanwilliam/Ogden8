@@ -31,8 +31,8 @@ rows=[row for a in range(1,200)]
 eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [claimant], "dependents": [dependent]}}
 
 g=game(eg)
-print(g.claimants[0].MB(55,70, options='AMI'))
-print(g.claimants[0].MA(55,70, options='AMI'))
+print(g.claimants[0].MB(55,70, freq='<Y',options='AMI'))
+print(g.claimants[0].MA(55,70, freq='<Y',options='AMI'))
 #eg={"rows":[{"fromAge":35,"toAge":60,"freq":"Y","name":"Uninjured","cont":1,"options":"AMI"},{"fromAge":35,"toAge":60,"freq":"Y","name":"Uninjured","cont":1,"options":"AMI"}],"discountRate":-0.005,"Ogden":7,"claimants":[{"age":55,"aai":24.999315537303218,"sex":"Female","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLEB":-15,"deltaLEA":-15}],"dependents":[{"age":40,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011}}]}
 
 #print(json.dumps(eg))
