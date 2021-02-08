@@ -15,6 +15,8 @@ def hello_world(request):
 
     request_json = request.get_json()
 
+    return request_json
+
     attributes=json.loads(request_json)
     g = game(attributes=attributes)
     rows = attributes['rows']
