@@ -12,33 +12,12 @@ def hello_world(request):
         Response object using
         `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
     """
-    row = {'fromAge': 35, 'toAge': 60, 'freq': 'Y', 'name': 'Uninjured', 'cont': 1, 'options': 'AMI'}
-    rows = [row for a in range(1, 20)]
-    eg = {"rows": rows, "discountRate": -0.005, "Ogden": 7, "claimants": [
-        {"age": 55, "aai": 24.999315537303218, "sex": "Female",
-         "dataSet": {"year": 2008, "region": "UK", "yrAttainedIn": 2011}, "deltaLEB": -15, "deltaLEA": -15}],
-          "dependents": [{"age": 40, "sex": "Male", "dataSet": {"year": 2008, "region": "UK", "yrAttainedIn": 2011}}]}
-
-    gamejs = json.dumps(eg)
 
     request_json = request.get_json()
 
-#    attributes = json.loads(gamejs)
     attributes=json.loads(request_json)
     g = game(attributes=attributes)
     rows = attributes['rows']
     a = [g.claimants[0].MB(row['fromAge'], row['toAge'], freq=row['freq'], cont=row['cont'], options=row['options']) for row in rows]
 
     return json.dumps(a)
-
-
-#    x=json.loads(request_json)
-#    g2 = game(attributes=x)
-#    rows = x['rows']
-
-    if request.args and 'message' in request.args:
-        return request.args.get('message')
-    elif request_json and 'message' in request_json:
-        return request_json['message']
-    else:
-        return f'Hello World!'
