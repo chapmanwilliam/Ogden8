@@ -26,9 +26,13 @@ def hello_world(request):
     g = game(attributes=eg)
     rows = eg['rows']
     a = [g.claimants[0].MB(row['fromAge'], row['toAge'], freq=row['freq'], cont=row['cont'], options=row['options']) for row in rows]
-    return json.dumps(a)
 
     request_json = request.get_json()
+
+    return request_json
+
+    return json.dumps(a)
+
 
 #    x=json.loads(request_json)
 #    g2 = game(attributes=x)
