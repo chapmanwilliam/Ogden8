@@ -2,3 +2,4 @@
 # package>=version
 numpy
 pandas
+json

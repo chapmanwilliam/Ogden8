@@ -9,6 +9,8 @@ from utils import parsedateString, Ogden7,Ogden8
 from TablesAD import TablesAD
 from SAR import SAR
 from main import hello_world
+import requests
+
 
 
 #t=TablesAD(8)
@@ -30,6 +32,8 @@ eg={"rows": rows, "discountRate": -0.005, "Ogden": 7, "claimants": [{"age": 55, 
 #print(json.dumps(eg))
 
 #print(receiver().receive(gamejs=json.dumps(eg)))
+r=requests.get("https://europe-west2-ogden8.cloudfunctions.net/ogden")
+print(r.text)
 
-print(hello_world(json.dumps({"message":"William"})))
+#print(hello_world(json.dumps({"message":"William"})))
 
