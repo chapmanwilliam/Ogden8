@@ -24,12 +24,14 @@ def hello_world(request):
 
 #    attributes = json.loads(gamejs)
     g = game(attributes=eg)
-#    rows = attributes['rows']
+    rows = eg['rows']
+    a = [g.claimants[0].MB(row['fromAge'], row['toAge'], freq=row['freq'], cont=row['cont'], options=row['options']) for row in rows]
 
     request_json = request.get_json()
-    x=json.loads(request_json)
-    g2 = game(attributes=x)
-    rows = x['rows']
+
+#    x=json.loads(request_json)
+#    g2 = game(attributes=x)
+#    rows = x['rows']
 
     if request.args and 'message' in request.args:
         return request.args.get('message')
