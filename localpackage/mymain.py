@@ -39,5 +39,4 @@ r=requests.post(url,json={"message":"William"})
 print(r.text)
 
 
-print(hello_world(json.dumps({"message":"William"})))
 

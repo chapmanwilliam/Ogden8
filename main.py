@@ -27,9 +27,9 @@ def hello_world(request):
 #    rows = attributes['rows']
 
     request_json = request.get_json()
-#    x=json.loads(request_json)
-#    g = game(attributes=x)
-#    rows = x['rows']
+    x=json.loads(request_json)
+    g2 = game(attributes=x)
+    rows = x['rows']
 
     if request.args and 'message' in request.args:
         return request.args.get('message')

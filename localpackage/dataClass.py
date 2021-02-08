@@ -147,15 +147,15 @@ class dataSet():
         #creates CSVs of the date
         #Files of type 'cohortMUK2008'
         for year in years:
-            periodFile = 'Data/perioddata ' + str(self.year) + '.xlsx'
-            cohortFile = 'Data/cohortdata ' + str(year) + '.xlsx'
+            periodFile = 'localpackage/Data/perioddata ' + str(self.year) + '.xlsx'
+            cohortFile = 'localpackage/Data/cohortdata ' + str(year) + '.xlsx'
             for sex in sexes:
                 for region in regions:
                     sheet = region + " " + sex + 's'
                     self.dfPeriod = pd.read_excel(periodFile, sheet, index_col=0, header=0)
                     self.dfCohort = pd.read_excel(cohortFile, sheet, index_col=0, header=0)
-                    pathPeriod="Data/period"+sex[0]+region+str(year) + '.csv'
-                    pathCohort="Data/cohort"+sex[0]+region+str(year) + '.csv'
+                    pathPeriod="localpackage/Data/period"+sex[0]+region+str(year) + '.csv'
+                    pathCohort="localpackage/Data/cohort"+sex[0]+region+str(year) + '.csv'
                     self.dfPeriod.to_csv(pathPeriod, index=True)
                     self.dfCohort.to_csv(pathCohort, index=True)
 
@@ -177,8 +177,8 @@ class dataSet():
 
     def loaddataSet(self):
         if not self.valid(): return False
-        periodFile='perioddata ' + str(self.year) + '.xlsx'
-        cohortFile='cohortdata ' + str(self.year)+ '.xlsx'
+        periodFile='localpackage/Data/perioddata ' + str(self.year) + '.xlsx'
+        cohortFile='localpackage/Data/cohortdata ' + str(self.year)+ '.xlsx'
         sheet=self.region + " " + self.getSex()[0] + 's'
 
         try:
