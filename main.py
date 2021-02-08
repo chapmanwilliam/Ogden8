@@ -16,9 +16,10 @@ def hello_world(request):
     request_json = request.get_json() #gets json string from request
 
     if isinstance(request_json,dict):
-        return "It is a dictionary"
+        attributes=request_json
+    else:
+        attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
 
-    attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
     g = game(attributes=attributes)
     rows = attributes['rows']
     a = [g.claimants[0].MB(row['fromAge'], row['toAge'], freq=row['freq'], cont=row['cont'], options=row['options']) for row in rows]
