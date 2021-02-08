@@ -29,7 +29,7 @@ rows=[row for a in range(1,200)]
 eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [claimant], "dependents": [dependent]}}
 
 g=game(eg)
-print(g.claimants[0].MB('TRIAL','LIFE', freq='<Y',options='AMI'))
+print(g.claimants[0].MB('TRIAL', freq='<Y',options='AMI'))
 print(g.claimants[0].MA(55,70, freq='<Y',options='AMI'))
 print(g.dependents[0].MJ(40,60, freq='<Y',options='AMI'))
 print(g.dependents[0].M(40,60, freq='<Y',options='AMI'))

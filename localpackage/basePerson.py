@@ -53,6 +53,8 @@ class baseperson():
 
     def M(self, point1, point2=None, name='Uninjured', freq="Y", cont=1, options='AMI'):
         #builds a curve depending on the options and returns the multiplier
+        options=options.upper()
+        freq=freq.upper()
         age1=age2=None
         age1= self.getAgeFromPoint(point1)
         if point2: age2= self.getAgeFromPoint(point2)
