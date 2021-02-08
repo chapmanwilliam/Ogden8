@@ -20,7 +20,7 @@ def hello_world(request):
     else:
         attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
 
-    g = game(attributes=attributes)
+    g = game(attributes=attributes['game'])
     rows = attributes['rows']
     a = [g.claimants[0].MB(row['fromAge'], row['toAge'], freq=row['freq'], cont=row['cont'], options=row['options']) for row in rows]
 
