@@ -3,7 +3,8 @@ from datetime import datetime
 sexes=['Male','Female']
 regions=['UK','EW','EN','SC','WA','NI','GB']
 years=[2008,2018]
-points=['TRIAL', 'LIFE', 'RETIREMENT']
+wordPoints=['TRIAL', 'LIFE', 'RETIREMENT']
+plusMinus=['+','-']
 fr=['Y','M','W','D']
 
 defaultdiscountRate=-0.5/100

@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 import numpy as np
+import re
 from localpackage.SAR import SAR
-from localpackage.utils import names
+from localpackage.utils import names, wordPoints, plusMinus, returnFreq
 
 class baseperson():
 
@@ -75,17 +76,51 @@ class baseperson():
         elif type(point) is datetime:
             age=(point-self.dob).days/365.25
         elif type(point) is str: #for entries like TRIAL, LIFE
-            point=point.upper()
-            if point=='TRIAL':
-                age=self.getAge()
-            elif point=='LIFE':
-                age=125
-            else:
-                print('Wrong string passed to getAgeFromPoint. Must be LIFE or TRIAL')
+            age=self.parseTextPoint(point)
         else:
             #Error, wrong type
             print('Wrong type passed to getAgeFromPoint')
             print(type(point))
+        return age
+
+    def parseTextPoint(self,point):
+        #where point='TRIAL+1Y" etc
+        #make upper case
+        point = point.upper()
+        #removes all spaces
+        point=" ".join(point.split())
+        #split into component parts
+        parts=re.split("(\W)",point)
+        #evaluate each part - each part is either 'TRIAL' or '5Y' or '+' or '-'
+        #add or subtract
+        age=0
+        flag=True #add if true
+        for part in parts:
+            if part in wordPoints:
+                if part=='TRIAL':
+                    if flag: age+=self.getAge()
+                    if not flag: age-=self.getAge()
+                elif part=='LIFE':
+                    if flag: age+=125
+                    if not flag: age-=125
+                else:
+                    age=age #do nothing
+            elif part in plusMinus:
+                if part=='+': flag=True
+                if part=='-': flag=False
+            else:
+                #test value
+                #strip any '<' or '>'
+                part=part.strip('<')
+                part=part.strip('>')
+                st, en, factor, tinterval= returnFreq(part)
+                if tinterval:
+                    if flag: age+=tinterval
+                    if not flag: age-=tinterval
+                else:
+                    print('Invalid part of word point, parsewordPoint')
+                    return None
+        #return value
         return age
 
     def getdataSet(self, name):
