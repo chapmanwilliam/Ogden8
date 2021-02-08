@@ -12,7 +12,7 @@ def hello_world(request):
     """
     request_json = request.get_json()
     request_json['message']+=" plonker"
-    g = game(attributes=json.loads(request_json))
+#    g = game(attributes=json.loads(request_json))
 
     if request.args and 'message' in request.args:
         return request.args.get('message')
