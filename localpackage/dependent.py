@@ -1,7 +1,7 @@
-from basePerson import baseperson
-from dataClass import dataSet
-from curve import curve
-from utils import names
+from localpackage.basePerson import baseperson
+from localpackage.dataClass import dataSet
+from localpackage.curve import curve
+from localpackage.utils import names
 
 
 class dependent(baseperson):

@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import Ogden
+from localpackage.utils import Ogden
 import math
 
 Sex=['M','F']

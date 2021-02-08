@@ -1,8 +1,8 @@
 from datetime import datetime
-from person import person
-from dependent import dependent
-from TablesAD import TablesAD
-from utils import defaultdiscountRate, defaultOgden, Ogden
+from localpackage.person import person
+from localpackage.dependent import dependent
+from localpackage.TablesAD import TablesAD
+from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden
 
 
 class game():

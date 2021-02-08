@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
-from SAR import SAR
+from localpackage.SAR import SAR
 import numpy as np
-from utils import names, getOptionsDiscount
+from utils import names
 
 class baseperson():
 

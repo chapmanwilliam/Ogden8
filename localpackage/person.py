@@ -1,8 +1,8 @@
-from datetime import datetime, timedelta
-from dataClass import dataSet
-from basePerson import baseperson
-from curve import curve
-from utils import names, InjuredContDetailsdefault, UninjuredContDetailsdefault
+from datetime import timedelta
+from localpackage.dataClass import dataSet
+from localpackage.basePerson import baseperson
+from localpackage.curve import curve
+from localpackage.utils import names, InjuredContDetailsdefault, UninjuredContDetailsdefault
 
 class person(baseperson):
 

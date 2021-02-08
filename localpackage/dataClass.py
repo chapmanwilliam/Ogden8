@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from utils import years, regions, sexes
+from localpackage.utils import years, regions, sexes
 
 class dataSet():
 

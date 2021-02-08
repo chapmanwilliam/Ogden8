@@ -1,8 +1,8 @@
 import numpy as np
-from utils import returnFreq, discountFactor,termCertain, names
+from localpackage.utils import returnFreq, discountFactor,termCertain, names
 import matplotlib.pyplot as plt
 import os
-from calcs import calcs
+from localpackage.calcs import calcs
 
 class curve():
 
