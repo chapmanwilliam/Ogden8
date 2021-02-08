@@ -32,8 +32,8 @@ eg={"rows": rows, "discountRate": -0.005, "Ogden": 7, "claimants": [{"age": 55, 
 #print(json.dumps(eg))
 
 print(receiver().receive(gamejs=json.dumps(eg)))
-#r=requests.get("https://europe-west2-ogden8.cloudfunctions.net/ogden",params=eg)
-#print(r.text)
+r=requests.post("https://europe-west2-ogden8.cloudfunctions.net/ogden",params={"message":"William"})
+print(r.text)
 
 
 
