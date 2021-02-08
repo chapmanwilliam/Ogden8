@@ -79,6 +79,6 @@ class game():
         if 'claimants' in game:
             [self.addClaimant(person(cs,parent=self)) for cs in game['claimants']]
         if 'dependents' in game:
-            [self.addDependent(dependent(ds,parent=self)) for ds in game['dependents']]
+            [self.addDependent(dependent(ds,parent=self, deceased=self.claimants[0])) for ds in game['dependents']]
 
 
