@@ -2,3 +2,5 @@
 # package>=version
 numpy
 pandas
+matplotlib
+python-dateutil
