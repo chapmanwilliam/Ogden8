@@ -50,19 +50,21 @@ class game():
 
     def __init__(self, attributes):
 
-        if 'trialDate' in attributes: #if trial date supplied, accept; otherwise use today's date
-            self.trialDate=attributes['trialDate']
+        game=attributes['game']
+
+        if 'trialDate' in game: #if trial date supplied, accept; otherwise use today's date
+            self.trialDate=game['trialDate']
         else:
             self.trialDate=datetime.now()
 
-        if 'discountRate' in attributes: #if discountrate supplied, accept; otherwise use default
-            self.discountRate=attributes['discountRate']
+        if 'discountRate' in game: #if discountrate supplied, accept; otherwise use default
+            self.discountRate=game['discountRate']
         else:
             self.discountRate=defaultdiscountRate
 
-        if 'Ogden' in attributes: #if correct Ogden supplied, accept; otherwise use default
-            if attributes['Ogden'] in Ogden:
-                self.ogden=attributes['Ogden']
+        if 'Ogden' in game: #if correct Ogden supplied, accept; otherwise use default
+            if game['Ogden'] in Ogden:
+                self.ogden=game['Ogden']
             else:
                 self.ogden=defaultOgden
         else:
@@ -74,9 +76,9 @@ class game():
         self.claimants=[] #for storing the claimants
         self.dependents=[] #for storing the dependents
 
-        if 'claimants' in attributes:
-            [self.addClaimant(person(cs,parent=self)) for cs in attributes['claimants']]
-        if 'dependents' in attributes:
-            [self.addDependent(dependent(ds,parent=self)) for ds in attributes['dependents']]
+        if 'claimants' in game:
+            [self.addClaimant(person(cs,parent=self)) for cs in game['claimants']]
+        if 'dependents' in game:
+            [self.addDependent(dependent(ds,parent=self)) for ds in game['dependents']]
 
 
