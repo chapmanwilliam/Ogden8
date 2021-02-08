@@ -1,3 +1,6 @@
+from game import game
+import json
+
 def hello_world(request):
     """Responds to any HTTP request.
     Args:
@@ -8,6 +11,9 @@ def hello_world(request):
         `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
     """
     request_json = request.get_json()
+
+    g = game(attributes=json.loads(request_json))
+
     if request.args and 'message' in request.args:
         return request.args.get('message')
     elif request_json and 'message' in request_json:
