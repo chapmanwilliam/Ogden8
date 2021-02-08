@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
-from localpackage.SAR import SAR
 import numpy as np
-from utils import names
+from localpackage.SAR import SAR
+from localpackage.utils import names
 
 class baseperson():
 
