@@ -1,4 +1,4 @@
-import game as game
+from game import game
 
 def hello_world(request):
     """Responds to any HTTP request.
