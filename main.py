@@ -22,6 +22,6 @@ def hello_world(request):
 
     g = game(attributes=attributes)
     rows = attributes['rows']
-    a = [g.claimants[0].MB(row['fromAge'], row['toAge'], freq=row['freq'], cont=row['cont'], options=row['options']) for row in rows]
+    a = [g.claimants[0].M(row['fromAge'], row['toAge'], name=row['name'],freq=row['freq'], cont=row['cont'], options=row['options']) for row in rows]
 
     return json.dumps(a)
