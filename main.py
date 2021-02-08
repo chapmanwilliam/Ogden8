@@ -16,7 +16,7 @@ def hello_world(request):
     request_json = request.get_json() #gets json string from request
 
     if isinstance(request_json,dict):
-        attributes=request_json
+        attributes=request_json #it is already a dictionary
     else:
         attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
 
