@@ -20,9 +20,9 @@ def hello_world(request):
           "dependents": [{"age": 40, "sex": "Male", "dataSet": {"year": 2008, "region": "UK", "yrAttainedIn": 2011}}]}
 
     gamejs = json.dumps(eg)
-    attributes = json.loads(gamejs)
-    g = game(attributes=attributes)
-    rows = attributes['rows']
+#    attributes = json.loads(gamejs)
+#    g = game(attributes=attributes)
+#    rows = attributes['rows']
 
     request_json = request.get_json()
 #    x=json.loads(request_json)

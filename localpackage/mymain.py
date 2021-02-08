@@ -10,6 +10,7 @@ from TablesAD import TablesAD
 from SAR import SAR
 from main import hello_world
 import requests
+from main import hello_world
 
 
 
@@ -36,7 +37,6 @@ url="https://europe-west2-ogden8.cloudfunctions.net/ogden"
 js=json.dumps(eg)
 r=requests.post(url,json={"message":"William"})
 print(r.text)
-
 
 
 #print(hello_world(json.dumps({"message":"William"})))
