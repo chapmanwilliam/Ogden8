@@ -163,8 +163,8 @@ class dataSet():
         return 'ONS ' + self.getSex()[0] + self.region + str(self.year) + ', year attained in ' + str(self.yrAttainedIn)
 
     def loaddataSetCSV(self):
-        periodFile='Data/period'+self.getSex()[0]+self.region+str(self.year)+'.csv'
-        cohortFile='Data/cohort'+self.getSex()[0]+self.region+str(self.year)+'.csv'
+        periodFile='localpackage/Data/period'+self.getSex()[0]+self.region+str(self.year)+'.csv'
+        cohortFile='localpackage/Data/cohort'+self.getSex()[0]+self.region+str(self.year)+'.csv'
         try:
             self.dfPeriod = pd.read_csv(periodFile, index_col=0, header=0)
             self.dfPeriod.columns=self.dfPeriod.columns.astype(int)
