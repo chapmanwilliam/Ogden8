@@ -30,6 +30,9 @@ row={'fromAge':35, 'toAge':60, 'freq': 'Y', 'name': 'Uninjured', 'cont':1, 'opti
 rows=[row for a in range(1,200)]
 eg={"rows": rows, "discountRate": -0.005, "Ogden": 7, "claimants": [{"age": 55, "aai": 24.999315537303218, "sex": "Female", "dataSet": {"year": 2008, "region": "UK", "yrAttainedIn": 2011}, "deltaLEB": -15, "deltaLEA": -15}], "dependents": [{"age": 40, "sex": "Male", "dataSet": {"year": 2008, "region": "UK", "yrAttainedIn": 2011}}]}
 
+
+#eg={"rows":[{"fromAge":35,"toAge":60,"freq":"Y","name":"Uninjured","cont":1,"options":"AMI"},{"fromAge":35,"toAge":60,"freq":"Y","name":"Uninjured","cont":1,"options":"AMI"}],"discountRate":-0.005,"Ogden":7,"claimants":[{"age":55,"aai":24.999315537303218,"sex":"Female","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLEB":-15,"deltaLEA":-15}],"dependents":[{"age":40,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011}}]}
+
 print(json.dumps(eg))
 
 print(receiver().receive(gamejs=json.dumps(eg)))

@@ -13,9 +13,12 @@ def hello_world(request):
         `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
     """
 
-    request_json = request.get_json()
+    request_json = request.get_json() #gets json string from request
 
-    attributes=json.loads(request_json)
+    if isinstance(request_json,dict):
+        return "It is a dictionary"
+
+    attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
     g = game(attributes=attributes)
     rows = attributes['rows']
     a = [g.claimants[0].MB(row['fromAge'], row['toAge'], freq=row['freq'], cont=row['cont'], options=row['options']) for row in rows]
