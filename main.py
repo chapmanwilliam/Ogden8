@@ -22,7 +22,7 @@ def hello_world(request):
     gamejs = json.dumps(eg)
 
 #    attributes = json.loads(gamejs)
-#    g = game(attributes=attributes)
+    g = game(attributes=eg)
 #    rows = attributes['rows']
 
     request_json = request.get_json()
