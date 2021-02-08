@@ -8,6 +8,7 @@ import json
 from utils import parsedateString, Ogden7,Ogden8
 from TablesAD import TablesAD
 from SAR import SAR
+from main import hello_world
 
 
 #t=TablesAD(8)
@@ -26,8 +27,9 @@ row={'fromAge':35, 'toAge':60, 'freq': 'Y', 'name': 'Uninjured', 'cont':1, 'opti
 rows=[row for a in range(1,200)]
 eg={"rows": rows, "discountRate": -0.005, "Ogden": 7, "claimants": [{"age": 55, "aai": 24.999315537303218, "sex": "Female", "dataSet": {"year": 2008, "region": "UK", "yrAttainedIn": 2011}, "deltaLEB": -15, "deltaLEA": -15}], "dependents": [{"age": 40, "sex": "Male", "dataSet": {"year": 2008, "region": "UK", "yrAttainedIn": 2011}}]}
 
-print(json.dumps(eg))
+#print(json.dumps(eg))
 
-print(receiver().receive(gamejs=json.dumps(eg)))
+#print(receiver().receive(gamejs=json.dumps(eg)))
 
+print(hello_world(json.dumps({"message":"William"})))
 
