@@ -6,6 +6,14 @@ from localpackage.utils import stati, wordPoints, plusMinus, returnFreq
 
 class baseperson():
 
+    def getClaimantsDependentOn(self):
+        #returns list of names claimant is dependent on
+        listofnames=[]
+        if self.dependenton:
+            listofnames = self.dependenton.split(',')  # turn comma delimited string into array of names
+            listofnames=[n.strip() for n in listofnames] #removes leading and trailing space
+        return listofnames
+
     def getClaimants(self):
         return self.parent.getClaimants()
 
@@ -198,6 +206,9 @@ class baseperson():
             self.deltaLEA=attributes['deltaLEA']
         else:
             self.deltaLEA=0
+
+        if 'dependenton' in self.attributes: self.dependenton=self.attributes['dependenton'].strip().upper()
+
 
         self.dataSets={} #for the dataSets
         self.curves={} #for the curves (one for each dataset)

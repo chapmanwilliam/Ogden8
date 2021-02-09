@@ -6,13 +6,6 @@ from localpackage.utils import stati
 
 class dependent(baseperson):
 
-    def getClaimantsDependentOn(self):
-        #returns list of names claimant is dependent on
-        listofnames=[]
-        if self.dependenton:
-            listofnames = self.dependenton.split(',')  # turn comma delimited string into array of names
-            listofnames=[n.strip() for n in listofnames] #removes leading and trailing space
-        return listofnames
 
     def getDict(self):
         return {'age': self.getAge(), 'sex': self.getSex(), 'dataSet': self.getdataSet(stati[0]).getDict()}
@@ -40,7 +33,6 @@ class dependent(baseperson):
 
         self.dataSets={stati[0]: dataSet(self.attributes['dataSet'], parent=self, deltaLE=self.deltaLEB)}
         self.curves={stati[0]: curve(stati[0], self)}
-        if 'dependenton' in self.attributes: self.dependenton=self.attributes['dependenton'].strip().upper()
 
 
 

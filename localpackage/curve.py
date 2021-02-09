@@ -182,7 +182,7 @@ class curve():
                 future*=factor*cont
                 result= past,interest,future,past+interest+future
         else:
-            result=self.Lx(fromAge, options)
+            result=list(self.Lx(fromAge, options))
 
         if calc:
             calc.addText(self.getBreakdown(fromAge,toAge,factor, result))

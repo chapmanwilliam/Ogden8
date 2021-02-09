@@ -54,20 +54,6 @@ def returnFreq(freq):
     return st, en, factor, tinterval
 
 
-
-def getOptionsDiscount(discAcceleratedReceipt=True, discMortality=True, interest=True,useDeceased=False):
-    o = ''
-    if discAcceleratedReceipt:
-        o += 'A'
-    if discMortality:
-        o += 'M'
-    if interest:
-        o+='I'
-    if useDeceased:
-        o+='D'
-    return o
-
-
 def discountFactor(yrs,discountRate):
     #returns the discountFactor after yrs with discountRate
     if discountRate==-1: return None

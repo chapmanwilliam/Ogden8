@@ -16,6 +16,14 @@ class person(baseperson):
     def MA(self,point1, point2=None, freq="Y", cont=1, options='AMI'):
         return self.M(point1=point1, point2=point2, status=stati[1], freq=freq, cont=cont, options=options)
 
+    def MBJ(self,point1, point2=None, freq="Y", cont=1, options='AMI'):
+        options+='D'
+        return self.M(point1=point1, point2=point2, status=stati[0], freq=freq, cont=cont, options=options)
+
+    def MAJ(self,point1, point2=None, freq="Y", cont=1, options='AMI'):
+        options+='D'
+        return self.M(point1=point1, point2=point2, status=stati[1], freq=freq, cont=cont, options=options)
+
     def LEB(self):
         return self.MB(self.age,125)
 
