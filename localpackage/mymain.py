@@ -24,7 +24,7 @@ claimants=[claimant for a in range(1,1)]
 claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLEB': -15, 'deltaLEA': -15}
 
 
-row={'fromAge':55, 'toAge':70, 'freq': 'Y', 'name': 'Uninjured', 'cont':1, 'options':'AMI'}
+row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':70, 'freq': 'Y', 'name': 'Uninjured', 'cont':1, 'options':'AMI'}
 rows=[row for a in range(1,200)]
 eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [claimant], "dependents": [dependent]}}
 
