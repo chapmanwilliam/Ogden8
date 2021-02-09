@@ -6,6 +6,14 @@ from localpackage.utils import names, wordPoints, plusMinus, returnFreq
 
 class baseperson():
 
+    def getClaimants(self):
+        return self.parent.getClaimants()
+
+    def getDependents(self):
+        return self.parent.getDependents()
+
+    def getClaimant(self,name):
+        return self.parent.getClaimant(name)
 
     def isFatal(self):
         return self.fatal
@@ -157,14 +165,12 @@ class baseperson():
         self.parent=parent #reference to game object
         self.attributes=attributes
         self.dirty=True
-        self.deceased=deceased
         self.fatal=False
+        self.dependenton=None
 
 
         if 'name' in attributes:
-            self.name=attributes['name']
-        else:
-            self.name='person'
+            self.name=attributes['name'].upper()
 
         if 'dob' in attributes and not 'age' in attributes:
             self.dob=attributes['dob']

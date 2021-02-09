@@ -28,11 +28,16 @@ class curve():
 
 
         plt.plot(self.Rng, self._Lx, label=Mlegend)
-        if self.getAAD(): plt.axvline(self.getAAD(),linestyle='dashed',color='black', label='death') #age at death
+        for name in self.getdependentson():
+            c=self.getClaimant(name)
+            if c: plt.axvline(self.getAAD(name), linestyle='dashed', color='black', label='death ' + name)  # age at death
+        for c in self.getClaimants():
+            plt.axvline(self.getAAI(c['name']), linestyle='dashed', color='green', label='injury ' + name)  # age at trial
+
         plt.axvline(self.getAAT(),linestyle='dashed',color='green', label='trial') #age at trial
-        if self.getAAI(): #set the x=range from date of injury to 125
-            plt.xlim(self.getAAI(),125)
-            plt.ylim(0,self.Lx(self.getAAI(),options)[3])
+        if self.getlowestAAI()<125: #set the x=range from date of injury to 125
+            plt.xlim(self.getlowestAAI()-1,125)
+            plt.ylim(0,self.Lx(self.getlowestAAI(),options)[3])
         #Area under the curve
         if toAge:
             if st or en: #this is discrete
@@ -108,17 +113,30 @@ class curve():
     def getAAT(self):
         return self.parent.getAAT()
 
-    def getAAI(self):
-        return self.parent.getAAI()
+    def getlowestAAI(self):
+        lowestAAI=125
+        for c in self.getClaimants():
+            if self.getAAI(c['name']):
+                if self.getAAI(c['name'])<lowestAAI: lowestAAI=self.getAAI(c['name'])
+        return lowestAAI
 
-    def getAAD(self):
-        return self.parent.getAAD()
+    def getAAI(self,name):
+        return self.parent.getAAI(name)
+
+    def getAAD(self,name):
+        return self.parent.getAAD(name)
 
     def getSex(self):
         return self.parent.getSex()
 
-    def getDeceased(self):
-        return self.parent.deceased
+    def getdependentson(self):
+        return self.parent.getClaimantsDependentOn()
+
+    def getClaimant(self,name):
+        return self.parent.getClaimant(name)
+
+    def getClaimants(self):
+        return self.parent.getClaimants()
 
     def M(self, fromAge, toAge=None, freq="Y", cont=1, options='AMI'):
         #get the right curve
@@ -285,10 +303,12 @@ class curve():
             _interest=np.concatenate((_interestp,_interestf))
         #deceased
         if 'D' in options:
-            deceased=self.getDeceased()
-            if deceased:
-                shift = self.getAge() - deceased.age  # the age gap
-                _deceased=deceased.getdataSet(names[0]).transformLx(Rng,shift)
+            namesdeceased=self.getdependentson()
+            for name in namesdeceased:
+                deceased=self.getClaimant(name)
+                if deceased:
+                    shift = self.getAge() - deceased.age  # the age gap
+                    _deceased=np.append(deceased.getdataSet(names[0]).transformLx(Rng,shift),axis=0)
 
         #multiply together _disc, _Lx, _interest, _cont, _factor, _deceased
         A=np.stack((_disc,_Lx,_deceased)) #without interest

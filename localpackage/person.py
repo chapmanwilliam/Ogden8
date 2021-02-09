@@ -98,6 +98,8 @@ class person(baseperson):
         if not 'doi' in self.attributes and not 'aai' in self.attributes:
             print("No date of injury submitted for person")
 
+        if not 'name' in self.attributes:
+            self.name='CLAIMANT_' + str(len(self.getClaimants()))
 
         self.dataSets={names[0]: dataSet(self.attributes['dataSet'],self, self.deltaLEB), names[1]: dataSet(self.attributes['dataSet'],self,self.deltaLEA)}
         self.curves={names[0]: curve(names[0],self), names[1]: curve(names[1],self)}

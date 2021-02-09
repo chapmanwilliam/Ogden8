@@ -8,10 +8,24 @@ from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden
 class game():
 
     def addDependent(self,dependent):
-        self.dependents.append(dependent)
+        self.dependents[dependent.name]=dependent
+#        self.dependents.append(dependent)
 
     def addClaimant(self,claimant):
-        self.claimants.append(claimant)
+        self.claimants[claimant.name]=claimant
+#        self.claimants.append(claimant)
+
+    def getClaimant(self,name):
+        if name in self.claimants:
+            return self.claimants[name]
+        else:
+            return None
+
+    def getClaimants(self):
+        return self.claimants
+
+    def getDependents(self):
+        return self.dependents
 
     def getDict(self):
         #encodes the game, claimants, dependents
@@ -44,8 +58,8 @@ class game():
         self.setDirty(True)
 
     def refresh(self):
-        [claimant.refresh() for claimant in self.claimants] #refresh all the claimants
-        [dependent.refresh(True) for dependent in self.dependents]  # make all dependents dirty
+        [claimant.refresh() for claimant in self.claimants.values()] #refresh all the claimants
+        [dependent.refresh(True) for dependent in self.dependents.values()]  # make all dependents dirty
         self.dirty=False
 
     def __init__(self, attributes):
@@ -73,12 +87,12 @@ class game():
         self.dirty=True
         self.TablesAD=TablesAD(self.ogden)
 
-        self.claimants=[] #for storing the claimants
-        self.dependents=[] #for storing the dependents
+        self.claimants={} #dictionary for storing the claimants by name
+        self.dependents={} #dictionary for storing the dependents by name
 
         if 'claimants' in game:
             [self.addClaimant(person(cs,parent=self)) for cs in game['claimants']]
         if 'dependents' in game:
-            [self.addDependent(dependent(ds,parent=self, deceased=self.claimants[0])) for ds in game['dependents']]
+            [self.addDependent(dependent(ds,parent=self)) for ds in game['dependents']]
 
 
