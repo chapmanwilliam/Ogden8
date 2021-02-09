@@ -17,7 +17,7 @@ import requests
 
 
 game1={ 'discountRate':-0.5/100, 'Ogden':7}
-dependent = {'name': 'John', 'age': 40, 'sex': 'Male', 'dataSet': Ogden7, 'dependenton':'Christopher Devlin'}
+dependent = {'name': 'John', 'age': 40, 'sex': 'Male', 'dataSet': Ogden7, 'dependenton':'Christopher'}
 dependents=[dependent for a in range(1,3)]
 claimant = {'name':'Christopher', 'age': 55, 'aai': 25, 'aad': 45, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLEB': 0, 'deltaLEA': -15}
 claimants=[claimant for a in range(1,1)]

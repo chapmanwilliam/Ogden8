@@ -291,7 +291,6 @@ class curve():
             if self.isFatal():
                 _Lxp=self.getdataSet().transformLx(rp)
                 _Lxf=self.getdataSet().transformLx(rf) #probability of death
-                pass
             else:
                 _Lxp=np.full((rp.size),1) #1 in the past
                 _Lxf=self.getdataSet()._Lx #probability of death
@@ -308,7 +307,7 @@ class curve():
                 deceased=self.getClaimant(name)
                 if deceased:
                     shift = self.getAge() - deceased.age  # the age gap
-                    _deceased=np.append(deceased.getdataSet(stati[0]).transformLx(Rng, shift), axis=0)
+                    _deceased=np.multiply(_deceased,deceased.getdataSet(stati[0]).transformLx(Rng, shift))
 
         #multiply together _disc, _Lx, _interest, _cont, _factor, _deceased
         A=np.stack((_disc,_Lx,_deceased)) #without interest
