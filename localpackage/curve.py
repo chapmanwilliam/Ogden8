@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-from localpackage.utils import returnFreq, discountFactor,termCertain, names
+from localpackage.utils import returnFreq, discountFactor,termCertain, stati
 from localpackage.calcs import calcs
 
 class curve():
@@ -60,7 +60,7 @@ class curve():
         plt.legend(loc='upper right', prop={'size':6})
         if 'D' in options:
             plt.figtext(1, 0.03, 'Dependent: ' + self.getdataSet().getdataTitle(), ha='right', fontsize=6)
-            plt.figtext(1,0.01,'Deceased: ' + self.getDeceased().getdataSet(names[0]).getdataTitle(), ha='right', fontsize=6)
+            plt.figtext(1, 0.01,'Deceased: ' + self.getDeceased().getdataSet(stati[0]).getdataTitle(), ha='right', fontsize=6)
         else:
             plt.figtext(1, 0.01, self.getdataSet().getdataTitle(), ha='right', fontsize=6)
 
@@ -308,7 +308,7 @@ class curve():
                 deceased=self.getClaimant(name)
                 if deceased:
                     shift = self.getAge() - deceased.age  # the age gap
-                    _deceased=np.append(deceased.getdataSet(names[0]).transformLx(Rng,shift),axis=0)
+                    _deceased=np.append(deceased.getdataSet(stati[0]).transformLx(Rng, shift), axis=0)
 
         #multiply together _disc, _Lx, _interest, _cont, _factor, _deceased
         A=np.stack((_disc,_Lx,_deceased)) #without interest

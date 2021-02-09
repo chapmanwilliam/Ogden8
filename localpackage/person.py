@@ -2,19 +2,19 @@ from datetime import timedelta
 from localpackage.dataClass import dataSet
 from localpackage.basePerson import baseperson
 from localpackage.curve import curve
-from localpackage.utils import names, InjuredContDetailsdefault, UninjuredContDetailsdefault
+from localpackage.utils import stati, InjuredContDetailsdefault, UninjuredContDetailsdefault
 
 class person(baseperson):
 
     def getDict(self):
-        return {'age': self.getAge(), 'aai': self.getAAI(), 'sex': self.getSex(), 'dataSet': self.getdataSet(names[0]).getDict(), 'deltaLEB': self.getdeltaLEB(), 'deltaLEA': self.getdeltaLEA()}
+        return {'age': self.getAge(), 'aai': self.getAAI(), 'sex': self.getSex(), 'dataSet': self.getdataSet(stati[0]).getDict(), 'deltaLEB': self.getdeltaLEB(), 'deltaLEA': self.getdeltaLEA()}
 
 
     def MB(self,point1, point2=None, freq="Y", cont=1, options='AMI'):
-        return self.M(point1=point1, point2=point2, name=names[0], freq=freq, cont=cont, options=options)
+        return self.M(point1=point1, point2=point2, status=stati[0], freq=freq, cont=cont, options=options)
 
     def MA(self,point1, point2=None, freq="Y", cont=1, options='AMI'):
-        return self.M(point1=point1, point2=point2, name=names[1], freq=freq, cont=cont, options=options)
+        return self.M(point1=point1, point2=point2, status=stati[1], freq=freq, cont=cont, options=options)
 
     def LEB(self):
         return self.MB(self.age,125)
@@ -22,23 +22,23 @@ class person(baseperson):
     def LEA(self):
         return self.MA(self.age,125)
 
-    def getCont(self,name):
-        if not name in names:
+    def getCont(self,stat):
+        if not stat in stati:
             print('Wrong name supplied in getCont.')
             return None
-        if self.contAutomatic[name]:
-            if name in self.contDetails:
+        if self.contAutomatic[stat]:
+            if stat in self.contDetails:
                 Tables = self.getTablesAD()
-                cont = Tables.getCont(sex=self.sex, employed=self.contDetails[name]['employed'],
-                                      qualification=self.contDetails[name]['qualification'],
-                                      disabled=self.contDetails[name]['disabled'], age=self.age)
+                cont = Tables.getCont(sex=self.sex, employed=self.contDetails[stat]['employed'],
+                                      qualification=self.contDetails[stat]['qualification'],
+                                      disabled=self.contDetails[stat]['disabled'], age=self.age)
                 return cont
             else:
                 print('No details supplied for getCont')
                 return None
         else:
-            if name in self.cont:
-                return self.cont[name]
+            if stat in self.cont:
+                return self.cont[stat]
             else:
                 print('No override supplied for getCont')
                 return None
@@ -67,17 +67,17 @@ class person(baseperson):
         self.aai=None #age at injury
         self.doi=None #date of injury
 
-        self.contAutomatic={names[0]:True,names[1]:True} #automatic by default
-        if 'contAutomaticUninjured' in self.attributes: self.contAutomatic[names[0]]=self.attributes['contAutomaticUninjured']
-        if 'contAutomaticInjured' in self.attributes: self.contAutomatic[names[1]]=self.attributes['contAutomaticInjured']
+        self.contAutomatic={stati[0]:True, stati[1]:True} #automatic by default
+        if 'contAutomaticUninjured' in self.attributes: self.contAutomatic[stati[0]]=self.attributes['contAutomaticUninjured']
+        if 'contAutomaticInjured' in self.attributes: self.contAutomatic[stati[1]]=self.attributes['contAutomaticInjured']
 
         self.cont={}
-        if 'contUninjured' in self.attributes:self.cont[names[0]]=self.attributes['contUninjured']
-        if 'contInjured' in self.attributes:self.cont[names[1]]=self.attributes['contInjured']
+        if 'contUninjured' in self.attributes:self.cont[stati[0]]=self.attributes['contUninjured']
+        if 'contInjured' in self.attributes:self.cont[stati[1]]=self.attributes['contInjured']
 
-        self.contDetails={names[0]:UninjuredContDetailsdefault,names[1]:InjuredContDetailsdefault}
-        if 'contDetailsUninjured' in self.attributes: self.contDetails[names[0]]=self.attributes['contDetailsUninjured'] #should be {'employed',qualification,'disabled'}
-        if 'contDetailsInjured' in self.attributes: self.contDetails[names[1]]=self.attributes['contDetailsInjured'] #should be {'employed',qualification,'disabled'}
+        self.contDetails={stati[0]:UninjuredContDetailsdefault, stati[1]:InjuredContDetailsdefault}
+        if 'contDetailsUninjured' in self.attributes: self.contDetails[stati[0]]=self.attributes['contDetailsUninjured'] #should be {'employed',qualification,'disabled'}
+        if 'contDetailsInjured' in self.attributes: self.contDetails[stati[1]]=self.attributes['contDetailsInjured'] #should be {'employed',qualification,'disabled'}
 
         if 'dod' in self.attributes and not 'aad' in self.attributes:
             self.dod=self.attributes['dod']
@@ -101,8 +101,8 @@ class person(baseperson):
         if not 'name' in self.attributes:
             self.name='CLAIMANT_' + str(len(self.getClaimants()))
 
-        self.dataSets={names[0]: dataSet(self.attributes['dataSet'],self, self.deltaLEB), names[1]: dataSet(self.attributes['dataSet'],self,self.deltaLEA)}
-        self.curves={names[0]: curve(names[0],self), names[1]: curve(names[1],self)}
+        self.dataSets={stati[0]: dataSet(self.attributes['dataSet'], self, self.deltaLEB), stati[1]: dataSet(self.attributes['dataSet'], self, self.deltaLEA)}
+        self.curves={stati[0]: curve(stati[0], self), stati[1]: curve(stati[1], self)}
 
 
 

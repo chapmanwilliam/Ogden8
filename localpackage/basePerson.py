@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import re
 from localpackage.SAR import SAR
-from localpackage.utils import names, wordPoints, plusMinus, returnFreq
+from localpackage.utils import stati, wordPoints, plusMinus, returnFreq
 
 class baseperson():
 
@@ -54,26 +54,26 @@ class baseperson():
     def getdiscountRate(self):
         return self.parent.getdiscountRate()
 
-    def getCurve(self,name):
-        if name in names:
-            return self.curves[name]
+    def getCurve(self,status):
+        if status in stati:
+            return self.curves[status]
         return None
 
-    def M(self, point1, point2=None, name='Uninjured', freq="Y", cont=1, options='AMI'):
+    def M(self, point1, point2=None, status='Uninjured', freq="Y", cont=1, options='AMI'):
         #builds a curve depending on the options and returns the multiplier
         options=options.upper()
         freq=freq.upper()
         age1=age2=None
         age1= self.getAgeFromPoint(point1)
         if point2: age2= self.getAgeFromPoint(point2)
-        c=self.getCurve(name)
+        c=self.getCurve(status)
         result= c.M(age1,age2,freq=freq,cont=cont,options=options)
 #        print(c.calc.show())
 #        c.getPlot(result, age1, age2, freq, cont, options)
         return result
 
     def getStdLE(self): #i.e. the LE with normal life expectancy
-        return np.trapz(self.getdataSet(names[0]).getLxLxd(self.age, LxOnly=True))
+        return np.trapz(self.getdataSet(stati[0]).getLxLxd(self.age, LxOnly=True))
 
 
     def getAgeFromPoint(self, point):
@@ -133,9 +133,9 @@ class baseperson():
         #return value
         return age
 
-    def getdataSet(self, name):
-        if name in names:
-            return self.dataSets[name]
+    def getdataSet(self, status):
+        if status in stati:
+            return self.dataSets[status]
         return None
 
     def getTablesAD(self):

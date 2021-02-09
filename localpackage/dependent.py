@@ -1,7 +1,7 @@
 from localpackage.basePerson import baseperson
 from localpackage.dataClass import dataSet
 from localpackage.curve import curve
-from localpackage.utils import names
+from localpackage.utils import stati
 
 
 class dependent(baseperson):
@@ -15,11 +15,11 @@ class dependent(baseperson):
         return listofnames
 
     def getDict(self):
-        return {'age': self.getAge(), 'sex': self.getSex(), 'dataSet': self.getdataSet(names[0]).getDict()}
+        return {'age': self.getAge(), 'sex': self.getSex(), 'dataSet': self.getdataSet(stati[0]).getDict()}
 
     def MJ(self,point1, point2=None, freq="Y", cont=1, options='AMI'):
         options+='D'
-        return self.M(point1=point1, point2=point2, name=names[0], freq=freq, cont=cont, options=options)
+        return self.M(point1=point1, point2=point2, status=stati[0], freq=freq, cont=cont, options=options)
 
     def getAAI(self,name):
         deceased=self.getClaimant(name)
@@ -38,8 +38,8 @@ class dependent(baseperson):
         if not 'name' in self.attributes:
             self.name='DEPENDENT_' + str(len(self.getDependents()))
 
-        self.dataSets={names[0]: dataSet(self.attributes['dataSet'],parent=self,deltaLE=self.deltaLEB)}
-        self.curves={names[0]: curve(names[0],self)}
+        self.dataSets={stati[0]: dataSet(self.attributes['dataSet'], parent=self, deltaLE=self.deltaLEB)}
+        self.curves={stati[0]: curve(stati[0], self)}
         if 'dependenton' in self.attributes: self.dependenton=self.attributes['dependenton'].strip().upper()
 
 
