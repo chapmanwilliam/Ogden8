@@ -92,9 +92,10 @@ class person(baseperson):
             self.aad=(self.dod-self.dob).days/365.25
             self.fatal = True
         if 'aad' in self.attributes and not 'dod' in self.attributes:
-            self.aad=self.attributes['aad']
-            self.dod=self.dob + timedelta(days=(self.aad * 365.25))
-            self.fatal=True
+            if type(self.attributes['aad']) is int or type(self.attributes['aad']) is float:
+                self.aad=self.attributes['aad']
+                self.dod=self.dob + timedelta(days=(self.aad * 365.25))
+                self.fatal=True
 
         if 'doi' in self.attributes and not 'aai' in self.attributes:
             self.doi=self.attributes['doi']

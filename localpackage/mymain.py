@@ -17,19 +17,19 @@ import requests
 
 
 game1={ 'discountRate':-0.5/100, 'Ogden':7}
-dependent = {'name': 'John', 'age': 40, 'sex': 'Male', 'dataSet': Ogden7, 'dependenton':'Christopher'}
+dependent = {'name': 'John', 'age': 40, 'sex': 'Male', 'dataSet': Ogden7, 'dependenton':'Christopher', 'retirementA':57, 'retirementB':57}
 
-claimant = {'name':'Christopher', 'age': 44, 'aai': 25, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLEB': 0, 'deltaLEA': 0}
+claimant = {'name':'Christopher', 'age': 44, 'aai': 25, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLEB': 0, 'deltaLEA': 0, 'retirementA':67, 'retirementB': 67}
 
-claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLEB': -15, 'deltaLEA': -15}
+claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLEB': -15, 'deltaLEA': -15, 'retirementA':67, 'retirementB':67}
 
 
-row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':70, 'freq': '<Y', 'status': 'Injured', 'cont':1, 'options':'AMI'}
+row={'name': 'CHRISTOPHER','fromAge':'TRIAL', 'toAge':'RETIREMENT', 'freq': '<Y', 'status': 'Injured', 'cont':1, 'options':'AMI'}
 rows=[row for a in range(1,200)]
 eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [claimantdeceased,claimant], "dependents": []}}
 
 g=game(eg)
-print(g.claimants['CHRISTOPHER'].MB('TRIAL', freq='<Y',options='AMI'))
+print(g.claimants['CHRISTOPHER'].MB('TRIAL', 'RETIREMENT', freq='<Y',options='AMI'))
 print(g.claimants['JOHN'].MB(55,70, freq='<Y',options='AMI'))
 #print(g.dependents['JOHN'].MJ(40,60, freq='<Y',options='AMI'))
 #print(g.dependents['JOHN'].M(40,60, freq='<Y',options='AMI'))

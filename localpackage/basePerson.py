@@ -72,8 +72,8 @@ class baseperson():
         options=options.upper()
         freq=freq.upper()
         age1=age2=None
-        age1= self.getAgeFromPoint(point1)
-        if point2: age2= self.getAgeFromPoint(point2)
+        age1= self.getAgeFromPoint(point1,status)
+        if point2: age2= self.getAgeFromPoint(point2,status)
         c=self.getCurve(status)
         result= c.M(age1,age2,freq=freq,cont=cont,options=options)
 #        print(c.calc.show())
@@ -84,7 +84,7 @@ class baseperson():
         return np.trapz(self.getdataSet(stati[0]).getLxLxd(self.age, LxOnly=True))
 
 
-    def getAgeFromPoint(self, point):
+    def getAgeFromPoint(self, point, status):
         #point is either a float (i.e. age) or a datetime
         #returns age
         age=None
@@ -94,14 +94,14 @@ class baseperson():
         elif type(point) is datetime:
             age=(point-self.dob).days/365.25
         elif type(point) is str: #for entries like TRIAL, LIFE
-            age=self.parseTextPoint(point)
+            age=self.parseTextPoint(point,status)
         else:
             #Error, wrong type
             print('Wrong type passed to getAgeFromPoint')
             print(type(point))
         return age
 
-    def parseTextPoint(self,point):
+    def parseTextPoint(self,point,status):
         #where point='TRIAL+1Y" etc
         #make upper case
         point = point.upper()
@@ -121,6 +121,15 @@ class baseperson():
                 elif part=='LIFE':
                     if flag: age+=125
                     if not flag: age-=125
+                elif part=='RETIREMENT':
+                    if status==stati[0]:
+                        if hasattr(self,'retirementB'):
+                            if flag: age+=self.retirementB
+                            if not flag: age-=self.retirementB
+                    if status==stati[1]:
+                        if hasattr(self,'retirementA'):
+                            if flag: age+=self.retirementA
+                            if not flag: age+=self.retirementA
                 else:
                     age=age #do nothing
             elif part in plusMinus:
@@ -196,6 +205,14 @@ class baseperson():
             self.sex=attributes['sex']
         else:
             print("Missing sex for person")
+
+        if 'retirementB' in attributes:
+            if type(attributes['retirementB']) is int or type(attributes['retirementB']) is float:
+                self.retirementB=attributes['retirementB']
+
+        if 'retirementA' in attributes:
+            if type(attributes['retirementA']) is int or type(attributes['retirementA']) is float:
+                self.retirementA = attributes['retirementA']
 
         if 'deltaLEB' in attributes:
             self.deltaLEB=attributes['deltaLEB']
