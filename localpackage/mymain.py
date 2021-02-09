@@ -18,13 +18,13 @@ import requests
 
 game1={ 'discountRate':-0.5/100, 'Ogden':7}
 dependent = {'name': 'John', 'age': 40, 'sex': 'Male', 'dataSet': Ogden7, 'dependenton':'Christopher'}
-dependents=[dependent for a in range(1,3)]
-claimant = {'name':'Christopher', 'age': 55, 'aai': 25, 'aad': 45, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLEB': 0, 'deltaLEA': -15}
-claimants=[claimant for a in range(1,1)]
+
+claimant = {'name':'Christopher', 'age': 55, 'aai': 25, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLEB': 0, 'deltaLEA': 0}
+
 claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLEB': -15, 'deltaLEA': -15}
 
 
-row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':70, 'freq': 'Y', 'name': 'Uninjured', 'cont':1, 'options':'AMI'}
+row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':70, 'freq': '<Y', 'status': 'Injured', 'cont':1, 'options':'AMI'}
 rows=[row for a in range(1,200)]
 eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [claimant], "dependents": [dependent]}}
 
