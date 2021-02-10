@@ -30,10 +30,10 @@ def Multiplier(request):
 
     a=[]
     for row in rows:
-        if g.claimants[row['name']]:
-            a.append(g.claimants[row['name']].M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']))
+        if g.getClaimant[row['name']]:
+            a.append(g.getClaimant[row['name']].M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']))
         else:
-            a.append(0,0,0,0)
+            a.append(None,None,None,None)
 
     return json.dumps(a)
 
