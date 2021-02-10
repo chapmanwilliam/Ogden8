@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import re
 from localpackage.SAR import SAR
-from localpackage.utils import stati, wordPoints, plusMinus, returnFreq,InjuredContDetailsdefault, UninjuredContDetailsdefault
+from localpackage.utils import stati, wordPoints, plusMinus, returnFreq,InjuredContDetailsdefault, UninjuredContDetailsdefault, is_date, parsedate
 
 class baseperson():
 
@@ -139,6 +139,8 @@ class baseperson():
 
     def parseTextPoint(self,point,status):
         #where point='TRIAL+1Y" etc
+        #check it's not a string date first
+        if is_date(point): return self.getAgeFromPoint(parsedate(point),status)
         #make upper case
         point = point.upper()
         #removes all spaces

@@ -32,7 +32,7 @@ eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [dep
 
 g=game(eg)
 print(g.processRows())
-print(g.getClaimant('JOHN').M(55, 125, status='Injured', freq='Y',options='AMICD'))
+print(g.getClaimant('JOHN').M('1/10/2010', 125, status='Injured', freq='Y',options='AMICD'))
 print(g.getClaimant('JOHN').M(55, 125, status='Injured', freq='Y',options='AMID'))
 #print(g.getClaimant('CHRISTOPHER').M(55, 125, status='Injured', freq='Y',options='AMI'))
 #print(g.claimants['JOHN'].MB(55,70, freq='<Y',options='AMI'))

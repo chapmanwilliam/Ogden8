@@ -1,5 +1,6 @@
 import math
 from datetime import datetime
+from dateutil.parser import parse
 sexes=['Male','Female']
 regions=['UK','EW','EN','SC','WA','NI','GB']
 years=[2008,2018]
@@ -71,6 +72,23 @@ def termCertain(yrs,discountRate):
         return 1+yrs
     else:
         return ((factor**yrs)/(math.log(factor)))-(1/math.log(factor))
+
+def is_date(string, fuzzy=False):
+    """
+    Return whether the string can be interpreted as a date.
+
+    :param string: str, string to check for date
+    :param fuzzy: bool, ignore unknown tokens in string if True
+    """
+    try:
+        parse(string, fuzzy=fuzzy)
+        return True
+
+    except ValueError:
+        return False
+
+def parsedate(text):
+    return parse(text, dayfirst=True)
 
 def parsedateString(text):
     # text is of format d/m/y
