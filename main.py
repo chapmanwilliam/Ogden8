@@ -1,6 +1,5 @@
 from localpackage.game import game
 from fastapi import FastAPI
-from pymaybe import maybe
 
 import json
 
