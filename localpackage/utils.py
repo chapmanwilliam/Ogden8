@@ -46,6 +46,8 @@ def returnFreq(freq):
     elif p=='D':
         tinterval=(n*1/365.25) #in years
         factor=365.25/n
+    elif p=='A':
+        pass
     else:
         #Error wrong period passed
         print('Wrong period passed to returnFreq')

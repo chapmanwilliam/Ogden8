@@ -69,6 +69,7 @@ class baseperson():
 
     def M(self, point1, point2=None, status='Uninjured', freq="Y", cont=1, options='AMI'):
         #builds a curve depending on the options and returns the multiplier
+        if point1==None: return None
         options=options.upper()
         freq=freq.upper()
         age1=age2=None
@@ -126,10 +127,14 @@ class baseperson():
                         if hasattr(self,'retirementB'):
                             if flag: age+=self.retirementB
                             if not flag: age-=self.retirementB
+                        else:
+                            print('Retirement (uninjured) age not given')
                     if status==stati[1]:
                         if hasattr(self,'retirementA'):
                             if flag: age+=self.retirementA
                             if not flag: age+=self.retirementA
+                        else:
+                            print('Retirement (injured) age not given')
                 else:
                     age=age #do nothing
             elif part in plusMinus:

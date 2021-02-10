@@ -2,7 +2,7 @@ from datetime import datetime
 from localpackage.person import person
 from localpackage.dependent import dependent
 from localpackage.TablesAD import TablesAD
-from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden
+from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden, parsedateString
 
 
 class game():
@@ -67,6 +67,8 @@ class game():
         game=attributes['game']
 
         if 'trialDate' in game: #if trial date supplied, accept; otherwise use today's date
+            if type(game['trialDate']) is str:
+                game['trialDate']=parsedateString(game['trialDate'])
             self.trialDate=game['trialDate']
         else:
             self.trialDate=datetime.now()
