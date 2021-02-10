@@ -138,12 +138,13 @@ class curve():
     def getClaimants(self):
         return self.parent.getClaimants()
 
+
     def M(self, fromAge, toAge=None, freq="Y", cont=1, options='AMI'):
         #get the right curve
 
         self.refresh()
 
-        self._LxNoI, self._Lx, self.Rng = self.getCurve(options)
+        self._LxNoI, self._Lx, self.Rng = self.getCurve(options,cont)
 
         calc1=calcs()
         result=self.Multiplier(fromAge, toAge, options, freq, cont,calc1)
@@ -179,7 +180,7 @@ class curve():
                     futureinterest,future=self.cont(max(self.getAge(),fromAge),toAge,options)
                 interest*=factor
                 past*=factor
-                future*=factor*cont
+                future*=factor
                 result= past,interest,future,past+interest+future
         else:
             result=list(self.Lx(fromAge, options))
@@ -261,7 +262,7 @@ class curve():
             self.curveOptions.clear()
             self.dirty=False
 
-    def getCurve(self, options):
+    def getCurve(self, options,cont):
         #Returns the curve for past and future applying all relevant discounts
 
         #First check if we already have calculated this one
@@ -277,6 +278,7 @@ class curve():
 
         #defaults
         _disc = np.full((Rng.size), 1)
+        _cont = np.full((Rng.size), 1)
         _Lx = np.full((Rng.size), 1)
         _interest = np.full((Rng.size), 1)
         _deceased = np.full((Rng.size), 1)
@@ -300,6 +302,11 @@ class curve():
             _interestp=self.getSAR()._Lx
             _interestf=np.full((rf.size),1)
             _interest=np.concatenate((_interestp,_interestf))
+        #cont
+        if 'C' in options:
+            _contp=np.full((rp.size),1)
+            _contf=np.full((rf.size),cont)
+            _cont=np.concatenate((_contp,_contf))
         #deceased
         if 'D' in options:
             namesdeceased=self.getdependentson()
@@ -310,8 +317,8 @@ class curve():
                     _deceased=np.multiply(_deceased,deceased.getdataSet(stati[0]).transformLx(Rng, shift))
 
         #multiply together _disc, _Lx, _interest, _cont, _factor, _deceased
-        A=np.stack((_disc,_Lx,_deceased)) #without interest
-        B=np.stack((_disc,_Lx,_interest,_deceased)) #with interest
+        A=np.stack((_disc,_Lx,_deceased,_cont)) #without interest
+        B=np.stack((_disc,_Lx,_interest,_deceased,_cont)) #with interest
 
         LxNoI=np.prod(A,axis=0)
         Lx=np.prod(B,axis=0)

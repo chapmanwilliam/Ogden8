@@ -2,7 +2,7 @@ from datetime import timedelta
 from localpackage.dataClass import dataSet
 from localpackage.basePerson import baseperson
 from localpackage.curve import curve
-from localpackage.utils import stati, InjuredContDetailsdefault, UninjuredContDetailsdefault
+from localpackage.utils import stati
 
 class person(baseperson):
 
@@ -30,26 +30,6 @@ class person(baseperson):
     def LEA(self):
         return self.MA(self.age,125)
 
-    def getCont(self,stat):
-        if not stat in stati:
-            print('Wrong name supplied in getCont.')
-            return None
-        if self.contAutomatic[stat]:
-            if stat in self.contDetails:
-                Tables = self.getTablesAD()
-                cont = Tables.getCont(sex=self.sex, employed=self.contDetails[stat]['employed'],
-                                      qualification=self.contDetails[stat]['qualification'],
-                                      disabled=self.contDetails[stat]['disabled'], age=self.age)
-                return cont
-            else:
-                print('No details supplied for getCont')
-                return None
-        else:
-            if stat in self.cont:
-                return self.cont[stat]
-            else:
-                print('No override supplied for getCont')
-                return None
 
     def getDOI(self):
         return self.doi
@@ -75,17 +55,6 @@ class person(baseperson):
         self.aai=None #age at injury
         self.doi=None #date of injury
 
-        self.contAutomatic={stati[0]:True, stati[1]:True} #automatic by default
-        if 'contAutomaticUninjured' in self.attributes: self.contAutomatic[stati[0]]=self.attributes['contAutomaticUninjured']
-        if 'contAutomaticInjured' in self.attributes: self.contAutomatic[stati[1]]=self.attributes['contAutomaticInjured']
-
-        self.cont={}
-        if 'contUninjured' in self.attributes:self.cont[stati[0]]=self.attributes['contUninjured']
-        if 'contInjured' in self.attributes:self.cont[stati[1]]=self.attributes['contInjured']
-
-        self.contDetails={stati[0]:UninjuredContDetailsdefault, stati[1]:InjuredContDetailsdefault}
-        if 'contDetailsUninjured' in self.attributes: self.contDetails[stati[0]]=self.attributes['contDetailsUninjured'] #should be {'employed',qualification,'disabled'}
-        if 'contDetailsInjured' in self.attributes: self.contDetails[stati[1]]=self.attributes['contDetailsInjured'] #should be {'employed',qualification,'disabled'}
 
         if 'dod' in self.attributes and not 'aad' in self.attributes:
             self.dod=self.attributes['dod']

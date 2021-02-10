@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import re
 from localpackage.SAR import SAR
-from localpackage.utils import stati, wordPoints, plusMinus, returnFreq
+from localpackage.utils import stati, wordPoints, plusMinus, returnFreq,InjuredContDetailsdefault, UninjuredContDetailsdefault
 
 class baseperson():
 
@@ -67,6 +67,27 @@ class baseperson():
             return self.curves[status]
         return None
 
+    def getCont(self,stat):
+        if not stat in stati:
+            print('Wrong name supplied in getCont.')
+            return 1
+        if self.contAutomatic[stat]:
+            if stat in self.contDetails:
+                Tables = self.getTablesAD()
+                cont = Tables.getCont(sex=self.sex, employed=self.contDetails[stat]['employed'],
+                                      qualification=self.contDetails[stat]['qualification'],
+                                      disabled=self.contDetails[stat]['disabled'], age=self.age)
+                return cont
+            else:
+                print('No details supplied for getCont')
+                return 1
+        else:
+            if stat in self.cont:
+                return self.cont[stat]
+            else:
+                print('No override supplied for getCont')
+                return 1
+
     def M(self, point1, point2=None, status='Uninjured', freq="Y", cont=1, options='AMI'):
         #builds a curve depending on the options and returns the multiplier
         if point1==None: return None #i.e. if nothing submitted return None
@@ -76,7 +97,8 @@ class baseperson():
         age1= self.getAgeFromPoint(point1,status)
         if point2: age2= self.getAgeFromPoint(point2,status)
         c=self.getCurve(status)
-        result= c.M(age1,age2,freq=freq,cont=cont,options=options)
+        co=self.getCont(status)
+        result= c.M(age1,age2,freq=freq,cont=co,options=options)
 #        print(c.calc.show())
 #        c.getPlot(result, age1, age2, freq, cont, options)
         return result
@@ -228,6 +250,19 @@ class baseperson():
             self.deltaLEA=attributes['deltaLEA']
         else:
             self.deltaLEA=0
+
+        self.contAutomatic={stati[0]:False, stati[1]:False} #manual by default
+        if 'contAutomaticB' in attributes: self.contAutomatic[stati[0]]=attributes['contAutomaticB']
+        if 'contAutomaticB' in attributes: self.contAutomatic[stati[1]]=attributes['contAutomaticB']
+
+        self.cont={}
+        if 'contB' in attributes:self.cont[stati[0]]=attributes['contB']
+        if 'contA' in attributes:self.cont[stati[1]]=attributes['contA']
+
+        self.contDetails={stati[0]:UninjuredContDetailsdefault, stati[1]:InjuredContDetailsdefault}
+        if 'contDetailsB' in attributes: self.contDetails[stati[0]]=attributes['contDetailsB'] #should be {'employed',qualification,'disabled'}
+        if 'contDetailsA' in attributes: self.contDetails[stati[1]]=attributes['contDetailsA'] #should be {'employed',qualification,'disabled'}
+
 
         if 'dependenton' in self.attributes: self.dependenton=self.attributes['dependenton'].strip().upper()
 
