@@ -24,10 +24,7 @@ def Multiplier(request):
     else:
         attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
 
-    g = game(attributes=attributes)
-#    rows = attributes['rows']
-#    g.processRows(rows)
-#    a = [maybe(g.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']).or_else([None,None,None,None]) for row in rows]
+    #returns an array of tuples (past,interest,future,total), one for each row
 
-    return json.dumps(g.processRows())
+    return json.dumps(game(attributes=attributes).processRows())
 
