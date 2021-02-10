@@ -24,13 +24,14 @@ claimant = {'name':'Christopher', 'age': 55, 'aai': 25, 'sex': 'Male', 'dataSet'
 claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLEB': -15, 'deltaLEA': -15, 'retirementA':67, 'retirementB':67}
 
 
-row={'name': 'CHRISTOPHER','fromAge':'TRIAL', 'toAge':'RETIREMENT', 'freq': 'Y', 'status': 'Injured', 'cont':1, 'options':'AMI'}
-rows=[row for a in range(1,200)]
-eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [claimantdeceased,claimant], "dependents": []}}
+row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'status': 'Injured', 'options':'AMIC'}
+rows=[row for a in range(1,2)]
+eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [claimant], "dependents": []}}
 
 g=game(eg)
-print(g.claimants['CHRISTOPHER'].MB('TRIAL', 'RETIREMENT', freq='Y',options='AMIC'))
-print(g.claimants['JOHN'].MB(55,70, freq='<Y',options='AMI'))
+print(g.claimants['CHRISTOPHER'].M(55, 125, status='Injured', freq='Y',options='AMI'))
+print(g.claimants['CHRISTOPHER'].M(55, 125, status='Injured', freq='Y',options='AMIC'))
+#print(g.claimants['JOHN'].MB(55,70, freq='<Y',options='AMI'))
 #print(g.dependents['JOHN'].MJ(40,60, freq='<Y',options='AMI'))
 #print(g.dependents['JOHN'].M(40,60, freq='<Y',options='AMI'))
 #eg={"rows":[{"fromAge":35,"toAge":60,"freq":"Y","name":"Uninjured","cont":1,"options":"AMI"},{"fromAge":35,"toAge":60,"freq":"Y","name":"Uninjured","cont":1,"options":"AMI"}],"discountRate":-0.005,"Ogden":7,"claimants":[{"age":55,"aai":24.999315537303218,"sex":"Female","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLEB":-15,"deltaLEA":-15}],"dependents":[{"age":40,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011}}]}
@@ -41,7 +42,7 @@ print(g.claimants['JOHN'].MB(55,70, freq='<Y',options='AMI'))
 
 url="https://europe-west2-ogden8.cloudfunctions.net/ogden"
 js=json.dumps(eg)
-#print(js)
+print(js)
 r=requests.post(url,json=js)
 print(r.text)
 

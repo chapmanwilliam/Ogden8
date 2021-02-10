@@ -10,19 +10,19 @@ class person(baseperson):
         return {'age': self.getAge(), 'aai': self.getAAI(), 'sex': self.getSex(), 'dataSet': self.getdataSet(stati[0]).getDict(), 'deltaLEB': self.getdeltaLEB(), 'deltaLEA': self.getdeltaLEA()}
 
 
-    def MB(self,point1, point2=None, freq="Y", cont=1, options='AMI'):
-        return self.M(point1=point1, point2=point2, status=stati[0], freq=freq, cont=cont, options=options)
+    def MB(self,point1, point2=None, freq="Y", options='AMI'):
+        return self.M(point1=point1, point2=point2, status=stati[0], freq=freq, options=options)
 
-    def MA(self,point1, point2=None, freq="Y", cont=1, options='AMI'):
-        return self.M(point1=point1, point2=point2, status=stati[1], freq=freq, cont=cont, options=options)
+    def MA(self,point1, point2=None, freq="Y", options='AMI'):
+        return self.M(point1=point1, point2=point2, status=stati[1], freq=freq, options=options)
 
-    def MBJ(self,point1, point2=None, freq="Y", cont=1, options='AMI'):
+    def MBJ(self,point1, point2=None, freq="Y", options='AMI'):
         options+='D'
-        return self.M(point1=point1, point2=point2, status=stati[0], freq=freq, cont=cont, options=options)
+        return self.M(point1=point1, point2=point2, status=stati[0], freq=freq, options=options)
 
-    def MAJ(self,point1, point2=None, freq="Y", cont=1, options='AMI'):
+    def MAJ(self,point1, point2=None, freq="Y", options='AMI'):
         options+='D'
-        return self.M(point1=point1, point2=point2, status=stati[1], freq=freq, cont=cont, options=options)
+        return self.M(point1=point1, point2=point2, status=stati[1], freq=freq, options=options)
 
     def LEB(self):
         return self.MB(self.age,125)
