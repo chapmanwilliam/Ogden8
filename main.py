@@ -26,7 +26,14 @@ def Multiplier(request):
 
     g = game(attributes=attributes)
     rows = attributes['rows']
-    a = [maybe(g.claimants[row['name']]).M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']) for row in rows]
+#    a = [g.claimants[row['name']].M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']) for row in rows]
+
+    a=[]
+    for row in rows:
+        if g.claimants[row['name']]:
+            a.append(g.claimants[row['name']].M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']))
+        else:
+            a.append(None,None,None,None)
 
     return json.dumps(a)
 
