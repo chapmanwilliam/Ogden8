@@ -69,7 +69,7 @@ class baseperson():
 
     def M(self, point1, point2=None, status='Uninjured', freq="Y", cont=1, options='AMI'):
         #builds a curve depending on the options and returns the multiplier
-        if point1==None: return None
+        if point1==None: return None #i.e. if nothing submitted return None
         options=options.upper()
         freq=freq.upper()
         age1=age2=None

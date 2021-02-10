@@ -6,6 +6,7 @@ years=[2008,2018]
 wordPoints=['TRIAL', 'LIFE', 'RETIREMENT']
 plusMinus=['+','-']
 fr=['Y','M','W','D']
+discountOptions=['A','M','I','C','D']
 
 defaultdiscountRate=-0.5/100
 defaultOgden=8
