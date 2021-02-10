@@ -1,5 +1,7 @@
 from localpackage.game import game
 from fastapi import FastAPI
+from pymaybe import maybe
+
 import json
 
 app=FastAPI()
@@ -24,7 +26,7 @@ def Multiplier(request):
 
     g = game(attributes=attributes)
     rows = attributes['rows']
-    a = [g.claimants[row['name']].M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']) for row in rows]
+    a = [maybe(g.claimants[row['name']]).M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']) for row in rows]
 
     return json.dumps(a)
 
