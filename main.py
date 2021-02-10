@@ -33,7 +33,7 @@ def Multiplier(request):
         if g.claimants[row['name']]:
             a.append(g.claimants[row['name']].M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']))
         else:
-            a.append(None,None,None,None)
+            a.append(0,0,0,0)
 
     return json.dumps(a)
 
