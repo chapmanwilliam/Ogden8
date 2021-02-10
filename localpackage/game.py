@@ -63,9 +63,17 @@ class game():
         [dependent.refresh(True) for dependent in self.dependents.values()]  # make all dependents dirty
         self.dirty=False
 
+    def processRows(self):
+        #rows is a list of rows of form
+        # row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'status': 'Injured', 'options':'AMIC'}
+        return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], status=row['status'], freq=row['freq'],options=row['options']).or_else([None, None, None, None]) for row in self.rows]
+
     def __init__(self, attributes):
 
         game=attributes['game']
+
+        if 'rows' in attributes:
+            self.rows=attributes['rows']
 
         if 'trialDate' in game: #if trial date supplied, accept; otherwise use today's date
             if type(game['trialDate']) is str:

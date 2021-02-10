@@ -25,17 +25,9 @@ def Multiplier(request):
         attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
 
     g = game(attributes=attributes)
-    rows = attributes['rows']
-    a = [maybe(g.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']).or_else([None,None,None,None]) for row in rows]
+#    rows = attributes['rows']
+#    g.processRows(rows)
+#    a = [maybe(g.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']).or_else([None,None,None,None]) for row in rows]
 
-#    a=[]
-#    for row in rows:
-#        if g.getClaimant(row['name']):
-#            a.append(g.getClaimant(row['name']).M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']))
-#        else:
-#            a.append([None,None,None,None])
-
-#    print(g.getClaimant('CHRISTOPHER').M(55, 125, status='Injured', freq='Y', options='AMIC'))
-
-    return json.dumps(a)
+    return json.dumps(g.processRows())
 
