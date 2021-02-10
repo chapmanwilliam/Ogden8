@@ -14,6 +14,7 @@ class baseperson():
             listofnames=[n.strip() for n in listofnames] #removes leading and trailing space
         return listofnames
 
+
     def getClaimants(self):
         return self.parent.getClaimants()
 
@@ -67,6 +68,12 @@ class baseperson():
             return self.curves[status]
         return None
 
+    def getContDependentsOn(self):
+        dependentonlist=self.getClaimantsDependentOn()
+        if len(dependentonlist): return 1 #i.e. not dependent on anyone
+        conts=np.array([self.getClaimant(dependenton).getCont(stati[0]) for dependenton in dependentonlist])
+        return np.average(conts) #take average of those dependent on
+
     def getCont(self,stat):
         if not stat in stati:
             print('Wrong name supplied in getCont.')
@@ -97,7 +104,10 @@ class baseperson():
         age1= self.getAgeFromPoint(point1,status)
         if point2: age2= self.getAgeFromPoint(point2,status)
         c=self.getCurve(status)
-        co=self.getCont(status)
+        if 'D' in options:
+            co=self.getContDependentsOn() #TODO: if this is a dependency claim then we need cont of deceased in uninjured state
+        else:
+            co=self.getCont(status)
         result= c.M(age1,age2,freq=freq,cont=co,options=options)
 #        print(c.calc.show())
 #        c.getPlot(result, age1, age2, freq, cont, options)

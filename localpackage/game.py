@@ -9,12 +9,16 @@ from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden, parseda
 class game():
 
     def addDependent(self,dependent):
-        self.dependents[dependent.name]=dependent
-#        self.dependents.append(dependent)
+        if not dependent.name in self.dependents:
+            self.dependents[dependent.name]=dependent #TODO check name is unique
+        else:
+            print("Name already exists")
 
     def addClaimant(self,claimant):
-        self.claimants[claimant.name]=claimant
-#        self.claimants.append(claimant)
+        if not claimant.name in self.claimants:
+            self.claimants[claimant.name]=claimant #TODO check name is unique
+        else:
+            print("Name already exists")
 
     def getClaimant(self,name):
         if name in self.claimants:

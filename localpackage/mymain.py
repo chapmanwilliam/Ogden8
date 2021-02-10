@@ -28,13 +28,13 @@ claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Fema
 
 row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'status': 'Injured', 'options':'AMIC'}
 rows=[row for a in range(1,2)]
-eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [claimant], "dependents": []}}
+eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [dependent,claimant]}}
 
 g=game(eg)
 print(g.processRows())
-print(maybe(g.getClaimant('sdf')).M(55, 125, status='Injured', freq='Y',options='AMIC').or_else([None,None,None,None]))
-print(g.getClaimant('CHRISTOPHER').M(55, 125, status='Injured', freq='Y',options='AMIC'))
-print(g.getClaimant('CHRISTOPHER').M(55, 125, status='Injured', freq='Y',options='AMI'))
+print(g.getClaimant('JOHN').M(55, 125, status='Injured', freq='Y',options='AMICD'))
+print(g.getClaimant('JOHN').M(55, 125, status='Injured', freq='Y',options='AMID'))
+#print(g.getClaimant('CHRISTOPHER').M(55, 125, status='Injured', freq='Y',options='AMI'))
 #print(g.claimants['JOHN'].MB(55,70, freq='<Y',options='AMI'))
 #print(g.dependents['JOHN'].MJ(40,60, freq='<Y',options='AMI'))
 #print(g.dependents['JOHN'].M(40,60, freq='<Y',options='AMI'))
