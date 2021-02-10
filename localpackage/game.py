@@ -1,18 +1,38 @@
 from datetime import datetime
 from pymaybe import maybe
 from localpackage.person import person
-from localpackage.dependent import dependent
 from localpackage.TablesAD import TablesAD
 from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden, parsedateString
 
 
 class game():
 
-    def addDependent(self,dependent):
-        if not dependent.name in self.dependents:
-            self.dependents[dependent.name]=dependent
+    def getAAD(self,name):
+        claimant=self.getClaimant(name)
+        if claimant:
+            return claimant.getAAD()
         else:
-            print("Name already exists")
+            print("Non existent name for clamant in getAAI")
+            return None
+
+
+
+    def getAAT(self,name):
+        claimant=self.getClaimant(name)
+        if claimant:
+            return claimant.getAAT()
+        else:
+            print("Non existent name for clamant in getAAI")
+            return None
+
+
+    def getAAI(self,name):
+        claimant=self.getClaimant(name)
+        if claimant:
+            return claimant.getAAI()
+        else:
+            print("Non existent name for clamant in getAAI")
+            return None
 
     def addClaimant(self,claimant):
         if not claimant.name in self.claimants:
@@ -29,14 +49,10 @@ class game():
     def getClaimants(self):
         return self.claimants
 
-    def getDependents(self):
-        return self.dependents
-
     def getDict(self):
         #encodes the game, claimants, dependents
         cs=[claimant.getDict() for claimant in self.claimants]
-        ds = [dependent.getDict() for dependent in self.dependents]
-        game={'discountRate':self.getdiscountRate(), 'Ogden':self.ogden, 'claimants': cs, 'dependents':ds}
+        game={'discountRate':self.getdiscountRate(), 'Ogden':self.ogden, 'claimants': cs}
         return game
 
     def getdiscountRate(self):
@@ -54,7 +70,6 @@ class game():
 
     def setDirty(self,value=True):
         [claimant.setDirty(True) for claimant in self.claimants]  #make all claimants dirty
-        [dependent.setDirty(True) for dependent in self.dependents]  #make all dependents dirty
         self.dirty=True
 
 
@@ -64,7 +79,6 @@ class game():
 
     def refresh(self):
         [claimant.refresh() for claimant in self.claimants.values()] #refresh all the claimants
-        [dependent.refresh(True) for dependent in self.dependents.values()]  # make all dependents dirty
         self.dirty=False
 
     def processRows(self):
@@ -107,7 +121,7 @@ class game():
 
         if 'claimants' in game:
             [self.addClaimant(person(cs,parent=self)) for cs in game['claimants']]
-        if 'dependents' in game:
-            [self.addDependent(dependent(ds,parent=self)) for ds in game['dependents']]
+        else:
+            print('No claimants added')
 
 

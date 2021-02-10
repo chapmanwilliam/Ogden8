@@ -14,12 +14,8 @@ class baseperson():
             listofnames=[n.strip() for n in listofnames] #removes leading and trailing space
         return listofnames
 
-
     def getClaimants(self):
         return self.parent.getClaimants()
-
-    def getDependents(self):
-        return self.parent.getDependents()
 
     def getClaimant(self,name):
         return self.parent.getClaimant(name)
@@ -53,6 +49,13 @@ class baseperson():
     def getAAT(self):
         #return age at trial (will be different if this is a fatal case from age)
         return (self.gettrialDate()-self.dob).days/365.25
+
+    def getAAI(self):
+        if self.getDOI():
+            return (self.getDOI() - self.getDOB()).days / 365.25
+        return None
+
+
 
     def getdeltaLEB(self):
         return self.deltaLEB
@@ -110,7 +113,7 @@ class baseperson():
             co=self.getCont(status)
         result= c.M(age1,age2,freq=freq,cont=co,options=options)
 #        print(c.calc.show())
-#        c.getPlot(result, age1, age2, freq, cont, options)
+#        c.getPlot(result, age1, age2, freq, co, options)
         return result
 
     def getStdLE(self): #i.e. the LE with normal life expectancy

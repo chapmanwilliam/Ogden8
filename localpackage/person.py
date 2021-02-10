@@ -9,26 +9,17 @@ class person(baseperson):
     def getDict(self):
         return {'age': self.getAge(), 'aai': self.getAAI(), 'sex': self.getSex(), 'dataSet': self.getdataSet(stati[0]).getDict(), 'deltaLEB': self.getdeltaLEB(), 'deltaLEA': self.getdeltaLEA()}
 
-
-    def MB(self,point1, point2=None, freq="Y", options='AMI'):
-        return self.M(point1=point1, point2=point2, status=stati[0], freq=freq, options=options)
-
-    def MA(self,point1, point2=None, freq="Y", options='AMI'):
-        return self.M(point1=point1, point2=point2, status=stati[1], freq=freq, options=options)
-
-    def MBJ(self,point1, point2=None, freq="Y", options='AMI'):
-        options+='D'
-        return self.M(point1=point1, point2=point2, status=stati[0], freq=freq, options=options)
-
-    def MAJ(self,point1, point2=None, freq="Y", options='AMI'):
-        options+='D'
-        return self.M(point1=point1, point2=point2, status=stati[1], freq=freq, options=options)
-
     def LEB(self):
-        return self.MB(self.age,125)
+        return self.M(self.age,125, status=stati[0], options='MI')
 
     def LEA(self):
-        return self.MA(self.age,125)
+        return self.M(self.age,125, status=stati[1], options='MI')
+
+    def LMB(self):
+        return self.M(self.age,125, status=stati[0], options='AMI')
+
+    def LMA(self):
+        return self.M(self.age,125, status=stati[1], options='AMI')
 
 
     def getDOI(self):
@@ -36,11 +27,6 @@ class person(baseperson):
 
     def getDOD(self):
         return self.dod
-
-    def getAAI(self):
-        if self.getDOI():
-            return (self.getDOI() - self.getDOB()).days / 365.25
-        return None
 
     def getAAD(self):
         if self.getDOD():

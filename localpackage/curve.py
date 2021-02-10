@@ -30,9 +30,11 @@ class curve():
         plt.plot(self.Rng, self._Lx, label=Mlegend)
         for name in self.getdependentson():
             c=self.getClaimant(name)
-            if c: plt.axvline(self.getAAD(name), linestyle='dashed', color='black', label='death ' + name)  # age at death
-        for c in self.getClaimants():
-            plt.axvline(self.getAAI(c['name']), linestyle='dashed', color='green', label='injury ' + name)  # age at trial
+            if c:
+                if c.getAAD():
+                    plt.axvline(c.getAAD(), linestyle='dashed', color='black', label='death ' + c.name)  # age at death
+        for claimant in self.getClaimants().values():
+            plt.axvline(claimant.getAAT(), linestyle='dashed', color='green', label='injury ' + claimant.name)  # age at trial
 
         plt.axvline(self.getAAT(),linestyle='dashed',color='green', label='trial') #age at trial
         if self.getlowestAAI()<125: #set the x=range from date of injury to 125
@@ -60,7 +62,9 @@ class curve():
         plt.legend(loc='upper right', prop={'size':6})
         if 'D' in options:
             plt.figtext(1, 0.03, 'Dependent: ' + self.getdataSet().getdataTitle(), ha='right', fontsize=6)
-            plt.figtext(1, 0.01,'Deceased: ' + self.getDeceased().getdataSet(stati[0]).getdataTitle(), ha='right', fontsize=6)
+            for name in self.getdependentson():
+                c=self.getClaimant(name)
+                plt.figtext(1, 0.01,'Dependent on: ' + name + c.getdataSet(stati[0]).getdataTitle(), ha='right', fontsize=6)
         else:
             plt.figtext(1, 0.01, self.getdataSet().getdataTitle(), ha='right', fontsize=6)
 
@@ -115,16 +119,16 @@ class curve():
 
     def getlowestAAI(self):
         lowestAAI=125
-        for c in self.getClaimants():
-            if self.getAAI(c['name']):
-                if self.getAAI(c['name'])<lowestAAI: lowestAAI=self.getAAI(c['name'])
+        for c in self.getClaimants().values():
+            if c.getAAI():
+                if c.getAAI()<lowestAAI: lowestAAI=c.getAAI()
         return lowestAAI
 
     def getAAI(self,name):
-        return self.parent.getAAI(name)
+        return self.parent.parent.getAAI(name)
 
     def getAAD(self,name):
-        return self.parent.getAAD(name)
+        return self.parent.parent.getAAD(name)
 
     def getSex(self):
         return self.parent.getSex()
