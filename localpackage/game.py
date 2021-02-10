@@ -10,13 +10,13 @@ class game():
 
     def addDependent(self,dependent):
         if not dependent.name in self.dependents:
-            self.dependents[dependent.name]=dependent #TODO check name is unique
+            self.dependents[dependent.name]=dependent
         else:
             print("Name already exists")
 
     def addClaimant(self,claimant):
         if not claimant.name in self.claimants:
-            self.claimants[claimant.name]=claimant #TODO check name is unique
+            self.claimants[claimant.name]=claimant
         else:
             print("Name already exists")
 

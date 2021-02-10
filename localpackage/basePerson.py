@@ -105,7 +105,7 @@ class baseperson():
         if point2: age2= self.getAgeFromPoint(point2,status)
         c=self.getCurve(status)
         if 'D' in options:
-            co=self.getContDependentsOn() #TODO: if this is a dependency claim then we need cont of deceased in uninjured state
+            co=self.getContDependentsOn() #if this is a dependency claim then we need cont of deceased in uninjured state
         else:
             co=self.getCont(status)
         result= c.M(age1,age2,freq=freq,cont=co,options=options)
