@@ -26,7 +26,7 @@ def Multiplier(request):
 
     g = game(attributes=attributes)
     rows = attributes['rows']
-    a = [maybe(g.claimants[row['name']]).M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']).or_else([None,None,None,None]) for row in rows]
+    a = [maybe(g.claimants[row['name']]).M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']) for row in rows]
 
 #    a=[]
 #    for row in rows:

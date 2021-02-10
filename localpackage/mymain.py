@@ -31,7 +31,7 @@ rows=[row for a in range(1,2)]
 eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [claimant], "dependents": []}}
 
 g=game(eg)
-#print(g.getClaimant('sdf').M(55, 125, status='Injured', freq='Y',options='AMIC'))
+print(maybe(g.getClaimant('sdf')).M(55, 125, status='Injured', freq='Y',options='AMIC').or_else([None,None,None,None]))
 print(g.getClaimant('CHRISTOPHER').M(55, 125, status='Injured', freq='Y',options='AMIC'))
 print(g.getClaimant('CHRISTOPHER').M(55, 125, status='Injured', freq='Y',options='AMI'))
 #print(g.claimants['JOHN'].MB(55,70, freq='<Y',options='AMI'))
