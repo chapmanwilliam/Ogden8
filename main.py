@@ -30,7 +30,7 @@ def Multiplier(request):
 
     a=[]
     for row in rows:
-        if g.getClaimant[row['name']]:
+        if g.getClaimant(row['name']):
             a.append(g.getClaimant[row['name']].M(row['fromAge'], row['toAge'], status=row['status'],freq=row['freq'], options=row['options']))
         else:
             a.append(None,None,None,None)
