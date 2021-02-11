@@ -131,8 +131,8 @@ class dataSet():
         #Lx (mortality only)
         Lx=np.cumprod(1-Qx)
         #Range
-        Rng = np.arange(self.getAge(), self.getAge() + Lx.size)
-
+#        Rng = np.arange(self.getAge(), self.getAge() + Lx.size)
+        Rng = np.linspace(self.getAge(),self.getAge()+Lx.size,num=Lx.size, endpoint=False)
 
         if LxOnly: return Lx
 
