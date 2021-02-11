@@ -132,7 +132,8 @@ class dataSet():
         Lx=np.cumprod(1-Qx)
         #Range
 #        Rng = np.arange(self.getAge(), self.getAge() + Lx.size)
-        Rng = np.linspace(self.getAge(),self.getAge()+Lx.size,num=Lx.size, endpoint=False)
+#        Rng = np.linspace(self.getAge(),self.getAge()+Lx.size,num=Lx.size, endpoint=False)
+        Rng=np.array([self.getAge() + x for x in range(0,Lx.size)])
 
         if LxOnly: return Lx
 
