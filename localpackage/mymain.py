@@ -19,21 +19,21 @@ import requests
 
 
 game1={ 'discountRate':-0.5/100, 'Ogden':7}
-dependent = {'name': 'John', 'age': 40, 'sex': 'Male', 'dataSet': Ogden7, 'dependenton':'Christopher', 'retirement':57}
 
-claimant = {'name':'Christopher', 'age': 55, 'aai': 25, 'sex': 'Male', 'dataSet': Ogden7, 'deltaLE': 0, 'retirement':67, 'cont':0.75}
+claimant = {'name':'Christopher', 'age': 58.36, 'aai': 25, 'sex': 'Male', 'dataSet': Ogden8, 'deltaLE': 0, 'retirement':67, 'cont':0.75}
+dependent = {'name': 'John', 'age': 40, 'sex': 'Male', 'dataSet': Ogden7, 'dependenton':'Christopher', 'retirement':57}
 
 claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLE': -15, 'retirement':67}
 
 
 row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'options':'AMIC'}
 rows=[row for a in range(1,2)]
-eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [dependent,claimant]}}
+eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [claimant]}}
 
 g=game(eg)
-print(g.processRows())
-print(g.getClaimant('JOHN').M('1/10/2010', 125, freq='Y',options='AMICD'))
-print(g.getClaimant('JOHN').M(55, 125, freq='Y',options='AMID'))
+#print(g.processRows())
+print(g.getClaimant('CHRISTOPHER').M('TRIAL','LIFE', freq='Y',options='MI'))
+#print(g.getClaimant('JOHN').M(55, 125, freq='Y',options='AMID'))
 #print(g.getClaimant('CHRISTOPHER').M(55, 125, status='Injured', freq='Y',options='AMI'))
 #print(g.claimants['JOHN'].MB(55,70, freq='<Y',options='AMI'))
 #print(g.dependents['JOHN'].MJ(40,60, freq='<Y',options='AMI'))

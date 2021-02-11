@@ -217,6 +217,8 @@ class curve():
     def Tx(self, age,options):
         if age<0: return 0
         a=self.Rng[self.Rng<=age]
+        if age>a[-1]: age=a[-1]
+        if age<a[0]:age=a[0]
         Lx=self._Lx[self.Rng<=age]
         LnoI=self._LxNoI[self.Rng<=age]
         y=np.trapz(Lx,a) #with interest

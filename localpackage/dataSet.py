@@ -72,7 +72,7 @@ class dataSet():
         else:
             tolerance=0.001
             Lx = self.getLxLxd(self.getAge(), LxOnly=True)
-            targetLE=np.trapz(Lx)+deltaLE
+            targetLE=max(0,np.trapz(Lx)+deltaLE)
             return getLE(0,125,targetLE)
 
     def refresh(self):

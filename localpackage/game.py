@@ -12,17 +12,15 @@ class game():
         if claimant:
             return claimant.getAAD()
         else:
-            print("Non existent name for clamant in getAAI")
+            print("Non existent name for claimant in getAAI")
             return None
-
-
 
     def getAAT(self,name):
         claimant=self.getClaimant(name)
         if claimant:
             return claimant.getAAT()
         else:
-            print("Non existent name for clamant in getAAI")
+            print("Non existent name for claimant in getAAI")
             return None
 
 
