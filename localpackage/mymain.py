@@ -20,13 +20,13 @@ import requests
 
 game1={ 'discountRate':-0.5/100, 'Ogden':7}
 
-claimant = {'name':'Christopher', 'age': 58.36, 'aai': 25, 'sex': 'Male', 'dataSet': Ogden8, 'deltaLE': 0, 'retirement':67, 'cont':0.75}
+claimant = {'name':'Christopher', 'age': 58.36, 'aai': 25, 'sex': 'Male', 'dataSet': Ogden8, 'deltaLE': -5, 'retirement':67, 'cont':0.75}
 dependent = {'name': 'John', 'age': 40, 'sex': 'Male', 'dataSet': Ogden7, 'dependenton':'Christopher', 'retirement':57}
 
 claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLE': -15, 'retirement':67}
 
 
-row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'options':'AMIC'}
+row={'name': 'CHRISTOPHER','fromAge':58.36, 'toAge':125, 'freq': 'Y', 'options':'MI'}
 rows=[row for a in range(1,2)]
 eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [claimant]}}
 
@@ -47,8 +47,8 @@ print(g.getClaimant('CHRISTOPHER').M('TRIAL','LIFE', freq='Y',options='MI'))
 url="https://europe-west2-ogden8.cloudfunctions.net/ogden"
 js=json.dumps(eg)
 print(js)
-#r=requests.post(url,json=js)
-#print(r.text)
+r=requests.post(url,json=js)
+print(r.text)
 
 
 

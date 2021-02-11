@@ -195,7 +195,13 @@ class baseperson():
             self.getCurve().refresh() #refresh the curves
             self.dirty=False
 
+    def clean(self,attributes):
+        for key in attributes:
+            if attributes[key]=='': attributes.pop(key)
+
     def __init__(self, attributes, parent, deceased=None):
+
+        self.clean(attributes)
 
         self.parent=parent #reference to game object
         self.attributes=attributes

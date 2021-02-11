@@ -1,7 +1,5 @@
 from datetime import timedelta
-from localpackage.dataSet import dataSet
 from localpackage.basePerson import baseperson
-from localpackage.curve import curve
 
 class person(baseperson):
 

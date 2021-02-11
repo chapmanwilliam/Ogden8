@@ -84,7 +84,13 @@ class game():
         # row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'status': 'Injured', 'options':'AMIC'}
         return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], freq=row['freq'],options=row['options']).or_else([None, None, None, None]) for row in self.rows]
 
+    def clean(self, attributes):
+        for key in attributes:
+            if attributes[key]=='': attributes.pop(key)
+
     def __init__(self, attributes):
+
+        self.clean(attributes)
 
         game=attributes['game']
 
