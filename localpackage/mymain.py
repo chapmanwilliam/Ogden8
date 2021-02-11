@@ -1,4 +1,4 @@
-from dataClass import dataSet
+from dataSet import dataSet
 from person import person
 from game import game
 from pymaybe import maybe
@@ -19,21 +19,21 @@ import requests
 
 
 game1={ 'discountRate':-0.5/100, 'Ogden':7}
-dependent = {'name': 'John', 'age': 40, 'sex': 'Male', 'dataSet': Ogden7, 'dependenton':'Christopher', 'retirementA':57, 'retirementB':57}
+dependent = {'name': 'John', 'age': 40, 'sex': 'Male', 'dataSet': Ogden7, 'dependenton':'Christopher', 'retirement':57}
 
-claimant = {'name':'Christopher', 'age': 55, 'aai': 25, 'sex': 'Male', 'dataSet': Ogden7, 'deltaLEB': 0, 'deltaLEA': 0, 'retirementA':67, 'retirementB': 67, 'contB':0.75, 'contA':0.75}
+claimant = {'name':'Christopher', 'age': 55, 'aai': 25, 'sex': 'Male', 'dataSet': Ogden7, 'deltaLE': 0, 'retirement':67, 'cont':0.75}
 
-claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLEB': -15, 'deltaLEA': -15, 'retirementA':67, 'retirementB':67}
+claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLE': -15, 'retirement':67}
 
 
-row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'status': 'Injured', 'options':'AMIC'}
+row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'options':'AMIC'}
 rows=[row for a in range(1,2)]
 eg={"rows": rows, 'game': {"discountRate": -0.005, "Ogden": 7, "claimants": [dependent,claimant]}}
 
 g=game(eg)
 print(g.processRows())
-print(g.getClaimant('JOHN').M('1/10/2010', 125, status='Injured', freq='Y',options='AMICD'))
-print(g.getClaimant('JOHN').M(55, 125, status='Injured', freq='Y',options='AMID'))
+print(g.getClaimant('JOHN').M('1/10/2010', 125, freq='Y',options='AMICD'))
+print(g.getClaimant('JOHN').M(55, 125, freq='Y',options='AMID'))
 #print(g.getClaimant('CHRISTOPHER').M(55, 125, status='Injured', freq='Y',options='AMI'))
 #print(g.claimants['JOHN'].MB(55,70, freq='<Y',options='AMI'))
 #print(g.dependents['JOHN'].MJ(40,60, freq='<Y',options='AMI'))
@@ -47,8 +47,8 @@ print(g.getClaimant('JOHN').M(55, 125, status='Injured', freq='Y',options='AMID'
 url="https://europe-west2-ogden8.cloudfunctions.net/ogden"
 js=json.dumps(eg)
 print(js)
-r=requests.post(url,json=js)
-print(r.text)
+#r=requests.post(url,json=js)
+#print(r.text)
 
 
 

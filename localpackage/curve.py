@@ -1,13 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-from localpackage.utils import returnFreq, discountFactor,termCertain, stati
+from localpackage.utils import returnFreq, discountFactor, termCertain
 from localpackage.calcs import calcs
 
 class curve():
 
-    def __init__(self, name, parent=None):
-        self.name=name
+    def __init__(self, parent=None):
         self.parent=parent
         self._LxNoI=self._Lx=None
         self.curveOptions={} #dictionary to store different options with each entry 'AM' or 'AMD' etc. Should be 2^3 = 8 options
@@ -64,7 +63,7 @@ class curve():
             plt.figtext(1, 0.03, 'Dependent: ' + self.getdataSet().getdataTitle(), ha='right', fontsize=6)
             for name in self.getdependentson():
                 c=self.getClaimant(name)
-                plt.figtext(1, 0.01,'Dependent on: ' + name + c.getdataSet(stati[0]).getdataTitle(), ha='right', fontsize=6)
+                plt.figtext(1, 0.01,'Dependent on: ' + name + c.getdataSet().getdataTitle(), ha='right', fontsize=6)
         else:
             plt.figtext(1, 0.01, self.getdataSet().getdataTitle(), ha='right', fontsize=6)
 
@@ -74,7 +73,7 @@ class curve():
         if 'D' in options:
             s='Joint Multiplier '
         else:
-            s = self.name.capitalize() + " Multiplier "
+            s = " Multiplier "
         # The range
         if toAge:
             s += "from " + '{:.1f}'.format(fromAge) + " to " + '{:.1f}'.format(toAge)
@@ -97,7 +96,7 @@ class curve():
         return str
 
     def getdataSet(self):
-        return self.parent.getdataSet(self.name)
+        return self.parent.getdataSet()
 
     def isFatal(self):
         return self.parent.isFatal()
@@ -318,7 +317,7 @@ class curve():
                 deceased=self.getClaimant(name)
                 if deceased:
                     shift = self.getAge() - deceased.age  # the age gap
-                    _deceased=np.multiply(_deceased,deceased.getdataSet(stati[0]).transformLx(Rng, shift))
+                    _deceased=np.multiply(_deceased,deceased.getdataSet().transformLx(Rng, shift))
 
         #multiply together _disc, _Lx, _interest, _cont, _factor, _deceased
         A=np.stack((_disc,_Lx,_deceased,_cont)) #without interest

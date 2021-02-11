@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
 import numpy as np
 import re
+from localpackage.dataSet import dataSet
+from localpackage.curve import curve
 from localpackage.SAR import SAR
-from localpackage.utils import stati, wordPoints, plusMinus, returnFreq,InjuredContDetailsdefault, UninjuredContDetailsdefault, is_date, parsedate
+from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, parsedate
 
 class baseperson():
 
@@ -55,72 +57,54 @@ class baseperson():
             return (self.getDOI() - self.getDOB()).days / 365.25
         return None
 
-
-
-    def getdeltaLEB(self):
-        return self.deltaLEB
-
-    def getdeltaLEA(self):
-        return self.deltaLEA
+    def getdeltaLE(self):
+        return self.deltaLE
 
     def getdiscountRate(self):
         return self.parent.getdiscountRate()
 
-    def getCurve(self,status):
-        if status in stati:
-            return self.curves[status]
-        return None
+    def getCurve(self):
+        return self.curve
 
     def getContDependentsOn(self):
         dependentonlist=self.getClaimantsDependentOn()
         if len(dependentonlist): return 1 #i.e. not dependent on anyone
-        conts=np.array([self.getClaimant(dependenton).getCont(stati[0]) for dependenton in dependentonlist])
+        conts=np.array([self.getClaimant(dependenton).getCont() for dependenton in dependentonlist])
         return np.average(conts) #take average of those dependent on
 
-    def getCont(self,stat):
-        if not stat in stati:
-            print('Wrong name supplied in getCont.')
-            return 1
-        if self.contAutomatic[stat]:
-            if stat in self.contDetails:
-                Tables = self.getTablesAD()
-                cont = Tables.getCont(sex=self.sex, employed=self.contDetails[stat]['employed'],
-                                      qualification=self.contDetails[stat]['qualification'],
-                                      disabled=self.contDetails[stat]['disabled'], age=self.age)
-                return cont
-            else:
-                print('No details supplied for getCont')
-                return 1
+    def getCont(self):
+        if self.contAutomatic:
+            Tables = self.getTablesAD()
+            cont = Tables.getCont(sex=self.sex, employed=self.contDetails['employed'],
+                                  qualification=self.contDetails['qualification'],
+                                  disabled=self.contDetails['disabled'], age=self.age)
+            return cont
         else:
-            if stat in self.cont:
-                return self.cont[stat]
-            else:
-                print('No override supplied for getCont')
-                return 1
+            return self.cont
 
-    def M(self, point1, point2=None, status='Uninjured', freq="Y", options='AMI'):
+    def M(self, point1, point2=None, freq="Y", options='AMI'):
         #builds a curve depending on the options and returns the multiplier
         if point1==None: return None #i.e. if nothing submitted return None
         options=options.upper()
         freq=freq.upper()
         age1=age2=None
-        age1= self.getAgeFromPoint(point1,status)
-        if point2: age2= self.getAgeFromPoint(point2,status)
-        c=self.getCurve(status)
+        age1= self.getAgeFromPoint(point1)
+        if point2: age2= self.getAgeFromPoint(point2)
+        c=self.getCurve()
         if 'D' in options:
             co=self.getContDependentsOn() #if this is a dependency claim then we need cont of deceased in uninjured state
         else:
-            co=self.getCont(status)
+            co=self.getCont()
         result= c.M(age1,age2,freq=freq,cont=co,options=options)
 #        print(c.calc.show())
 #        c.getPlot(result, age1, age2, freq, co, options)
         return result
 
     def getStdLE(self): #i.e. the LE with normal life expectancy
-        return np.trapz(self.getdataSet(stati[0]).getLxLxd(self.age, LxOnly=True))
+        return np.trapz(self.getdataSet().getLxLxd(self.age, LxOnly=True))
 
 
-    def getAgeFromPoint(self, point, status):
+    def getAgeFromPoint(self, point):
         #point is either a float (i.e. age) or a datetime
         #returns age
         age=None
@@ -130,17 +114,17 @@ class baseperson():
         elif type(point) is datetime:
             age=(point-self.dob).days/365.25
         elif type(point) is str: #for entries like TRIAL, LIFE
-            age=self.parseTextPoint(point,status)
+            age=self.parseTextPoint(point)
         else:
             #Error, wrong type
             print('Wrong type passed to getAgeFromPoint')
             print(type(point))
         return age
 
-    def parseTextPoint(self,point,status):
+    def parseTextPoint(self,point):
         #where point='TRIAL+1Y" etc
         #check it's not a string date first
-        if is_date(point): return self.getAgeFromPoint(parsedate(point),status)
+        if is_date(point): return self.getAgeFromPoint(parsedate(point))
         #make upper case
         point = point.upper()
         #removes all spaces
@@ -160,18 +144,11 @@ class baseperson():
                     if flag: age+=125
                     if not flag: age-=125
                 elif part=='RETIREMENT':
-                    if status==stati[0]:
-                        if hasattr(self,'retirementB'):
-                            if flag: age+=self.retirementB
-                            if not flag: age-=self.retirementB
-                        else:
-                            print('Retirement (uninjured) age not given')
-                    if status==stati[1]:
-                        if hasattr(self,'retirementA'):
-                            if flag: age+=self.retirementA
-                            if not flag: age+=self.retirementA
-                        else:
-                            print('Retirement (injured) age not given')
+                    if hasattr(self,'retirement'):
+                        if flag: age+=self.retirement
+                        if not flag: age-=self.retirement
+                    else:
+                        print('Retirement (uninjured) age not given')
                 else:
                     age=age #do nothing
             elif part in plusMinus:
@@ -192,9 +169,8 @@ class baseperson():
         #return value
         return age
 
-    def getdataSet(self, status):
-        if status in stati:
-            return self.dataSets[status]
+    def getdataSet(self):
+        return self.dataSet
         return None
 
     def getTablesAD(self):
@@ -214,9 +190,9 @@ class baseperson():
 
     def refresh(self):
         if self.dirty:
-            [ds.refresh() for ds in self.dataSets.values()] #refresh all the future data sets
+            self.getdataSet().refresh() #refresh all the future data sets
             self.getSAR().refresh() #refresh the past data set
-            [c.refresh() for c in self.curves.values()] #refresh the curves
+            self.getCurve().refresh() #refresh the curves
             self.dirty=False
 
     def __init__(self, attributes, parent, deceased=None):
@@ -248,42 +224,29 @@ class baseperson():
         else:
             print("Missing sex for person")
 
-        if 'retirementB' in attributes:
-            if type(attributes['retirementB']) is int or type(attributes['retirementB']) is float:
-                self.retirementB=attributes['retirementB']
+        if 'retirement' in attributes:
+            if type(attributes['retirement']) is int or type(attributes['retirement']) is float:
+                self.retirement=attributes['retirement']
 
-        if 'retirementA' in attributes:
-            if type(attributes['retirementA']) is int or type(attributes['retirementA']) is float:
-                self.retirementA = attributes['retirementA']
-
-        if 'deltaLEB' in attributes:
-            self.deltaLEB=attributes['deltaLEB']
+        if 'deltaLE' in attributes:
+            self.deltaLE=attributes['deltaLE']
         else:
-            self.deltaLEB=0
+            self.deltaLE=0
 
-        if 'deltaLEA' in attributes:
-            self.deltaLEA=attributes['deltaLEA']
-        else:
-            self.deltaLEA=0
+        self.contAutomatic=False #manual by default
+        if 'contAutomatic' in attributes: self.contAutomatic=attributes['contAutomatic']
 
-        self.contAutomatic={stati[0]:False, stati[1]:False} #manual by default
-        if 'contAutomaticB' in attributes: self.contAutomatic[stati[0]]=attributes['contAutomaticB']
-        if 'contAutomaticB' in attributes: self.contAutomatic[stati[1]]=attributes['contAutomaticB']
+        self.cont=1
+        if 'cont' in attributes:self.cont=attributes['cont']
 
-        self.cont={}
-        if 'contB' in attributes:self.cont[stati[0]]=attributes['contB']
-        if 'contA' in attributes:self.cont[stati[1]]=attributes['contA']
-
-        self.contDetails={stati[0]:UninjuredContDetailsdefault, stati[1]:InjuredContDetailsdefault}
-        if 'contDetailsB' in attributes: self.contDetails[stati[0]]=attributes['contDetailsB'] #should be {'employed',qualification,'disabled'}
-        if 'contDetailsA' in attributes: self.contDetails[stati[1]]=attributes['contDetailsA'] #should be {'employed',qualification,'disabled'}
-
+        self.contDetails=ContDetailsdefault
+        if 'contDetails' in attributes: self.contDetails=attributes['contDetails'] #should be {'employed',qualification,'disabled'}
 
         if 'dependenton' in self.attributes: self.dependenton=self.attributes['dependenton'].strip().upper()
 
+        self.dataSet=dataSet(attributes['dataSet'], self, self.deltaLE)
+        self.curve=curve(self)
 
-        self.dataSets={} #for the dataSets
-        self.curves={} #for the curves (one for each dataset)
         self.SAR=SAR(parent=self)
 
         self.setUp()

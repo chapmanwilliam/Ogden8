@@ -12,9 +12,7 @@ discountOptions=['A','M','I','C','D']
 defaultdiscountRate=-0.5/100
 defaultOgden=8
 Ogden=[7,8]
-stati=['Uninjured', 'Injured', 'joint']
-InjuredContDetailsdefault={'employed':False,'qualification':'D','disabled':True} #default
-UninjuredContDetailsdefault={'employed':True,'qualification':'D','disabled':False} #default
+ContDetailsdefault={'employed':True,'qualification':'D','disabled':False} #default
 Ogden7={'year':2008,'region':'UK','yrAttainedIn':2011}
 Ogden8={'year':2018,'region':'UK','yrAttainedIn':2022}
 

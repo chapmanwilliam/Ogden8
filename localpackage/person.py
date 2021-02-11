@@ -1,13 +1,12 @@
 from datetime import timedelta
-from localpackage.dataClass import dataSet
+from localpackage.dataSet import dataSet
 from localpackage.basePerson import baseperson
 from localpackage.curve import curve
-from localpackage.utils import stati
 
 class person(baseperson):
 
     def getDict(self):
-        return {'age': self.getAge(), 'aai': self.getAAI(), 'sex': self.getSex(), 'dataSet': self.getdataSet(stati[0]).getDict(), 'deltaLEB': self.getdeltaLEB(), 'deltaLEA': self.getdeltaLEA()}
+        return {'age': self.getAge(), 'aai': self.getAAI(), 'sex': self.getSex(), 'dataSet': self.getdataSet(stati[0]).getDict(), 'deltaLEB': self.getdeltaLE(), 'deltaLEA': self.getdeltaLEA()}
 
     def LEB(self):
         return self.M(self.age,125, status=stati[0], options='MI')
@@ -65,8 +64,7 @@ class person(baseperson):
         if not 'name' in self.attributes:
             self.name='CLAIMANT_' + str(len(self.getClaimants()))
 
-        self.dataSets={stati[0]: dataSet(self.attributes['dataSet'], self, self.deltaLEB), stati[1]: dataSet(self.attributes['dataSet'], self, self.deltaLEA)}
-        self.curves={stati[0]: curve(stati[0], self), stati[1]: curve(stati[1], self)}
+
 
 
 
