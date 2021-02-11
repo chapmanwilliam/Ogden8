@@ -10,7 +10,7 @@ class dataSet():
         self.region=attributes['region']
         self.yrAttainedIn=attributes['yrAttainedIn']
         self.deltaLE=deltaLE
-        self._Lx = self._Lxd = None
+        self._Lx = None
 
         self.dirtyCalcs=True #True means calcs need to be done
         self.dirtyData=True #means data set has to be (re-)loaded
@@ -22,7 +22,6 @@ class dataSet():
 
     def getDict(self):
         return {'year':self.year,'region':self.region,'yrAttainedIn':self.yrAttainedIn}
-
 
     def getAge(self):
         if self.isFatal(): #i.e. if this is a fatal case, use age at death
@@ -61,7 +60,7 @@ class dataSet():
         self.dirtyCalcs=True
         def getLE(lowerAge,higherAge,targetLE):
             testAge=lowerAge+(higherAge-lowerAge)/2
-            Lx = self.getLxLxd(testAge, LxOnly=True)
+            Lx = self.getLx(testAge, LxOnly=True)
             LE=np.trapz(Lx)
             if abs(targetLE-LE)<tolerance or testAge<tolerance or testAge>125-tolerance: return testAge
             if LE>targetLE: lowerAge=testAge
@@ -71,7 +70,7 @@ class dataSet():
             return self.getAge()
         else:
             tolerance=0.001
-            Lx = self.getLxLxd(self.getAge(), LxOnly=True)
+            Lx = self.getLx(self.getAge(), LxOnly=True)
             targetLE=min(125,max(0,np.trapz(Lx)+deltaLE))
             return getLE(0,125,targetLE)
 
@@ -87,14 +86,13 @@ class dataSet():
 
     def calcs(self):
         self.revisedAge = self.getrevisedAge(self.deltaLE)
-        self._Lx, self.Rng = self.getLxLxd(self.revisedAge,Fatal=self.isFatal())
+        self._Lx, self.Rng = self.getLx(self.revisedAge)
         self.dirtyCalcs=False
 
 
-
-    def getLxLxd(self,revisedAge,Fatal=False, LxOnly=False):
-        #returns the Qx for person of revisedAge alive in currentYear
-        #age is a float
+    def getLx(self, revisedAge, LxOnly=False):
+        #returns the Lx for person of revisedAge alive in currentYear
+        #revisedAge is a float
         if self.dfCohort.empty or self.dfPeriod.empty: return False
 
         intAge=int(revisedAge)
@@ -128,12 +126,9 @@ class dataSet():
         col=np.append(c,col)
         Qx=col/100000 #to get probability of dying by end of period
 
-        #Lx (mortality only)
-        Lx=np.cumprod(1-Qx)
-        #Range
-#        Rng = np.arange(self.getAge(), self.getAge() + Lx.size)
-#        Rng = np.linspace(self.getAge(),self.getAge()+Lx.size,num=Lx.size, endpoint=False)
-        Rng=np.array([self.getAge() + x for x in range(0,Lx.size)])
+
+        Lx=np.cumprod(1-Qx)  #Lx (mortality only)
+        Rng=np.array([self.getAge() + x for x in range(0,Lx.size)]) #Range
 
         if LxOnly: return Lx
 

@@ -27,9 +27,9 @@ class SAR():
         return self.parent.getAge()
 
     def calcs(self):
-        self._Lx, self.Rng=self.getLxLd()
+        self._Lx, self.Rng=self.getLx()
 
-    def getLxLd(self):
+    def getLx(self):
         #add extra row if necessary
         if self.dfSAR.iloc[-1].name<self.gettrialDate():
             a=pd.Series({'Rate':0.2},name=self.gettrialDate()) #arbitrary rate
@@ -55,10 +55,10 @@ class SAR():
         self._pastDays=np.cumsum(days)
         self.dfSAR=self.dfSAR.iloc[::-1] #reverse rows
 
-        #The Rng
-        Rng = np.array(self.dfSAR['age'])
-        #Interest
-        Lx=np.array(self.dfSAR['Lx'])
+
+        Rng = np.array(self.dfSAR['age'])  #The Rng
+
+        Lx=np.array(self.dfSAR['Lx'])  #Interest
 
         self.dirty=False
 

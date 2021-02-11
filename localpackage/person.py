@@ -4,20 +4,7 @@ from localpackage.basePerson import baseperson
 class person(baseperson):
 
     def getDict(self):
-        return {'age': self.getAge(), 'aai': self.getAAI(), 'sex': self.getSex(), 'dataSet': self.getdataSet(stati[0]).getDict(), 'deltaLEB': self.getdeltaLE(), 'deltaLEA': self.getdeltaLEA()}
-
-    def LEB(self):
-        return self.M(self.age,125, status=stati[0], options='MI')
-
-    def LEA(self):
-        return self.M(self.age,125, status=stati[1], options='MI')
-
-    def LMB(self):
-        return self.M(self.age,125, status=stati[0], options='AMI')
-
-    def LMA(self):
-        return self.M(self.age,125, status=stati[1], options='AMI')
-
+        return {'age': self.getAge(), 'aai': self.getAAI(), 'sex': self.getSex(), 'dataSet': self.getdataSet().getDict(), 'deltaLE': self.getdeltaLE()}
 
     def getDOI(self):
         return self.doi
@@ -37,7 +24,6 @@ class person(baseperson):
 
         self.aai=None #age at injury
         self.doi=None #date of injury
-
 
         if 'dod' in self.attributes and not 'aad' in self.attributes:
             self.dod=self.attributes['dod']

@@ -8,6 +8,12 @@ from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdef
 
 class baseperson():
 
+    def LE(self):
+        return self.M(self.age,125, options='MI')
+
+    def LM(self):
+        return self.M(self.age,125, options='AMI')
+
     def getClaimantsDependentOn(self):
         #returns list of names claimant is dependent on
         listofnames=[]
@@ -101,7 +107,7 @@ class baseperson():
         return result
 
     def getStdLE(self): #i.e. the LE with normal life expectancy
-        return np.trapz(self.getdataSet().getLxLxd(self.age, LxOnly=True))
+        return np.trapz(self.getdataSet().getLx(self.age, LxOnly=True))
 
 
     def getAgeFromPoint(self, point):
