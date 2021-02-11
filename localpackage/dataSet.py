@@ -63,7 +63,7 @@ class dataSet():
             testAge=lowerAge+(higherAge-lowerAge)/2
             Lx = self.getLxLxd(testAge, LxOnly=True)
             LE=np.trapz(Lx)
-            if abs(targetLE-LE)<tolerance: return testAge
+            if abs(targetLE-LE)<tolerance or testAge<tolerance or testAge>125-tolerance: return testAge
             if LE>targetLE: lowerAge=testAge
             if LE<targetLE: higherAge=testAge
             return getLE(lowerAge,higherAge,targetLE)
@@ -72,7 +72,7 @@ class dataSet():
         else:
             tolerance=0.001
             Lx = self.getLxLxd(self.getAge(), LxOnly=True)
-            targetLE=max(0,np.trapz(Lx)+deltaLE)
+            targetLE=min(125,max(0,np.trapz(Lx)+deltaLE))
             return getLE(0,125,targetLE)
 
     def refresh(self):
