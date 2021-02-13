@@ -20,8 +20,8 @@ import requests
 
 game1={ 'discountRate':-0.5/100, 'Ogden':7}
 
-c1={"name":"Christopher","cont":1,"age":58.362765229295,'deltaLE':100,"sex":"Male","dataSet":{"year":2018,"region":"UK","yrAttainedIn":2022}}
-claimant = {'name':'Christopher', 'age': 58.36, 'aai': 25, 'sex': 'Male', 'dataSet': Ogden8, 'deltaLE': -5, 'retirement':67, 'cont':0.75}
+c1={"name":"Christopher","cont":1,"age":118.60,'deltaLE':0,"sex":"Male","dataSet":{"year":2018,"region":"UK","yrAttainedIn":2022}}
+claimant = {'name':'Christopher', 'age': 111, 'aai': 25, 'sex': 'Male', 'dataSet': Ogden8, 'deltaLE': -5, 'retirement':67, 'cont':0.75}
 dependent = {'name': 'John', 'age': 40, 'sex': 'Male', 'dataSet': Ogden7, 'dependenton':'Christopher', 'retirement':57}
 
 claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLE': -15, 'retirement':67}
@@ -37,7 +37,7 @@ eg2='{"rows":[{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y",
 
 g=game(eg)
 #print(g.processRows())
-print(g.getClaimant('CHRISTOPHER').M('TRIAL','LIFE', freq='Y',options='MI'))
+print(g.getClaimant('CHRISTOPHER').M(57.5,92.4, freq='Y',options='MI'))
 #print(g.getClaimant('JOHN').M(55, 125, freq='Y',options='AMID'))
 #print(g.getClaimant('CHRISTOPHER').M(55, 125, status='Injured', freq='Y',options='AMI'))
 #print(g.claimants['JOHN'].MB(55,70, freq='<Y',options='AMI'))

@@ -88,26 +88,24 @@ class game():
     def __init__(self, attributes):
 
 
-        game=attributes['game']
-
         if 'rows' in attributes:
             self.rows=attributes['rows']
 
-        if 'trialDate' in game: #if trial date supplied, accept; otherwise use today's date
-            if type(game['trialDate']) is str:
-                game['trialDate']=parsedateString(game['trialDate'])
-            self.trialDate=game['trialDate']
+        if 'trialDate' in attributes['game']: #if trial date supplied, accept; otherwise use today's date
+            if type(attributes['game']['trialDate']) is str:
+                attributes['game']['trialDate']=parsedateString(game['trialDate'])
+            self.trialDate=attributes['game']['trialDate']
         else:
             self.trialDate=datetime.now()
 
-        if 'discountRate' in game: #if discountrate supplied, accept; otherwise use default
-            self.discountRate=game['discountRate']
+        if 'discountRate' in attributes['game']: #if discountrate supplied, accept; otherwise use default
+            self.discountRate=attributes['game']['discountRate']
         else:
             self.discountRate=defaultdiscountRate
 
-        if 'Ogden' in game: #if correct Ogden supplied, accept; otherwise use default
-            if game['Ogden'] in Ogden:
-                self.ogden=game['Ogden']
+        if 'Ogden' in attributes['game']: #if correct Ogden supplied, accept; otherwise use default
+            if attributes['game']['Ogden'] in Ogden:
+                self.ogden=attributes['game']['Ogden']
             else:
                 self.ogden=defaultOgden
         else:
@@ -119,8 +117,8 @@ class game():
         self.claimants={} #dictionary for storing the claimants by name
         self.dependents={} #dictionary for storing the dependents by name
 
-        if 'claimants' in game:
-            [self.addClaimant(person(cs,parent=self)) for cs in game['claimants']]
+        if 'claimants' in attributes['game']:
+            [self.addClaimant(person(cs,parent=self)) for cs in attributes['game']['claimants']]
         else:
             print('No claimants added')
 

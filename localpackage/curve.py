@@ -9,7 +9,7 @@ class curve():
     def __init__(self, parent=None):
         self.parent=parent
         self._LxNoI=self._Lx=None
-        self.curveOptions={} #dictionary to store different options with each entry 'AM' or 'AMD' etc. Should be 2^3 = 8 options
+        self.curveOptions={} #dictionary to store different options with each entry 'AM' or 'AMD' etc. Should be 2^4 = 16 options
         self.dirty=True
         self.calc=calcs()
 
@@ -217,6 +217,7 @@ class curve():
     def Tx(self, age,options):
         if age<0: return 0
         a=self.Rng[self.Rng<=age]
+        if len(a)==0: return 0,0
         if age>a[-1]: age=a[-1]
         if age<a[0]:age=a[0]
         Lx=self._Lx[self.Rng<=age]
@@ -321,7 +322,7 @@ class curve():
                     shift = self.getAge() - deceased.age  # the age gap
                     _deceased=np.multiply(_deceased,deceased.getdataSet().transformLx(Rng, shift))
 
-        #multiply together _disc, _Lx, _interest, _cont, _factor, _deceased
+        #multiply together _disc, _Lx, _interest, _cont, _deceased
         A=np.stack((_disc,_Lx,_deceased,_cont)) #without interest
         B=np.stack((_disc,_Lx,_interest,_deceased,_cont)) #with interest
 
