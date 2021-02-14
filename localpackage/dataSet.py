@@ -31,7 +31,6 @@ class dataSet():
                 return int(self.gettrialDate().year-diedXyearsago)
             else:
                 return self.gettrialDate().year
-            pass
         else:
             return self.yrAttainedIn
 
@@ -174,7 +173,7 @@ class dataSet():
                     self.dfCohort.to_csv(pathCohort, index=True)
 
     def getdataTitle(self):
-        return 'ONS ' + self.getSex()[0] + self.region + str(self.year) + ', year attained in ' + str(self.yrAttainedIn)
+        return 'ONS ' + self.getSex()[0] + self.region + str(self.year) + ', year attained in ' + str(self.calcYrAttained())
 
     def loaddataSetCSV(self):
         periodFile='localpackage/Data/period'+self.getSex()[0]+self.region+str(self.year)+'.csv'

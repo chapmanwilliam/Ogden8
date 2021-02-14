@@ -25,18 +25,23 @@ class curve():
         if len(d)>0: Mlegend+='Disc. for '+ ' and '.join(d)
         if 'I' in options: Mlegend+=', with interest'
 
+        lowestAAD=125
 
         plt.plot(self.Rng, self._Lx, label=Mlegend)
         for name in self.getdependentson():
             c=self.getClaimant(name)
             if c:
                 shift = self.getAge() - c.age  # the age gap
-                plt.axvline(c.getAAD()+shift, linestyle='dashed', color='black', label='death ' + c.name)  # age at death
+                aad=c.getAAD()+shift
+                if aad<lowestAAD: lowestAAD=aad
+                plt.axvline(aad, linestyle='dashed', color='black', label='death ' + c.name)  # age at death pf the deceased
 
         plt.axvline(self.getAAT(),linestyle='dashed',color='green', label='trial') #age at trial
         #limits
-        plt.xlim(self.getAAT()-50,125)
-        plt.ylim(0,max(self._Lx)+1)
+        leftX=min(lowestAAD,self.getAAT(),fromAge)-1 #lowest X is lowers of AAD, AAT or fromAge, less one for space
+        plt.xlim(leftX,125)
+        Lx=self._Lx[self.Rng>=leftX] #y values in the range
+        plt.ylim(0,max(Lx)+1)
         #Area under the curve
         if toAge:
             if st or en: #this is discrete
@@ -64,7 +69,6 @@ class curve():
                 plt.figtext(1, 0.01,'Dependent on: ' + name + " "+ c.getdataSet().getdataTitle(), ha='right', fontsize=6)
         else:
             plt.figtext(1, 0.01, self.getdataSet().getdataTitle(), ha='right', fontsize=6)
-
         plt.show()
 
     def getHeading1(self,result, fromAge, toAge=None, freq="Y", cont=1, options='AMI'):
@@ -82,7 +86,8 @@ class curve():
         return s
 
     def getHeading2(self):
-        str = self.getSex()
+        str=self.getName().capitalize()
+        str += " ("+self.getSex().lower()+")"
         if self.isFatal(): str+= " (deceased)"
         str += ', age ' + '{:.1f}'.format(self.getAge()) + ' at trial'
         return str
