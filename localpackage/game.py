@@ -7,6 +7,9 @@ from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden, parseda
 
 class game():
 
+    def getautoYrAttained(self):
+        return self.autoYrAttained
+
     def getAAD(self,name):
         claimant=self.getClaimant(name)
         if claimant:
@@ -90,6 +93,10 @@ class game():
 
         if 'rows' in attributes:
             self.rows=attributes['rows']
+
+        self.autoYrAttained=False
+        if 'autoYrAttained' in attributes['game']:
+            self.autoYrAttained=attributes['game']['autoYrAttained']
 
         if 'trialDate' in attributes['game']: #if trial date supplied, accept; otherwise use today's date
             if type(attributes['game']['trialDate']) is str:

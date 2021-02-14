@@ -30,15 +30,13 @@ class curve():
         for name in self.getdependentson():
             c=self.getClaimant(name)
             if c:
-                if c.getAAD():
-                    plt.axvline(c.getAAD(), linestyle='dashed', color='black', label='death ' + c.name)  # age at death
-        for claimant in self.getClaimants().values():
-            plt.axvline(claimant.getAAT(), linestyle='dashed', color='green', label='injury ' + claimant.name)  # age at trial
+                shift = self.getAge() - c.age  # the age gap
+                plt.axvline(c.getAAD()+shift, linestyle='dashed', color='black', label='death ' + c.name)  # age at death
 
         plt.axvline(self.getAAT(),linestyle='dashed',color='green', label='trial') #age at trial
-        if self.getlowestAAI()<125: #set the x=range from date of injury to 125
-            plt.xlim(self.getlowestAAI()-1,125)
-            plt.ylim(0,self.Lx(self.getlowestAAI(),options)[3])
+        #limits
+        plt.xlim(self.getAAT()-50,125)
+        plt.ylim(0,max(self._Lx)+1)
         #Area under the curve
         if toAge:
             if st or en: #this is discrete
@@ -63,7 +61,7 @@ class curve():
             plt.figtext(1, 0.03, 'Dependent: ' + self.getdataSet().getdataTitle(), ha='right', fontsize=6)
             for name in self.getdependentson():
                 c=self.getClaimant(name)
-                plt.figtext(1, 0.01,'Dependent on: ' + name + c.getdataSet().getdataTitle(), ha='right', fontsize=6)
+                plt.figtext(1, 0.01,'Dependent on: ' + name + " "+ c.getdataSet().getdataTitle(), ha='right', fontsize=6)
         else:
             plt.figtext(1, 0.01, self.getdataSet().getdataTitle(), ha='right', fontsize=6)
 
@@ -112,6 +110,9 @@ class curve():
 
     def getAge(self):
         return self.parent.getAge()
+
+    def getName(self):
+        return self.parent.getName()
 
     def getAAT(self):
         return self.parent.getAAT()

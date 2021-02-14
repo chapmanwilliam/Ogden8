@@ -8,6 +8,12 @@ from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdef
 
 class baseperson():
 
+    def getautoYrAttained(self):
+        return self.parent.getautoYrAttained()
+
+    def getName(self):
+        return self.name
+
     def LE(self):
         return self.M(self.age,125, options='MI')
 
@@ -102,8 +108,8 @@ class baseperson():
         else:
             co=self.getCont()
         result= c.M(age1,age2,freq=freq,cont=co,options=options)
-#        print(c.calc.show())
-#        c.getPlot(result, age1, age2, freq, co, options)
+#       print(c.calc.show())
+        c.getPlot(result, age1, age2, freq, co, options)
         return result
 
     def getStdLE(self): #i.e. the LE with normal life expectancy

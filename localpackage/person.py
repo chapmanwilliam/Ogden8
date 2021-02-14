@@ -43,7 +43,8 @@ class person(baseperson):
             self.doi=self.dob + timedelta(days=(self.aai * 365.25))
 
         if not 'doi' in self.attributes and not 'aai' in self.attributes:
-            print("No date of injury submitted for person")
+            pass
+            #print("No date of injury submitted for person")
 
         if not 'name' in self.attributes:
             self.name='CLAIMANT_' + str(len(self.getClaimants()))
