@@ -109,7 +109,7 @@ class baseperson():
             co=self.getCont()
         result= c.M(age1,age2,freq=freq,cont=co,options=options)
 #       print(c.calc.show())
-        c.getPlot(result, age1, age2, freq, co, options)
+#        c.getPlot(result, age1, age2, freq, co, options)
         return result
 
     def getStdLE(self): #i.e. the LE with normal life expectancy

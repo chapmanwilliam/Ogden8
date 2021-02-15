@@ -66,7 +66,7 @@ class curve():
             plt.figtext(1, 0.03, 'Dependent: ' + self.getdataSet().getdataTitle(), ha='right', fontsize=6)
             for name in self.getdependentson():
                 c=self.getClaimant(name)
-                plt.figtext(1, 0.01,'Dependent on: ' + name + " "+ c.getdataSet().getdataTitle(), ha='right', fontsize=6)
+                plt.figtext(1, 0.01,'Dependent on: ' + name + " " + c.getdataSet().getdataTitle(), ha='right', fontsize=6)
         else:
             plt.figtext(1, 0.01, self.getdataSet().getdataTitle(), ha='right', fontsize=6)
         plt.show()
@@ -224,8 +224,8 @@ class curve():
         if age<0: return 0
         a=self.Rng[self.Rng<=age]
         if len(a)==0: return 0,0
-        if age>a[-1]: age=a[-1]
-        if age<a[0]:age=a[0]
+#        if age>a[-1]: age=a[-1]
+#        if age<a[0]:age=a[0]
         Lx=self._Lx[self.Rng<=age]
         LnoI=self._LxNoI[self.Rng<=age]
         y=np.trapz(Lx,a) #with interest
@@ -283,7 +283,7 @@ class curve():
             return result['LxNoI'],result['Lx'], result['Rng']
 
         age=self.getAge()
-        rp=self.getSAR().Rng #range in the past
+        rp=self.getSAR().Rng #range in the past TODO: query if we need to make this finer when dealing with dependent i.e. at least every year AND the dates interest changes
         rf=self.getdataSet().Rng[self.getdataSet().Rng>=age] #range in the future
         Rng=np.concatenate((rp,rf)) #range past and future
         discountRate=self.getdiscountRate()
@@ -303,11 +303,11 @@ class curve():
         #mortality
         if 'M' in options:
             if self.isFatal():
-                _Lxp=self.getdataSet().transformLx(rp)
+                _Lxp=self.getdataSet().transformLx(rp) #probability of death in the past
                 _Lxf=self.getdataSet().transformLx(rf) #probability of death
             else:
-                _Lxp=np.full((rp.size),1) #1 in the past
-                _Lxf=self.getdataSet()._Lx #probability of death
+                _Lxp=np.full((rp.size),1) #probability 1 in the past
+                _Lxf=self.getdataSet()._Lx #probability of death in the future
             _Lx=np.concatenate((_Lxp,_Lxf))
         #interest
         if 'I' in options:
