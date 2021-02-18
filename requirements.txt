@@ -7,4 +7,5 @@ fastapi
 pymaybe
 bqplot
 voila
-tornado
+ipympl
+ipyvolume
