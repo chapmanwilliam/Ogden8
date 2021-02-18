@@ -1,7 +1,6 @@
 # Function dependencies, for example:
 # package>=version
 numpy
-math
 pandas
 python-dateutil
 fastapi
