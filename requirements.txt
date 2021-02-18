@@ -6,3 +6,4 @@ matplotlib
 python-dateutil
 fastapi
 pymaybe
+bqplot

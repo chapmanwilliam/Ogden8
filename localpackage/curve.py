@@ -94,7 +94,7 @@ class curve():
 
     def getTitle(self, result, fromAge, toAge=None, freq="Y", cont=1, options='AMI'):
         str=self.getHeading1(result,fromAge,toAge,freq,cont,options)
-        str += os.linesep
+        str += os.linesep + ", "
         str +=self.getHeading2()
         return str
 

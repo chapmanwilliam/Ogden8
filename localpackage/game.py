@@ -32,7 +32,7 @@ class game():
         if claimant:
             return claimant.getAAI()
         else:
-            print("Non existent name for clamant in getAAI")
+            print("Non existent name for claimant in getAAI")
             return None
 
     def addClaimant(self,claimant):
