@@ -1,6 +1,7 @@
 # Function dependencies, for example:
 # package>=version
 numpy
+math
 pandas
 python-dateutil
 fastapi
@@ -9,3 +10,5 @@ bqplot
 voila
 ipympl
 ipyvolume
+ipywidgets
+IPython
