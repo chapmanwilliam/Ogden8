@@ -7,3 +7,4 @@ fastapi
 pymaybe
 bqplot
 voila
+tornado
