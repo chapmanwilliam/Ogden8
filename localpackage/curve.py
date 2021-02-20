@@ -282,8 +282,17 @@ class curve():
             result=self.curveOptions[options]
             return result['LxNoI'],result['Lx'], result['Rng']
 
+        def expand_past_range():
+            #makes the past more granular
+            rp=self.getSAR().Rng #get the range for the change in interest
+            yrrp=np.arange(rp[0],rp[-1],1) #and for every year
+            res=np.concatenate((rp,yrrp)) #join them
+            return np.sort(res,axis=None) #sort them
+
         age=self.getAge()
-        rp=self.getSAR().Rng #range in the past TODO: query if we need to make this finer when dealing with dependent i.e. at least every year AND the dates interest changes
+
+        rp=expand_past_range()
+
         rf=self.getdataSet().Rng[self.getdataSet().Rng>=age] #range in the future
         Rng=np.concatenate((rp,rf)) #range past and future
         discountRate=self.getdiscountRate()
@@ -311,7 +320,7 @@ class curve():
             _Lx=np.concatenate((_Lxp,_Lxf))
         #interest
         if 'I' in options:
-            _interestp=self.getSAR()._Lx
+            _interestp=self.getSAR().transformLx(rp)
             _interestf=np.full((rf.size),1)
             _interest=np.concatenate((_interestp,_interestf))
         #cont

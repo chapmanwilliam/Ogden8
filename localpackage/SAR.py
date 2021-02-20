@@ -29,6 +29,12 @@ class SAR():
     def calcs(self):
         self._Lx, self.Rng=self.getLx()
 
+    def transformLx(self,newRng,shift=0):
+        #Takes a newRng and returns a corresponding Lx
+        newLx=np.array([np.interp(age-shift, self.Rng, self._Lx, left=1,right=0) for age in newRng])
+        return newLx
+
+
     def getLx(self):
         #add extra row if necessary
         if self.dfSAR.iloc[-1].name<self.gettrialDate():
