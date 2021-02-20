@@ -11,4 +11,3 @@ ipympl
 ipyvolume
 ipywidgets
 IPython
-jupyter_contrib_nbextensions
