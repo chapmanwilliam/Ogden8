@@ -54,7 +54,7 @@ def returnFreq(freq):
     else:
         #Error wrong period passed
         print('Wrong period passed to returnFreq')
-        return st, en, None, None
+        return st, en, 1, 1
 
     return st, en, factor, tinterval
 
