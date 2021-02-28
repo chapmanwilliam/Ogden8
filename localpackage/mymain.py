@@ -40,7 +40,7 @@ eg2='{"rows":[{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y",
 g=game(eg)
 #print(g.processRows())
 #print(g.getClaimant('CHRISTOPHER').M(30,125, freq='Y',options='AMI'))
-print(g.getClaimant('PRIYA').M(30,125, freq='Y',options='AMID'))
+print(g.getClaimant('PRIYA').M(30,125, freq='3Y',options='AMID'))
 print(g.getClaimant('JONNIE').isFatal())
 #print(g.getClaimant('JOHN2').M(20,125, freq='Y',options='D'))
 #print(g.getClaimant('JOHN').M(55, 125, freq='Y',options='AMID'))

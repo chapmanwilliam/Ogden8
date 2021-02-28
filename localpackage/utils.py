@@ -28,7 +28,10 @@ def returnFreq(freq):
     f=freq.strip('<').strip('>') #remove arrows
     p=f[-1] #get main period Y,M,W,D
     if len(f)>1:
-        n=float(f[:-1])
+        if f[:-1].isnumeric():
+            n=float(f[:-1])
+        else:
+            n=1
     else:
         n=1
 
