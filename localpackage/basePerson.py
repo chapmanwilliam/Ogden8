@@ -80,7 +80,7 @@ class baseperson():
 
     def getContDependentsOn(self):
         dependentonlist=self.getClaimantsDependentOn()
-        if len(dependentonlist): return 1 #i.e. not dependent on anyone
+        if len(dependentonlist)==0: return 1 #i.e. not dependent on anyone
         conts=np.array([self.getClaimant(dependenton).getCont() for dependenton in dependentonlist])
         return np.average(conts) #take average of those dependent on
 
