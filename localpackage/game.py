@@ -7,6 +7,9 @@ from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden, parseda
 
 class game():
 
+    def getprojection(self):
+        return self.projection
+
     def getautoYrAttained(self):
         return self.autoYrAttained
 
@@ -97,6 +100,10 @@ class game():
         self.autoYrAttained=False
         if 'autoYrAttained' in attributes['game']:
             self.autoYrAttained=attributes['game']['autoYrAttained']
+
+        self.projection=True
+        if 'projection' in attributes['game']:
+            self.projection = attributes['game']['projection']
 
         if 'trialDate' in attributes['game']: #if trial date supplied, accept; otherwise use today's date
             if type(attributes['game']['trialDate']) is str:

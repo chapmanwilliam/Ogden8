@@ -3,6 +3,8 @@ from localpackage.basePerson import baseperson
 
 class person(baseperson):
 
+
+
     def getDict(self):
         return {'age': self.getAge(), 'aai': self.getAAI(), 'sex': self.getSex(), 'dataSet': self.getdataSet().getDict(), 'deltaLE': self.getdeltaLE()}
 

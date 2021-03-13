@@ -8,6 +8,9 @@ from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdef
 
 class baseperson():
 
+    def getprojection(self):
+        return self.parent.getprojection()
+
     def getautoYrAttained(self):
         return self.parent.getautoYrAttained()
 
