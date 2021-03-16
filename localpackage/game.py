@@ -107,7 +107,7 @@ class game():
 
         if 'trialDate' in attributes['game']: #if trial date supplied, accept; otherwise use today's date
             if type(attributes['game']['trialDate']) is str:
-                attributes['game']['trialDate']=parsedateString(game['trialDate'])
+                attributes['game']['trialDate']=parsedateString(attributes['game']['trialDate'])
             self.trialDate=attributes['game']['trialDate']
         else:
             self.trialDate=datetime.now()
