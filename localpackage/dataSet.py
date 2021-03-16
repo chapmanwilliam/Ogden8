@@ -123,12 +123,12 @@ class dataSet():
         def getCol(age):
             bornYear = self.calcYrAttained() - age
             if self.getprojection(): #use projection
-                if bornYear in self.dfCohort.columns: #ues cohort data if possible
-                    col=self.dfCohort[bornYear][self.dfCohort.index>=age]
-                elif self.calcYrAttained() in self.dfPeriod.columns: #i.e. if bornYear too early for cohort calculation
+                if self.calcYrAttained() in self.dfPeriod.columns: #use period data if possible. i.e. if bornYear too early for cohort calculation
 #                    subFrame= self.dfPeriod.loc[age:, self.yrAttainedIn:]
                     subFrame= self.dfPeriod.loc[age:, self.calcYrAttained():]
                     col=pd.Series(np.diagonal(subFrame,0),index=[subFrame.index])
+                elif bornYear in self.dfCohort.columns:  # otherwise use cohort data if possible
+                    col = self.dfCohort[bornYear][self.dfCohort.index >= age]
                 else:
                     #Error - the request is outside the scope of the data
                     print('Insufficient data')
