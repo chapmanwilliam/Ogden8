@@ -37,6 +37,7 @@ class SAR():
 
     def getLx(self):
         #add extra row if necessary
+        self.dfSAR=self.dfSAR[:self.gettrialDate()]
         if self.dfSAR.iloc[-1].name<self.gettrialDate():
             a=pd.Series({'Rate':0.2},name=self.gettrialDate()) #arbitrary rate
             self.dfSAR=self.dfSAR.append(a)
