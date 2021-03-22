@@ -4,7 +4,7 @@ import re
 from localpackage.dataSet import dataSet
 from localpackage.curve import curve
 from localpackage.SAR import SAR
-from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, parsedate
+from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, parsedate,parsedateString
 
 class baseperson():
 
@@ -225,6 +225,8 @@ class baseperson():
             self.name=attributes['name'].upper()
 
         if 'dob' in attributes and not 'age' in attributes:
+            if type(attributes['dob']) is str:
+                attributes['dob']=parsedateString(attributes['dob'])
             self.dob=attributes['dob']
             self.age=(self.gettrialDate()-self.dob).days/365.25
         if 'age' in attributes and not 'dob' in attributes:

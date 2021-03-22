@@ -1,5 +1,6 @@
 from datetime import timedelta
 from localpackage.basePerson import baseperson
+from localpackage.utils import parsedateString
 
 class person(baseperson):
 
@@ -28,6 +29,8 @@ class person(baseperson):
         self.doi=None #date of injury
 
         if 'dod' in self.attributes and not 'aad' in self.attributes:
+            if type(self.attributes['dod']) is str:
+                self.attributes['dod']=parsedateString(self.attributes['dod'])
             self.dod=self.attributes['dod']
             self.aad=(self.dod-self.dob).days/365.25
             self.fatal = True
