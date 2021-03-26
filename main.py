@@ -81,11 +81,11 @@ def Cont(request):
 
     #returns an array of tuples (past,interest,future,total), one for each row
 
-    g=game(attributes=attributes);
+    g=game(attributes=attributes)
 
-    name=attributes['name'];
+    name=attributes['name']
 
-    cont=g.getClaimant(name).getAutoCont();
+    cont=g.getClaimant(name).getAutoCont()
 
 
     return (json.dumps(cont), 200, headers)
