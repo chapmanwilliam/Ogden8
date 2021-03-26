@@ -126,6 +126,6 @@ def Process(request):
     else:
         attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
 
-    #returns an array of tuples (past,interest,future,total), one for each row
+    #returns an array of tuples (past,interest,future,total), one for each row and summary statistics for each claimant
 
     return (json.dumps(game(attributes=attributes).process()), 200, headers)
