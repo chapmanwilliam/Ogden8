@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import numpy as np
 import re
+import requests
 from localpackage.dataSet import dataSet
 from localpackage.curve import curve
 from localpackage.SAR import SAR
@@ -14,7 +15,8 @@ class baseperson():
             'LM': self.LM(),
             'JLE': self.JLE(),
             'JLM':self.JLM(),
-            'AutoCont':self.getAutoCont()
+            'AutoCont':self.getAutoCont(),
+            'StateRetirementAge':self.getStateRetirementAge()
         }
 
     def getprojection(self):
@@ -38,6 +40,11 @@ class baseperson():
     def JLM(self):
         return self.M(self.age,125, options='AMID')
 
+    def getStateRetirementAge(self):
+        #returns state retirement age from government web-site
+        x=requests.get('https://www.gov.uk/state-pension-age/y/age/1972-10-07')
+        y=re.search('Your State Pension age is (\d+) years',x.text)
+        return int(y[1])
 
 
     def getClaimantsDependentOn(self):
