@@ -42,9 +42,16 @@ class baseperson():
 
     def getStateRetirementAge(self):
         #returns state retirement age from government web-site
-        x=requests.get('https://www.gov.uk/state-pension-age/y/age/1972-10-07')
-        y=re.search('Your State Pension age is (\d+) years',x.text)
-        return int(y[1])
+        response=requests.get('https://www.gov.uk/state-pension-age/y/age/1972-10-07')
+        if response:
+            y=re.search('Your State Pension age is (\d+) years',response.text)
+            if y:
+                return int(y[1])
+            else:
+                return None
+        else:
+            return None
+
 
 
     def getClaimantsDependentOn(self):

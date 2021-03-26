@@ -23,7 +23,7 @@ import requests
 game1={'discountRate':-0.25/100, 'Ogden':7}
 contDetails={'employed':True,'disabled':False,'qualification': 1 }
 
-c1={"name":"Jonnie","cont":1,"age":30, 'deltaLE':0, "sex":"Male", "dataSet":Ogden8, "contDetails":contDetails}
+c1={"name":"Jonnie","cont":1,"age":60, 'deltaLE':0, "sex":"Male", "dataSet":Ogden8, "contDetails":contDetails}
 c2={"name":"Priya","cont":1,"dob":"7/10/1972", 'deltaLE':-5, "sex":"Male", "dataSet":Ogden8, 'dependenton':''}
 claimant = {'name':'Christopher', 'age': 111, 'aai': 25, 'sex': 'Male', 'dataSet': Ogden8, 'deltaLE': -5, 'retirement':67, 'cont':0.75}
 dependent1 = {'name': 'John1', 'age': 20, 'sex': 'Male', 'dataSet': Ogden8, 'dependenton':'Christopher1', 'retirement':57}
