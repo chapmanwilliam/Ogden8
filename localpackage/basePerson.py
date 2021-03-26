@@ -8,6 +8,15 @@ from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdef
 
 class baseperson():
 
+    def getSummaryStats(self):
+        return {
+            'LE': self.LE(),
+            'LM': self.LM(),
+            'JLE': self.JLE(),
+            'JLM':self.JLM(),
+            'AutoCont':self.getAutoCont()
+        }
+
     def getprojection(self):
         return self.parent.getprojection()
 
@@ -22,6 +31,14 @@ class baseperson():
 
     def LM(self):
         return self.M(self.age,125, options='AMI')
+
+    def JLE(self):
+        return self.M(self.age,125, options='MID')
+
+    def JLM(self):
+        return self.M(self.age,125, options='AMID')
+
+
 
     def getClaimantsDependentOn(self):
         #returns list of names claimant is dependent on

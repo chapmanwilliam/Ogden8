@@ -41,6 +41,7 @@ eg2='{"rows":[{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y",
 g=game(eg)
 #print(g.processRows())
 #print(g.getClaimant('CHRISTOPHER').M(30,125, freq='Y',options='AMI'))
+print(g.process())
 print(g.getClaimant('JONNIE').M('TRIAL',125, freq='Y',options='AMI'))
 print(g.getClaimant('JONNIE').getAutoCont())
 print(g.getClaimant('JONNIE').isFatal())

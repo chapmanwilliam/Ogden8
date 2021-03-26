@@ -7,6 +7,13 @@ from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden, parseda
 
 class game():
 
+    def getSummaryStatsClaimants(self):
+        #returns summary statistics for each Claimant
+        claimantStats={}
+        for claimant in self.claimants:
+            claimantStats[claimant] = self.getClaimant(claimant).getSummaryStats()
+        return claimantStats
+
     def getprojection(self):
         return self.projection
 
@@ -90,6 +97,9 @@ class game():
         # row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'status': 'Injured', 'options':'AMIC'}
         return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], freq=row['freq'],options=row['options']).or_else([None, None, None, None]) for row in self.rows]
 
+    def process(self):
+        #returns row results and summary statistics
+        return {'rows': self.processRows(), 'summary': self.getSummaryStatsClaimants()}
 
     def __init__(self, attributes):
 
