@@ -42,7 +42,13 @@ class baseperson():
 
     def getStateRetirementAge(self):
         #returns state retirement age from government web-site
-        response=requests.get('https://www.gov.uk/state-pension-age/y/age/1972-10-07')
+        dob=self.getDOB()
+        yr=str(dob.year)
+        mo=str(dob.month).zfill(2)
+        dy=str(dob.day).zfill(2)
+        urlsuffix=yr+"-"+mo+"-"+dy
+        url='https://www.gov.uk/state-pension-age/y/age/'
+        response=requests.get(url+urlsuffix)
         if response:
             y=re.search('Your State Pension age is (\d+) years',response.text)
             if y:
