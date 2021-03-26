@@ -87,13 +87,16 @@ class baseperson():
         conts=np.array([self.getClaimant(dependenton).getCont() for dependenton in dependentonlist])
         return np.average(conts) #take average of those dependent on
 
+    def getAutoCont(self):
+        Tables = self.getTablesAD()
+        cont = Tables.getCont(sex=self.sex, employed=self.contDetails['employed'],
+                              qualification=self.contDetails['qualification'],
+                              disabled=self.contDetails['disabled'], age=self.age)
+        return cont
+
     def getCont(self):
         if self.contAutomatic:
-            Tables = self.getTablesAD()
-            cont = Tables.getCont(sex=self.sex, employed=self.contDetails['employed'],
-                                  qualification=self.contDetails['qualification'],
-                                  disabled=self.contDetails['disabled'], age=self.age)
-            return cont
+            return self.getAutoCont()
         else:
             return self.cont
 
