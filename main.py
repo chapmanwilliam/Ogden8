@@ -85,8 +85,7 @@ def Cont(request):
 
     name=attributes['name']
 
-#    cont=g.getClaimant(name).getAutoCont()
-    cont=0.92
+    cont=g.getClaimant(name).getAutoCont()
 
 
     return (json.dumps(cont), 200, headers)
