@@ -262,7 +262,7 @@ class baseperson():
         if 'cont' in attributes:self.cont=attributes['cont']
 
         self.contDetails=ContDetailsdefault
-        if 'contDetails' in attributes: self.contDetails=attributes['contDetails'] #should be {'employed',qualification,'disabled'}
+        if 'contDetails' in attributes: self.contDetails=attributes['contDetails'] #should be {'employed','qualification','disabled'}
 
         if 'dependenton' in self.attributes: self.dependenton=self.attributes['dependenton'].strip().upper()
 
