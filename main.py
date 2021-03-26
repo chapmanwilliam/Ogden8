@@ -81,7 +81,6 @@ def Cont(request):
 
     #returns an array of tuples (past,interest,future,total), one for each row
 
-    g=game(attributes=attributes);
 
 
     return (json.dumps(game(attributes=attributes).processRows()), 200, headers)
