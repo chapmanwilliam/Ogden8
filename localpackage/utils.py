@@ -16,6 +16,13 @@ ContDetailsdefault={'employed':True,'qualification':'D','disabled':False} #defau
 Ogden7={'year':2008,'region':'UK','yrAttainedIn':2011}
 Ogden8={'year':2018,'region':'UK','yrAttainedIn':2022}
 
+def isfloat(value):
+  try:
+    float(value)
+    return True
+  except ValueError:
+    return False
+
 
 def returnFreq(freq,fromAge=None, toAge=None):
     #where freq is a string '<3Y' meaning every 3 years starting at the first date
@@ -28,7 +35,7 @@ def returnFreq(freq,fromAge=None, toAge=None):
     f=freq.strip('<').strip('>') #remove arrows
     p=f[-1] #get main period Y,M,W,D
     if len(f)>1:
-        if f[:-1].isnumeric():
+        if isfloat(f[:-1]):
             n=float(f[:-1])
         else:
             n=1

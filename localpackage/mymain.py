@@ -43,7 +43,7 @@ eg4={"rows":[],'game':{"discountRate":-0.0025,"Ogden":8,"trialDate":"29/03/2021"
 
 g=game(eg4)
 #print(g.processRows())
-print(g.getClaimant('Jonnie').M(30,40, freq='A',options='M'))
+print(g.getClaimant('Jonnie').M('TRIAL','TRIAL+2.5Y', freq='Y',options='AMI'))
 #print(g.getClaimant('Jonnie').getStateRetirementAge())
 print(g.process())
 #print(g.getClaimant('Jonnie').M('TRIAL',125, freq='Y',options='AMI'))

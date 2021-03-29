@@ -185,7 +185,7 @@ class baseperson():
         #removes all spaces
         point=" ".join(point.split())
         #split into component parts
-        parts=re.split("(\W)",point)
+        parts=re.split("([^a-zA-Z0-9_\.])",point)
         #evaluate each part - each part is either 'TRIAL' or '5Y' or '+' or '-'
         #add or subtract
         age=0
