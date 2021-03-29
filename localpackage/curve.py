@@ -168,7 +168,7 @@ class curve():
         return result
 
     def Multiplier(self,fromAge, toAge=None, options=None, freq="Y", cont=1,calc=None):
-        st,en,factor,timeInterval=returnFreq(freq)
+        st,en,factor,timeInterval=returnFreq(freq,fromAge,toAge)
         if toAge:
             if st or en: #this is not continuous
                 if st:

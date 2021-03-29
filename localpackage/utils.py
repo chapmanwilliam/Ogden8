@@ -6,7 +6,7 @@ regions=['UK','EW','EN','SC','WA','NI','GB']
 years=[2008,2018]
 wordPoints=['TRIAL', 'LIFE', 'RETIREMENT']
 plusMinus=['+','-']
-fr=['Y','M','W','D']
+fr=['Y','M','W','D','A']
 discountOptions=['A','M','I','C','D']
 
 defaultdiscountRate=-0.5/100
@@ -17,7 +17,7 @@ Ogden7={'year':2008,'region':'UK','yrAttainedIn':2011}
 Ogden8={'year':2018,'region':'UK','yrAttainedIn':2022}
 
 
-def returnFreq(freq):
+def returnFreq(freq,fromAge=None, toAge=None):
     #where freq is a string '<3Y' meaning every 3 years starting at the first date
     #returns tuple of timedelta and whether < or >
     st=False
@@ -50,7 +50,12 @@ def returnFreq(freq):
         tinterval=(n*1/365.25) #in years
         factor=365.25/n
     elif p=='A':
-        pass
+        tinterval=n
+        if (toAge and fromAge):
+            factor=1/((toAge-fromAge)*n)
+        else:
+            print("toAge and fromAge need to be specified for 'A' in returnFreq")
+            factor=1/n
     else:
         #Error wrong period passed
         print('Wrong period passed to returnFreq')
