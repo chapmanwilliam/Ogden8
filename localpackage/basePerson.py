@@ -301,7 +301,7 @@ class baseperson():
         self.contDetails=ContDetailsdefault
         if 'contDetails' in attributes: self.contDetails=attributes['contDetails'] #should be {'employed','qualification','disabled'}
 
-        if 'dependenton' in self.attributes: self.dependenton=self.attributes['dependenton'].strip().upper()
+        if 'dependenton' in self.attributes: self.dependenton=self.attributes['dependenton'].strip()
 
         self.dataSet=dataSet(attributes['dataSet'], self, self.deltaLE)
         self.curve=curve(self)
