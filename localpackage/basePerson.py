@@ -262,7 +262,7 @@ class baseperson():
 
 
         if 'name' in attributes:
-            self.name=attributes['name'].upper()
+            self.name=attributes['name']
 
         if 'dob' in attributes and not 'age' in attributes:
             if type(attributes['dob']) is str:
