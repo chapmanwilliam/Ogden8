@@ -45,8 +45,8 @@ eg5={"rows":[{"name":"Zaki","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options
 eg6={"rows":[{"name":"Zaki","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"}],"game":{"claimants":[{"fatal":False,"sex":"Male","livetoN":75,"yrsleftN":98,"cont":0.67,"employed":False,"disabled":False,"dob":"27/02/2005","dependenton":"","dod":"13/04/2021","targetLE":75,"qualification":"3","retirement":100,"dataSet":{"year":2018,"yrAttainedIn":2022,"region":"UK"},"deltaLEcounter":1,"contDetails":{"disabled":False,"employed":True,"qualification":"3"},"region":"UK","deltaLEN":0,"name":"Zaki"}],"autoYrAttained":False,"Ogden":8,"discountRate":-0.0025,"projection":True,"trialDate":"31/03/2023"}}
 g=game(eg6)
 #print(g.processRows())
-#print(g.getClaimant('Zaki').M('TRIAL','LIFE', freq='Y',options='AMI'))
-print(g.getClaimant('Zaki').getAutoCont())
+print(g.getClaimant('Zaki').M('27/2/2005','8/8/2020', freq='A',options='AMI'))
+#print(g.getClaimant('Zaki').getAutoCont())
 #print(g.getClaimant('Jonnie').getStateRetirementAge())
 #print(g.process())
 #print(g.getClaimant('Jonnie').M('TRIAL',125, freq='Y',options='AMI'))

@@ -58,7 +58,7 @@ def returnFreq(freq,fromAge=None, toAge=None):
         factor=365.25/n
     elif p=='A':
         tinterval=n
-        if (toAge and fromAge):
+        if (not toAge==None and not fromAge==None):
             factor=1/((toAge-fromAge)*n)
         else:
             print("toAge and fromAge need to be specified for 'A' in returnFreq")
