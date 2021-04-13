@@ -311,17 +311,14 @@ class baseperson():
         else:
             self.deltaLE=0
 
+        self.targetLE=None
         if 'targetLE' in attributes:
             c+=1
             self.targetLE=attributes['targetLE']
-        else:
-            self.targetLE=None
 
         if 'liveto' in attributes:
             c+=1
             self.targetLE=attributes['liveto']-self.age
-        else:
-            self.targetLE=None
 
         if c>1:
             print("Specify only one of targetLE, deltaLE or liveto: targetLE will be used.")
