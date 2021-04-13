@@ -13,6 +13,8 @@ class baseperson():
         return {
             'LE': self.LE(),
             'LM': self.LM(),
+            'EM': self.EM(),
+            'PM': self.PM(),
             'JLE': self.JLE(),
             'JLM':self.JLM(),
             'AutoCont':self.getAutoCont(),
@@ -34,11 +36,23 @@ class baseperson():
     def LM(self):
         return self.M(self.age,125, options='AMI')
 
+    def EM(self):
+        if hasattr(self,'retirement'):
+            return self.M(self.age,self.retirement, options='AMI')
+        return self.M(self.age,self.getStateRetirementAge())
+
+    def PM(self):
+        if hasattr(self,'retirement'):
+            return self.M(self.retirement,'LIFE', options='AMI')
+        return self.M(self.getStateRetirementAge(), 'LIFE', options='AMI')
+
+
     def JLE(self):
         return self.M(self.age,125, options='MID')
 
     def JLM(self):
         return self.M(self.age,125, options='AMID')
+
 
     def getStateRetirementAge(self):
         #returns state retirement age from government web-site
@@ -114,6 +128,9 @@ class baseperson():
 
     def getdiscountRate(self):
         return self.parent.getdiscountRate()
+
+    def gettargetLE(self):
+        return self.targetLE
 
     def getCurve(self):
         return self.curve
@@ -226,7 +243,6 @@ class baseperson():
 
     def getdataSet(self):
         return self.dataSet
-        return None
 
     def getTablesAD(self):
         return self.parent.getTablesAD()
@@ -287,10 +303,28 @@ class baseperson():
             if type(attributes['retirement']) is int or type(attributes['retirement']) is float:
                 self.retirement=attributes['retirement']
 
+        #Life expectancy inputs
+        c=0
         if 'deltaLE' in attributes:
+            c+=1
             self.deltaLE=attributes['deltaLE']
         else:
             self.deltaLE=0
+
+        if 'targetLE' in attributes:
+            c+=1
+            self.targetLE=attributes['targetLE']
+        else:
+            self.targetLE=None
+
+        if 'liveto' in attributes:
+            c+=1
+            self.targetLE=attributes['liveto']-self.age
+        else:
+            self.targetLE=None
+
+        if c>1:
+            print("Specify only one of targetLE, deltaLE or liveto: targetLE will be used.")
 
         self.contAutomatic=False #manual by default
         if 'contAutomatic' in attributes: self.contAutomatic=attributes['contAutomatic']

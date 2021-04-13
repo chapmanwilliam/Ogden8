@@ -86,12 +86,15 @@ class dataSet():
             if LE>targetLE: lowerAge=testAge
             if LE<targetLE: higherAge=testAge
             return getLE(lowerAge,higherAge,targetLE)
-        if deltaLE==0:
+        if deltaLE==0 and not self.gettargetLE():
             return self.getAge()
         else:
             tolerance=0.001
             Lx = self.getLx(self.getAge(), LxOnly=True)
-            targetLE=min(125,max(0,np.trapz(Lx)+deltaLE))
+            if self.gettargetLE():
+                targetLE=self.gettargetLE()
+            else:
+                targetLE=min(125,max(0,np.trapz(Lx)+deltaLE))
             return getLE(0,125,targetLE)
 
     def refresh(self):
@@ -103,6 +106,9 @@ class dataSet():
 
     def isFatal(self):
         return self.parent.isFatal()
+
+    def gettargetLE(self):
+        return self.parent.gettargetLE()
 
     def calcs(self):
         self.revisedAge = self.getrevisedAge(self.deltaLE)
