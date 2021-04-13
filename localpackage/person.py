@@ -28,17 +28,22 @@ class person(baseperson):
         self.aai=None #age at injury
         self.doi=None #date of injury
 
+        #Fatal inputs
         if 'dod' in self.attributes and not 'aad' in self.attributes:
             if type(self.attributes['dod']) is str:
                 self.attributes['dod']=parsedateString(self.attributes['dod'])
             self.dod=self.attributes['dod']
             self.aad=(self.dod-self.dob).days/365.25
             self.fatal = True
+
         if 'aad' in self.attributes and not 'dod' in self.attributes:
             if type(self.attributes['aad']) is int or type(self.attributes['aad']) is float:
                 self.aad=self.attributes['aad']
                 self.dod=self.dob + timedelta(days=(self.aad * 365.25))
                 self.fatal=True
+
+        if 'fatal' in self.attributes:
+            self.fatal=self.attributes['fatal']
 
         if 'doi' in self.attributes and not 'aai' in self.attributes:
             self.doi=self.attributes['doi']
