@@ -3,9 +3,10 @@ from pymaybe import maybe
 from localpackage.person import person
 from localpackage.TablesAD import TablesAD
 from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden, parsedateString
-
+from localpackage.errorLogging import errors
 
 class game():
+
 
     def getSummaryStatsClaimants(self):
         #returns summary statistics for each Claimant
@@ -26,6 +27,7 @@ class game():
             return claimant.getAAD()
         else:
             print("Non existent name for claimant in getAAI")
+            errors.add("Non existent name for claimant in getAAI")
             return None
 
     def getAAT(self,name):
@@ -34,6 +36,7 @@ class game():
             return claimant.getAAT()
         else:
             print("Non existent name for claimant in getAAI")
+            errors.add("Non existent name for claimant in getAAI")
             return None
 
 
@@ -43,6 +46,7 @@ class game():
             return claimant.getAAI()
         else:
             print("Non existent name for claimant in getAAI")
+            errors.add("Non existent name for claimant in getAAI")
             return None
 
     def addClaimant(self,claimant):
@@ -50,6 +54,7 @@ class game():
             self.claimants[claimant.name]=claimant
         else:
             print("Name already exists")
+            errors.add("Name already exists")
 
     def getClaimant(self,name):
         if name in self.claimants:
@@ -99,7 +104,7 @@ class game():
 
     def process(self):
         #returns row results and summary statistics
-        return {'rows': self.processRows(), 'summary': self.getSummaryStatsClaimants()}
+        return {'rows': self.processRows(), 'summary': self.getSummaryStatsClaimants(), 'errorlog': errors.getLog()}
 
     def __init__(self, attributes):
 
@@ -145,5 +150,6 @@ class game():
             [self.addClaimant(person(cs,parent=self)) for cs in attributes['game']['claimants']]
         else:
             print('No claimants added')
+            errors.add("No claimants added")
 
 

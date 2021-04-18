@@ -1,9 +1,11 @@
 import math
 from datetime import datetime
 from dateutil.parser import parse
+from localpackage.errorLogging import errors
+
 sexes=['Male','Female']
 regions=['UK','EW','EN','SC','WA','NI','GB']
-years=[2008,2018]
+years=[2008, 2018]
 wordPoints=['TRIAL', 'LIFE', 'RETIREMENT']
 plusMinus=['+','-']
 fr=['Y','M','W','D','A']
@@ -15,6 +17,7 @@ Ogden=[7,8]
 ContDetailsdefault={'employed':True,'qualification':'D','disabled':False} #default
 Ogden7={'year':2008,'region':'UK','yrAttainedIn':2011}
 Ogden8={'year':2018,'region':'UK','yrAttainedIn':2022}
+
 
 def isfloat(value):
   try:
@@ -62,24 +65,30 @@ def returnFreq(freq,fromAge=None, toAge=None):
             factor=1/((toAge-fromAge)*n)
         else:
             print("toAge and fromAge need to be specified for 'A' in returnFreq")
+            errors.add("toAge and fromAge need to be specified for 'A' in returnFreq")
             factor=1/n
     else:
         #Error wrong period passed
         print('Wrong period passed to returnFreq')
-        return st, en, 1, 1
+        errors.add("Wrong period passed to returnFreq")
+        return st, en, 1, None
 
     return st, en, factor, tinterval
 
 
 def discountFactor(yrs,discountRate):
     #returns the discountFactor after yrs with discountRate
-    if discountRate==-1: return None
+    if discountRate==-1:
+        errors.add('Discount rate is -1')
+        return None
     if yrs<0: return 1
     factor=1/(1+discountRate)
     return factor**yrs
 
 def termCertain(yrs,discountRate):
-    if discountRate==-1: return None
+    if discountRate==-1:
+        errors.add('Discount rate is -1')
+        return None
     factor=1/(1+discountRate)
     if factor==1:
         return 1+yrs

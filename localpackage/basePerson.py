@@ -6,6 +6,7 @@ from localpackage.dataSet import dataSet
 from localpackage.curve import curve
 from localpackage.SAR import SAR
 from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, parsedate,parsedateString
+from localpackage.errorLogging import errors
 
 class baseperson():
 
@@ -161,6 +162,7 @@ class baseperson():
         freq=freq.upper()
         age1=age2=None
         age1= self.getAgeFromPoint(point1)
+        if age1==None: return None #i.e. if nothing valid submitted return None
         if point2: age2= self.getAgeFromPoint(point2)
         c=self.getCurve()
         if 'D' in options:
@@ -191,6 +193,7 @@ class baseperson():
             #Error, wrong type
             print('Wrong type passed to getAgeFromPoint')
             print(type(point))
+            errors.add('Wrong type passed to getAgeFromPoint: ' + type(point))
         return age
 
     def parseTextPoint(self,point):
@@ -221,6 +224,7 @@ class baseperson():
                         if not flag: age-=self.retirement
                     else:
                         print('Retirement (uninjured) age not given')
+                        errors.add('Retirement (uninjured) age not given')
                 else:
                     age=age #do nothing
             elif part in plusMinus:
@@ -237,6 +241,7 @@ class baseperson():
                     if not flag: age-=tinterval
                 else:
                     print('Invalid part of word point, parsewordPoint')
+                    errors.add("Invalid part of word point, parsewordPoint")
                     return None
         #return value
         return age
@@ -291,13 +296,16 @@ class baseperson():
 
         if not 'age' in attributes and not 'dob' in attributes:
             print("Missing age information for person")
+            errors.add("Missing age information for person")
         if 'age' in attributes and 'dob' in attributes:
             print("Both age and dob supplied for person")
+            errors.add("Both age and dob supplied for person")
 
         if 'sex' in attributes:
             self.sex=attributes['sex']
         else:
             print("Missing sex for person")
+            errors.add("Missing sex for person")
 
         if 'retirement' in attributes:
             if type(attributes['retirement']) is int or type(attributes['retirement']) is float:
@@ -322,6 +330,7 @@ class baseperson():
 
         if c>1:
             print("Specify only one of targetLE, deltaLE or liveto: targetLE will be used.")
+            errors.add("Specify only one of targetLE, deltaLE or liveto: targetLE will be used.")
 
         self.contAutomatic=False #manual by default
         if 'contAutomatic' in attributes: self.contAutomatic=attributes['contAutomatic']
