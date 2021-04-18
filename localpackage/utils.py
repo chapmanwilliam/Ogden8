@@ -30,6 +30,9 @@ def isfloat(value):
 def returnFreq(freq,fromAge=None, toAge=None):
     #where freq is a string '<3Y' meaning every 3 years starting at the first date
     #returns tuple of timedelta and whether < or >
+    if len(freq)<1:
+        errors.add("Nil length freq")
+        return False, False, 1, None
     st=False
     en=False
     if freq[0]=='<': st=True
