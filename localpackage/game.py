@@ -104,7 +104,7 @@ class game():
 
     def process(self):
         #returns row results and summary statistics
-        return {'rows': self.processRows(), 'summary': self.getSummaryStatsClaimants(), 'errorlog': errors.getLog()}
+        return {'rows': self.processRows(), 'summary': self.getSummaryStatsClaimants(), 'errorLog': errors.getLog()}
 
     def __init__(self, attributes):
 
