@@ -5,7 +5,7 @@ import requests
 from localpackage.dataSet import dataSet
 from localpackage.curve import curve
 from localpackage.SAR import SAR
-from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, parsedate,parsedateString
+from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, parsedate, parsedateString
 from localpackage.errorLogging import errors
 
 class baseperson():
@@ -98,6 +98,9 @@ class baseperson():
     def setSex(self,sex):
         self.sex=sex
         self.setDirty(True)
+
+    def getDOI(self):
+        return self.parent.getDOI()
 
     def getDOB(self):
         return self.dob
@@ -225,6 +228,15 @@ class baseperson():
                     else:
                         print('Retirement (uninjured) age not given')
                         errors.add('Retirement (uninjured) age not given')
+                        return None
+                elif part=='INJURY':
+                    AAI=self.getAAI()
+                    if (AAI):
+                        if flag: age+=self.getAAI()
+                        if not flag: age-=self.getAAI()
+                    else:
+                        errors.add('Date of injury not specified')
+                        return None
                 else:
                     age=age #do nothing
             elif part in plusMinus:

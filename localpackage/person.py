@@ -7,9 +7,6 @@ class person(baseperson):
     def getDict(self):
         return {'age': self.getAge(), 'aai': self.getAAI(), 'sex': self.getSex(), 'dataSet': self.getdataSet().getDict(), 'deltaLE': self.getdeltaLE()}
 
-    def getDOI(self):
-        return self.doi
-
     def getDOD(self):
         return self.dod
 
@@ -43,16 +40,6 @@ class person(baseperson):
         if 'fatal' in self.attributes:
             self.fatal=self.attributes['fatal']
 
-        if 'doi' in self.attributes and not 'aai' in self.attributes:
-            self.doi=self.attributes['doi']
-            self.aai=(self.doi-self.dob).days/365.25
-        if 'aai' in self.attributes and not 'doi' in self.attributes:
-            self.aai=self.attributes['aai']
-            self.doi=self.dob + timedelta(days=(self.aai * 365.25))
-
-        if not 'doi' in self.attributes and not 'aai' in self.attributes:
-            pass
-            #print("No date of injury submitted for person")
 
         if not 'name' in self.attributes:
             self.name='CLAIMANT_' + str(len(self.getClaimants()))

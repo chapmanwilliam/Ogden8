@@ -6,7 +6,7 @@ from localpackage.errorLogging import errors
 sexes=['Male','Female']
 regions=['UK','EW','EN','SC','WA','NI','GB']
 years=[2008, 2018]
-wordPoints=['TRIAL', 'LIFE', 'RETIREMENT']
+wordPoints=['TRIAL', 'LIFE', 'RETIREMENT', 'INJURY']
 plusMinus=['+','-']
 fr=['Y','M','W','D','A']
 discountOptions=['A','M','I','C','D']

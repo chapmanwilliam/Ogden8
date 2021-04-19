@@ -39,6 +39,11 @@ class game():
             errors.add("Non existent name for claimant in getAAI")
             return None
 
+    def getDOI(self):
+        if hasattr(self,'doi'):
+            return self.doi
+        else:
+            return None
 
     def getAAI(self,name):
         claimant=self.getClaimant(name)
@@ -126,6 +131,12 @@ class game():
             self.trialDate=attributes['game']['trialDate']
         else:
             self.trialDate=datetime.now()
+
+        if 'DOI' in attributes['game']: #if trial date supplied, accept; otherwise use today's date
+            if type(attributes['game']['DOI']) is str:
+                attributes['game']['DOI']=parsedateString(attributes['game']['DOI'])
+            self.doi=attributes['game']['DOI']
+
 
         if 'discountRate' in attributes['game']: #if discountrate supplied, accept; otherwise use default
             self.discountRate=attributes['game']['discountRate']
