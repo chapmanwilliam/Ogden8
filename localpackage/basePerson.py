@@ -47,13 +47,11 @@ class baseperson():
             return self.M(self.retirement,'LIFE', options='AMI')
         return self.M(self.getStateRetirementAge(), 'LIFE', options='AMI')
 
-
     def JLE(self):
         return self.M(self.age,125, options='MID')
 
     def JLM(self):
         return self.M(self.age,125, options='AMID')
-
 
     def getStateRetirementAge(self):
         #returns state retirement age from government web-site
