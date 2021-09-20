@@ -34,7 +34,7 @@ dependent2 = {'name': 'John2', 'age': 20, 'sex': 'Male', 'dataSet': Ogden8, 'dep
 claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLE': -15, 'retirement':67}
 
 
-row={'name': 'Gadsden','fromAge':58.36, 'toAge':"LIFE", 'freq': 'Y', 'options':'MIsdf'}
+row={'name': 'Gadsden','fromAge':58.36, 'toAge':None, 'freq': None, 'options':None}
 rows=[row for a in range(1,2)]
 eg={"rows": rows, 'game': {"trialDate":datetime(2021,5,4),"projection":True,"autoYrAttained": False, "discountRate": -0.25/100, "Ogden": 8, "claimants": [c1,c2]}}
 

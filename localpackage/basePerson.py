@@ -159,6 +159,10 @@ class baseperson():
 
     def M(self, point1, point2=None, freq="Y", options='AMI'):
         #builds a curve depending on the options and returns the multiplier
+        if not freq:
+            freq="Y"
+        if not options:
+            options='AMI'
         errors=self.getInputErrors(point1,point2,freq,options)
         if len(errors)>0:
             return "\n".join(errors),"\n".join(errors),"\n".join(errors),"\n".join(errors);
@@ -205,6 +209,7 @@ class baseperson():
         for l in options:
             if not l in discountOptions:
                 errors.append("\'Discount\' options invalid")
+                return errors #i.e. return as soon as error spotted
         return errors
 
     def getAgeFromPoint(self, point):
