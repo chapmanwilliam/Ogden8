@@ -11,7 +11,7 @@ plusMinus=['+','-']
 fr=['Y','M','W','D','A']
 discountOptions=['A','M','I','C','D']
 
-defaultdiscountRate=-0.5/100
+defaultdiscountRate=-0.25/100
 defaultOgden=8
 Ogden=[7,8]
 ContDetailsdefault={'employed':True,'qualification':'D','disabled':False} #default
@@ -48,28 +48,28 @@ def returnFreq(freq,fromAge=None, toAge=None):
     else:
         n=1
 
-    factor=1
+    factor=1.0
 
     if p=='Y':
         tinterval=n #in years
-        factor=1/n
+        factor=1.0/n
     elif p=='M':
         tinterval=(n*1/12) #in years
         factor=12.0/n
     elif p=='W':
         tinterval=(n*1/52) #in years
-        factor=52/n
+        factor=52.0/n
     elif p=='D':
         tinterval=(n*1/365.25) #in years
         factor=365.25/n
     elif p=='A':
         tinterval=n
         if (not toAge==None and not fromAge==None):
-            factor=1/((toAge-fromAge)*n)
+            factor=1.0/((toAge-fromAge)*n)
         else:
             print("toAge and fromAge need to be specified for 'A' in returnFreq")
             errors.add("toAge and fromAge need to be specified for 'A' in returnFreq")
-            factor=1/n
+            factor=1.0/n
     else:
         #Error wrong period passed
         print('Wrong period passed to returnFreq')

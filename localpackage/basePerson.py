@@ -5,7 +5,8 @@ import requests
 from localpackage.dataSet import dataSet
 from localpackage.curve import curve
 from localpackage.SAR import SAR
-from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, parsedate, parsedateString
+from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, parsedate, \
+    parsedateString, discountOptions, fr
 from localpackage.errorLogging import errors
 
 class baseperson():
@@ -158,6 +159,9 @@ class baseperson():
 
     def M(self, point1, point2=None, freq="Y", options='AMI'):
         #builds a curve depending on the options and returns the multiplier
+        errors=self.getInputErrors(point1,point2,freq,options)
+        if len(errors)>0:
+            return errors,errors,errors,errors;
         if point1==None: return None #i.e. if nothing submitted return None
         options=options.upper()
         freq=freq.upper()
@@ -178,6 +182,30 @@ class baseperson():
     def getStdLE(self): #i.e. the LE with normal life expectancy
         return np.trapz(self.getdataSet().getLx(self.age, LxOnly=True))
 
+    def getInputErrors(self, point1, point2, freq, options):
+        errors=[]
+        age1=age2=None
+        age1=self.getAgeFromPoint(point1)
+        if point2:
+            age2=self.getAgeFromPoint(point2)
+        #point 1 - must be number, string, date.
+        if not age1:
+            errors.append("\'From\' date invalid")
+        #point 2
+        if point2: #i.e. if provided
+            if not age2:
+                errors.append("\'To\' date invalid")
+            if age1 and age2:
+                if age1>=age2:
+                    errors.append("\'To\' date must be after \'From\' date")
+        #freq
+        if not freq in fr:
+            errors.append("\'Frequency\' invalid")
+        #options
+        for l in options:
+            if not l in discountOptions:
+                errors.append("\'Discount\' options invalid")
+        return errors
 
     def getAgeFromPoint(self, point):
         #point is either a float (i.e. age) or a datetime
@@ -240,7 +268,7 @@ class baseperson():
             elif part in plusMinus:
                 if part=='+': flag=True
                 if part=='-': flag=False
-            else:
+            elif bool(re.match("^<?(\d+(\.\d+)?)?[YMWDA]>?$",part)):
                 #test value
                 #strip any '<' or '>'
                 part=part.strip('<')
@@ -253,6 +281,10 @@ class baseperson():
                     print('Invalid part of word point, parsewordPoint')
                     errors.add("Invalid part of word point, parsewordPoint")
                     return None
+            else:
+                print("Invalid date")
+                errors.add("Invalid date")
+                return None
         #return value
         return age
 

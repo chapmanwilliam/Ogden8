@@ -34,7 +34,7 @@ dependent2 = {'name': 'John2', 'age': 20, 'sex': 'Male', 'dataSet': Ogden8, 'dep
 claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLE': -15, 'retirement':67}
 
 
-row={'name': 'PRIYA','fromAge':58.36, 'toAge':125, 'freq': 'Y', 'options':'MI'}
+row={'name': 'Gadsden','fromAge':58.36, 'toAge':"LIFE", 'freq': 'Y', 'options':'MI'}
 rows=[row for a in range(1,2)]
 eg={"rows": rows, 'game': {"trialDate":datetime(2021,5,4),"projection":True,"autoYrAttained": False, "discountRate": -0.25/100, "Ogden": 8, "claimants": [c1,c2]}}
 
@@ -46,12 +46,12 @@ eg4={"rows":[],'game':{"discountRate":-0.0025,"Ogden":8,"trialDate":"29/03/2021"
 eg5={"rows":[{"name":"Zaki","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"}],"game":{"discountRate":-0.01,"trialDate":"31/03/2023","projection":True,"Ogden":8,"claimants":[{"fatal":False,"dependenton":"","dob":"27/02/2005","sex":"Male","qualification":"3","disabled":False,"cont":0.67,"name":"Zaki","targetLE_":30,"dataSet":{"year":2018,"region":"UK","yrAttainedIn":2022},"retirement":100,"region":"UK","liveto_":75,"deltaLE":0,"deltaLEcounter":0,"employed":False,"dod":"13/04/2021","contDetails":{"qualification":"3","employed":False,"disabled":False},"deltaLE_":0}],"autoYrAttained":False}}
 eg6={"rows":[{"name":"Zaki","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"}],"game":{"DOI": "29/3/2012", "claimants":[{"fatal":False,"sex":"Male","livetoN":75,"yrsleftN":98,"cont":0.67,"employed":False,"disabled":False,"dob":"2/9/2002","dependenton":"","dod":"13/04/2021","qualification":"1","retirement":100,"dataSet":{"year":2018,"yrAttainedIn":2022,"region":"UK"},"deltaLEcounter":1,"contDetails":{"disabled":False,"employed":True,"qualification":"2"},"region":"UK","deltaLEN":0,"name":"Zaki"}],"autoYrAttained":False,"Ogden":8,"discountRate":-0.0025,"projection":True,"trialDate":"27/4/2021"}}
 g=game(eg)
-#print(g.processRows())
+print(g.processRows())
 print(g.getClaimant('Gadsden').getSummaryStats())
 print(errors.getLog())
 #print(g.getClaimant('Jonnie').getStateRetirementAge())
 #print(g.process())
-#print(g.getClaimant('Jonnie').M('TRIAL',125, freq='Y',options='AMI'))
+print(g.getClaimant('Gadsden').M('TRIALd',125, freq='Y',options='AMI'))
 #print(g.getClaimant('Jonnie').getAutoCont())
 #print(g.getClaimant('Jonnie').isFatal())
 #print(g.getClaimant('JOHN2').M(20,125, freq='Y',options='D'))
