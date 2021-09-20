@@ -161,7 +161,7 @@ class baseperson():
         #builds a curve depending on the options and returns the multiplier
         errors=self.getInputErrors(point1,point2,freq,options)
         if len(errors)>0:
-            return errors,errors,errors,errors;
+            return "\n".join(errors),"\n".join(errors),"\n".join(errors),"\n".join(errors);
         if point1==None: return None #i.e. if nothing submitted return None
         options=options.upper()
         freq=freq.upper()
