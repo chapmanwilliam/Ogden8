@@ -12,6 +12,7 @@ fr=['Y','M','W','D','A']
 discountOptions=['A','M','I','C','D']
 
 defaultdiscountRate=-0.25/100
+defaultSwiftCarpenterDiscountRate=5/100
 defaultOgden=8
 Ogden=[7,8]
 ContDetailsdefault={'employed':True,'qualification':'D','disabled':False} #default

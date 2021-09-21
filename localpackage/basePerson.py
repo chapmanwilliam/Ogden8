@@ -6,7 +6,7 @@ from localpackage.dataSet import dataSet
 from localpackage.curve import curve
 from localpackage.SAR import SAR
 from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, parsedate, \
-    parsedateString, discountOptions, fr
+    parsedateString, discountOptions, fr, discountFactor, defaultSwiftCarpenterDiscountRate
 from localpackage.errorLogging import errors
 
 class baseperson():
@@ -156,6 +156,41 @@ class baseperson():
             return self.getAutoCont()
         else:
             return self.cont
+
+    def INTERESTHOUSE(self,point1,point2="LIFE"):
+        #returns the interest in a house (by default for life)
+        #query if swiftcarpenter discount applies to past time
+        freq="Y"
+        options="MI"
+        DF_HOUSE=(1/(1+defaultSwiftCarpenterDiscountRate))
+
+        expected_years=self.M(point1,point2,freq,options) #array of 4
+        yrs=self.getAgeFromPoint(point1)-self.getAge()
+        accelerated_receipt=discountFactor(yrs,self.getdiscountRate())
+        past_expected_years=expected_years[0]
+        interest_expected_years=expected_years[1]
+        future_expected_years=1-pow(DF_HOUSE,expected_years[2])*accelerated_receipt
+        total=past_expected_years+interest_expected_years+future_expected_years
+        result=[past_expected_years, interest_expected_years, future_expected_years, total]
+        return result
+
+    def REVERSION(self,point1,point2="LIFE"):
+        #returns the reversionary interest in a house (by default for life)
+        #query if swiftcarpenter discount applies to past time
+        freq="Y"
+        options="MI"
+        DF_HOUSE=(1/(1+defaultSwiftCarpenterDiscountRate))
+
+        expected_years=self.M(point1,point2,freq,options) #array of 4
+        yrs=self.getAgeFromPoint(point1)-self.getAge()
+        accelerated_receipt=discountFactor(yrs,self.getdiscountRate())
+        past_expected_years=expected_years[0]
+        interest_expected_years=-expected_years[1]
+        future_expected_years=pow(DF_HOUSE,expected_years[2])*accelerated_receipt
+        total=past_expected_years+interest_expected_years+future_expected_years
+        result=[past_expected_years, interest_expected_years, future_expected_years, total]
+        return result
+
 
     def M(self, point1, point2=None, freq="Y", options='AMI'):
         #builds a curve depending on the options and returns the multiplier

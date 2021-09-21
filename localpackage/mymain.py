@@ -26,6 +26,7 @@ game1={'discountRate':-0.25/100, 'Ogden':7}
 contDetails={'employed':True,'disabled':False,'qualification': 1 }
 
 c1={"name":"Gadsden","cont":1,"dob":'12/8/1975', "sex":"Male", 'dod':'13/4/2021','fatal':False,"dataSet":Ogden8, "contDetails":contDetails}
+c3={"name":"Mason","cont":1,"dob":'20/10/2001', 'deltaLE':-3.5, "sex":"Male",'fatal':False,"dataSet":Ogden8, "contDetails":contDetails}
 c2={"name":"Priya","cont":1,"dob":"7/10/1972", 'deltaLE':-5, "sex":"Female", "dataSet":Ogden8, 'dependenton':'',"contDetails":contDetails}
 claimant = {'name':'Christopher', 'age': 111, 'aai': 25, 'sex': 'Male', 'dataSet': Ogden8, 'deltaLE': -5, 'retirement':67, 'cont':0.75}
 dependent1 = {'name': 'John1', 'age': 20, 'sex': 'Male', 'dataSet': Ogden8, 'dependenton':'Christopher1', 'retirement':57}
@@ -36,7 +37,7 @@ claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Fema
 
 row={'name': 'Gadsden','fromAge':58.36, 'toAge':None, 'freq': None, 'options':None}
 rows=[row for a in range(1,2)]
-eg={"rows": rows, 'game': {"trialDate":datetime(2021,5,4),"projection":True,"autoYrAttained": False, "discountRate": -0.25/100, "Ogden": 8, "claimants": [c1,c2]}}
+eg={"rows": rows, 'game': {"trialDate":datetime(2022,2,7),"projection":True,"autoYrAttained": False, "discountRate": -0.25/100, "Ogden": 8, "claimants": [c1,c2, c3]}}
 
 
 eg2='{"rows":[{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"MI"},{"name":"JANE","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"JOHN","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"JOHN","fromAge":40,"toAge":60,"freq":"Y","options":"AMID"},{"name":"CHRISTOPHER","fromAge":"trial-3Y","toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"},{"name":"","fromAge":"","toAge":"","freq":"","options":""},{"name":"NAME","fromAge":"From Age","toAge":"To Age","freq":"FREQ","options":"OPTIONS"},{"name":"CHRISTOPHER","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"trial-3Y","toAge":60,"freq":"Y","options":"AMID"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"MI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"}],"game":{"discountRate":-0.005,"Ogden":7,"claimants":[{"name":"Christopher","cont":1,"age":58.362765229295,"sex":"Male","dataSet":{"year":2018,"region":"UK","yrAttainedIn":2022},"deltaLE":-5,"dependenton":"","retirement":67},{"name":"Jane","cont":1,"age":36.94455852156057,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLE":0,"aad":"","dependenton":"","retirement":67},{"name":"John","cont":1,"age":25.1088295687885,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLE":0,"aad":"","dependenton":"Christopher","retirement":67}]}}'
@@ -52,6 +53,7 @@ print(errors.getLog())
 #print(g.getClaimant('Jonnie').getStateRetirementAge())
 #print(g.process())
 print(g.getClaimant('Gadsden').M('TRIALd',125, freq='Y',options='AMI'))
+print(g.getClaimant('Mason').REVERSION('TRIAL+2.5Y',"LIFE"))
 #print(g.getClaimant('Jonnie').getAutoCont())
 #print(g.getClaimant('Jonnie').isFatal())
 #print(g.getClaimant('JOHN2').M(20,125, freq='Y',options='D'))
