@@ -238,7 +238,7 @@ class baseperson():
                 if age1>=age2:
                     errors.append("\'To\' date must be after \'From\' date")
         #freq
-        if not freq in fr:
+        if not bool(re.match("^<?(\d+(\.\d+)?)?[YMWDA]>?$",freq)):
             errors.append("\'Frequency\' invalid")
         #options
         for l in options:
