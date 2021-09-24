@@ -102,18 +102,6 @@ class game():
         [claimant.refresh() for claimant in self.claimants.values()] #refresh all the claimants
         self.dirty=False
 
-    def processRowsReversion(self):
-        #rows is a list of rows of form
-        # row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'status': 'Injured', 'options':'AMIC'}
-        return [maybe(self.getClaimant(row['name'])).REVERSION(row['fromAge'], row['toAge']).or_else([None, None, None, None]) for row in self.rows]
-
-
-    def processRowsInterestHouse(self):
-        #rows is a list of rows of form
-        # row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'status': 'Injured', 'options':'AMIC'}
-        return [maybe(self.getClaimant(row['name'])).INTERESTHOUSE(row['fromAge'], row['toAge']).or_else([None, None, None, None]) for row in self.rows]
-
-
     def processRows(self):
         #rows is a list of rows of form
         # row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'status': 'Injured', 'options':'AMIC'}
@@ -124,6 +112,9 @@ class game():
                 [None, None, None, None]) for row in self.rows]
         elif self.function=="REVERSION":
             return [maybe(self.getClaimant(row['name'])).REVERSION(row['fromAge'], row['toAge']).or_else(
+                [None, None, None, None]) for row in self.rows]
+        elif self.function=="REVISEDAGE":
+            return [maybe(self.getClaimant(row['name'])).getrevisedAge().or_else(
                 [None, None, None, None]) for row in self.rows]
 
     def process(self):
