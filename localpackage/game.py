@@ -117,7 +117,14 @@ class game():
     def processRows(self):
         #rows is a list of rows of form
         # row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'status': 'Injured', 'options':'AMIC'}
-        return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], freq=row['freq'],options=row['options']).or_else([None, None, None, None]) for row in self.rows]
+        if self.function=="MULTIPLIER":
+            return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], freq=row['freq'],options=row['options']).or_else([None, None, None, None]) for row in self.rows]
+        elif self.function=="INTERESTHOUSE":
+            return [maybe(self.getClaimant(row['name'])).INTERESTHOUSE(row['fromAge'], row['toAge']).or_else(
+                [None, None, None, None]) for row in self.rows]
+        elif self.function=="REVERSION":
+            return [maybe(self.getClaimant(row['name'])).REVERSION(row['fromAge'], row['toAge']).or_else(
+                [None, None, None, None]) for row in self.rows]
 
     def process(self):
         #returns row results and summary statistics
@@ -125,6 +132,9 @@ class game():
 
     def __init__(self, attributes):
 
+        self.function="MULTIPLIER" #default
+        if 'function' in attributes:
+            self.function=attributes['function']
 
         if 'rows' in attributes:
             self.rows=attributes['rows']
