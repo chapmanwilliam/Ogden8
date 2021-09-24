@@ -190,6 +190,10 @@ class curve():
                     TC1 = termCertain(yrs1, self.getdiscountRate())
                     TC2 = termCertain(yrs2, self.getdiscountRate())
                     future = TC2 - TC1
+                    interest *= factor
+                    past *= factor
+                    future *= factor
+                    result = past, interest, future, past + interest + future
                 else:
                     futureinterest, future = self.cont(max(self.getAge(), fromAge), toAge, options)
                     interest *= factor

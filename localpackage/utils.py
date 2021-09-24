@@ -93,6 +93,8 @@ def termCertain(yrs,discountRate):
     if discountRate==-1:
         errors.add('Discount rate is -1')
         return None
+    if yrs==0:
+        return 0
     factor=1/(1+discountRate)
     if factor==1:
         return 1+yrs
