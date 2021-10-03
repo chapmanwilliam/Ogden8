@@ -114,7 +114,7 @@ class game():
             return [maybe(self.getClaimant(row['name'])).REVERSION(row['fromAge'], row['toAge']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function=="REVISEDAGE":
-            return [[maybe(self.getClaimant(row['name'])).getrevisedAge()].or_else(
+            return [maybe([self.getClaimant(row['name']).getrevisedAge()]).or_else(
                 [None]) for row in self.rows]
 
     def process(self):
