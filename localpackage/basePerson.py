@@ -332,7 +332,7 @@ class baseperson():
         return self.dataSet
 
     def getrevisedAge(self):
-        return self.getdataSet().getrevisedAge(self.getdeltaLE())
+        return [self.getdataSet().getrevisedAge(self.getdeltaLE())]
 
     def getTablesAD(self):
         return self.parent.getTablesAD()
