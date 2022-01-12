@@ -15,6 +15,13 @@ class person(baseperson):
             return (self.getDOD() - self.getDOB()).days / 365.25
         return None
 
+    def getEAD(self):
+        #return expected age at death
+        if self.getDOD():
+            return getAAD();
+        else:
+            return self.getAAT()+self.getLE();
+
     def setUp(self):
 
         self.aad=None #age at death, if fatal
