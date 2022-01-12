@@ -117,6 +117,10 @@ class baseperson():
         self.dob = self.gettrialDate() - timedelta(days=(self.age * 365.25))
         self.setDirty(True)
 
+    def getAAD(self):
+        #return expected age at death
+        return self.getAAT()+self.getLE();
+
     def getAAT(self):
         #return age at trial (will be different if this is a fatal case from age)
         return (self.gettrialDate()-self.dob).days/365.25
