@@ -117,7 +117,7 @@ class game():
             return [maybe([self.getClaimant(row['name']).getrevisedAge()]).or_else(
                 [None]) for row in self.rows]
         elif self.function=="AAD":
-            return [maybe([self.getClaimant(row['name']).getEAD()]).or_else(
+            return [maybe([self.getClaimant(row['name']).getrevisedAge()]).or_else(
                 [None]) for row in self.rows]
 
     def process(self):
