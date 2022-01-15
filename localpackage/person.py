@@ -16,12 +16,13 @@ class person(baseperson):
         return None
 
     def getEAD(self):
+        return self.getAAT() + self.LE()[3]
 
         #return expected age at death
         if self.getAAD():
             return self.getAAD()
         else:
-            return self.LE()[3]
+            return self.getAAT()+self.LE()[3]
 
     def setUp(self):
 
