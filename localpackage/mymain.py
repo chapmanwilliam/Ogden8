@@ -26,7 +26,7 @@ game1={'discountRate':-0.25/100, 'Ogden':7}
 contDetails={'employed':True,'disabled':False,'qualification': 1 }
 
 c1={"name":"Gadsden","cont":1,"dob":'12/8/1975', "sex":"Male", 'dod':'13/4/2021','fatal':False,"dataSet":Ogden8, "contDetails":contDetails}
-c3={"name":"Mason","cont":1,"dob":'20/10/2001', 'deltaLE':-3.5, "sex":"Male",'fatal':False,"dataSet":Ogden8, "contDetails":contDetails}
+c3={"name":"Mason","cont":1,"dob":'7/10/1972', 'deltaLE':0, "sex":"Male",'fatal':False,"dataSet":Ogden8, "contDetails":contDetails}
 c2={"name":"Priya","cont":1,"dob":"7/10/1972", 'deltaLE':-5, "sex":"Female", "dataSet":Ogden8, 'dependenton':'',"contDetails":contDetails}
 claimant = {'name':'Christopher', 'age': 111, 'aai': 25, 'sex': 'Male', 'dataSet': Ogden8, 'deltaLE': -5, 'retirement':67, 'cont':0.75}
 dependent1 = {'name': 'John1', 'age': 20, 'sex': 'Male', 'dataSet': Ogden8, 'dependenton':'Christopher1', 'retirement':57}
