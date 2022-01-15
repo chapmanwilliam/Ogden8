@@ -18,7 +18,7 @@ class person(baseperson):
     def getEAD(self):
         return 10;
         #return expected age at death
-        if self.getDOD():
+        if self.getAAD():
             return self.getAAD();
         else:
             return self.getAAT()+self.LE()[3];
