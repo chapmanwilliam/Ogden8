@@ -21,7 +21,7 @@ class person(baseperson):
         if self.getAAD():
             return self.getAAD()
         else:
-            return self.getAAT()+self.LE()[3]
+            return self.LE()[3]
 
     def setUp(self):
 
