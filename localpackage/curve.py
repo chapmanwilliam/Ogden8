@@ -173,10 +173,6 @@ class curve():
     def Multiplier(self, fromAge, toAge=None, options=None, freq="Y", cont=1, calc=None):
         st, en, factor, timeInterval = returnFreq(freq, fromAge, toAge)
 
-        if(freq=="A"):
-            #need to set factor to 1 / the expected no of years lived between
-            factor=1/self.Multiplier(fromAge, toAge, "M", "Y", cont, calc)[3]
-
         if toAge:
             if st or en:  # this is not continuous
                 if st:

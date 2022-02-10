@@ -214,7 +214,22 @@ class baseperson():
             co=self.getContDependentsOn() #if this is a dependency claim then we need cont of deceased in uninjured state
         else:
             co=self.getCont()
-        result= c.M(age1,age2,freq=freq,cont=co,options=options)
+        if(freq=='A'):
+            result1 = c.M(age1,age2,freq="Y",cont=co,options="M"); #expected years
+            result2 = c.M(age1, age2, freq="Y", cont=co, options=options);  # normal multiplier
+            past=0
+            future=0
+            interest=0
+            if(result2[0]!=0):
+                past=result1[0]/result2[0];
+            if(result2[1]!=0):
+                interest=result1[1]/result2[1];
+            if(result2[2]!=0):
+                future=result1[2]/result2[2];
+            total=past+interest,future
+            result = past, interest, future, total
+        else:
+            result= c.M(age1,age2,freq=freq,cont=co,options=options)
 #       print(c.calc.show())
 #        c.getPlot(result, age1, age2, freq, co, options)
         return result
