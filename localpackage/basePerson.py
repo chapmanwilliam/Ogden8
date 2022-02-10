@@ -32,26 +32,26 @@ class baseperson():
     def getName(self):
         return self.name
 
-    def LE(self):
+    def LE(self): #Life expectancy
         return self.M(self.age,125, options='MI')
 
-    def LM(self):
+    def LM(self): #Life multiplier
         return self.M(self.age,125, options='AMI')
 
-    def EM(self):
+    def EM(self): #Earnings multiplier
         if hasattr(self,'retirement'):
             return self.M(self.age,self.retirement, options='AMI')
         return self.M(self.age,self.getStateRetirementAge())
 
-    def PM(self):
+    def PM(self): #Pension multiplier
         if hasattr(self,'retirement'):
             return self.M(self.retirement,'LIFE', options='AMI')
         return self.M(self.getStateRetirementAge(), 'LIFE', options='AMI')
 
-    def JLE(self):
+    def JLE(self): #Joint life expectancy
         return self.M(self.age,125, options='MID')
 
-    def JLM(self):
+    def JLM(self): #Joint life multiplier
         return self.M(self.age,125, options='AMID')
 
     def getStateRetirementAge(self):
