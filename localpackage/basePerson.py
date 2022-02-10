@@ -221,11 +221,11 @@ class baseperson():
             future=0
             interest=0
             if(result2[0]!=0):
-                past=result1[0]/result2[0];
+                past=result1[0]/result2[0]
             if(result2[1]!=0):
-                interest=result1[1]/result2[1];
+                interest=result1[1]/result2[1]
             if(result2[2]!=0):
-                future=result1[2]/result2[2];
+                future=result1[2]/result2[2]
             total=past+interest,future
             result = past, interest, future, total
         else:
