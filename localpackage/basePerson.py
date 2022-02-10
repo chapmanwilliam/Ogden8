@@ -220,15 +220,12 @@ class baseperson():
             past=0
             future=0
             interest=0
-            total=0
-            if(result1[0]!=0):
-                past=result2[0]/result1[0]
-            if(result1[1]!=0):
-                interest=result2[1]/result1[1]
+            if(result1[0] + result1[1]!=0):
+                past=result2[0]/(result1[0]+result1[1])
+                interest=result2[1]/(result1[0]+result1[1])
             if(result1[2]!=0):
                 future=result2[2]/result1[2]
-            if(result1[3]!=0):
-                total=result2[3]/result1[3]
+            total=past+interest+future
             result = past, interest, future, total
         else:
             result= c.M(age1,age2,freq=freq,cont=co,options=options)
