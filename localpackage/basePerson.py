@@ -226,7 +226,7 @@ class baseperson():
                 interest=result2[1]/result1[1]
             if(result1[2]!=0):
                 future=result2[2]/result1[2]
-            total=past+interest,future
+            total=past+interest+future
             result = past, interest, future, total
         else:
             result= c.M(age1,age2,freq=freq,cont=co,options=options)
