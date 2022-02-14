@@ -193,7 +193,7 @@ class baseperson():
         return result
 
 
-    def M(self, point1, point2=None, freq="Y", options='AMI'):
+    def M(self, point1, point2=None, freq="Y", options='AMI', discountRate=None):
         #builds a curve depending on the options and returns the multiplier
         if not freq:
             freq="Y"
@@ -215,8 +215,8 @@ class baseperson():
         else:
             co=self.getCont()
         if(freq=='A'):
-            result1 = c.M(age1, age2, freq="Y", cont=co,options="M"); #expected years
-            result2 = c.M(age1, age2, freq="Y", cont=co, options=options);  # normal multiplier
+            result1 = c.M(age1, age2, freq="Y", cont=co,options="M",discountRate=discountRate); #expected years
+            result2 = c.M(age1, age2, freq="Y", cont=co, options=options, discountRate=discountRate);  # normal multiplier
             past=0
             future=0
             interest=0
@@ -228,7 +228,7 @@ class baseperson():
             total=past+interest+future
             result = past, interest, future, total
         else:
-            result= c.M(age1,age2,freq=freq,cont=co,options=options)
+            result= c.M(age1,age2,freq=freq,cont=co,options=options,discountRate=discountRate)
 #       print(c.calc.show())
 #        c.getPlot(result, age1, age2, freq, co, options)
         return result

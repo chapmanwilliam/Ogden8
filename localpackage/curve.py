@@ -10,7 +10,7 @@ class curve():
     def __init__(self, parent=None):
         self.parent = parent
         self._LxNoI = self._Lx = None
-        self.curveOptions = {}  # dictionary to store different options with each entry 'AM' or 'AMD' etc. Should be 2^4 = 16 options
+        self.curveOptions = {}  # dictionary to store different options [discountRate][options] with each entry  [0.0025]['AM'] or 'AMD' etc. Should be 2^4 = 16 options for each discount rate
         self.dirty = True
         self.calc = calcs()
 
@@ -151,12 +151,12 @@ class curve():
     def getClaimants(self):
         return self.parent.getClaimants()
 
-    def M(self, fromAge, toAge=None, freq="Y", cont=1, options='AMI'):
+    def M(self, fromAge, toAge=None, freq="Y", cont=1, options='AMI', discountRate=None):
         # get the right curve
 
         self.refresh()
 
-        self._LxNoI, self._Lx, self.Rng = self.getCurve(options, cont)
+        self._LxNoI, self._Lx, self.Rng = self.getCurve(options, cont, discountRate)
 
         calc1 = calcs()
         result = self.Multiplier(fromAge, toAge, options, freq, cont, calc1)
@@ -284,13 +284,21 @@ class curve():
             self.curveOptions.clear()
             self.dirty = False
 
-    def getCurve(self, options, cont):
+    def getCurve(self, options, cont, discountRate=None):
         # Returns the curve for past and future applying all relevant discounts
 
+        if(not discountRate):
+            discountRate = self.getdiscountRate()
+
         # First check if we already have calculated this one
-        if options in self.curveOptions:
-            result = self.curveOptions[options]
-            return result['LxNoI'], result['Lx'], result['Rng']
+        if discountRate in self.curveOptions:
+            if options in self.curveOptions[discountRate]: #options is a string like 'AMID' and self.curveOptions is a dictionary
+                result = self.curveOptions[discountRate][options]
+                return result['LxNoI'], result['Lx'], result['Rng']
+            else:
+                self.curveOptions[discountRate][options] = {}
+        else:
+            self.curveOptions[discountRate] = {}
 
         def expand_past_range():
             # makes the past more granular
@@ -305,7 +313,6 @@ class curve():
 
         rf = self.getdataSet().Rng[self.getdataSet().Rng >= age]  # range in the future
         Rng = np.concatenate((rp, rf))  # range past and future
-        discountRate = self.getdiscountRate()
 
         # defaults
         _disc = np.full((Rng.size), 1)
@@ -355,6 +362,6 @@ class curve():
         Lx = np.prod(B, axis=0)
 
         result = {'LxNoI': LxNoI, 'Lx': Lx, 'Rng': Rng}
-        self.curveOptions[options] = result
+        self.curveOptions[discountRate][options]=result
 
         return LxNoI, Lx, Rng
