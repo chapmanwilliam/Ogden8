@@ -18,9 +18,9 @@ class baseperson():
             'EM': self.EM(),
             'PM': self.PM(),
             'JLE': self.JLE(),
-            'JLM':self.JLM(),
-            'AutoCont':self.getAutoCont(),
-            'StateRetirementAge':self.getStateRetirementAge()
+            'JLM': self.JLM(),
+            'AutoCont': self.getAutoCont(),
+            'StateRetirementAge': self.getStateRetirementAge()
         }
 
     def getprojection(self):
@@ -119,10 +119,11 @@ class baseperson():
 
 
     def getAAT(self):
-        #return age at trial (will be different if this is a fatal case from age)
+        # return age at trial (will be different if this is a fatal case from age)
         return (self.gettrialDate()-self.dob).days/365.25
 
     def getAAI(self):
+        # return age at injury
         if self.getDOI():
             return (self.getDOI() - self.getDOB()).days / 365.25
         return None

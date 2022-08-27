@@ -10,12 +10,20 @@ class person(baseperson):
                 'dataSet': self.getdataSet().getDict(), 'deltaLE': self.getdeltaLE()}
 
     def getDOD(self):
+        # return date of death of deceased person
         return self.dod
 
     def getAAD(self):
+        # return age at death of deceased person
         if self.getDOD():
             return (self.getDOD() - self.getDOB()).days / 365.25
         return None
+
+    def getEDD(self):
+        # return expected date of death
+        EAD=self.getEAD()
+        dob=self.getDOB()
+        return dob + timedelta(days=(EAD * 365.25))
 
     def getEAD(self):
         # return expected age at death
