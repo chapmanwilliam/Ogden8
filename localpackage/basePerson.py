@@ -43,6 +43,9 @@ class baseperson():
             return self.M(self.age,self.retirement, options='AMI',discountRate=discountRate)
         return self.M(self.age,self.getStateRetirementAge())
 
+    def AEM(self, discountRate=None): #Adjusted earnings multiplier
+        return self.EM(discountRate) * self.getCont()
+
     def PM(self, discountRate=None): #Pension multiplier
         if hasattr(self,'retirement'):
             return self.M(self.retirement,'LIFE', options='AMI',discountRate=discountRate)

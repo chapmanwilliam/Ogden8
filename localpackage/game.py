@@ -134,6 +134,12 @@ class game():
         elif self.function == "EM":
             return [maybe(self.getClaimant(row['name']).EM(row['discountRate'])).or_else(
                 [None]) for row in self.rows]
+        elif self.function == "AEM":
+            return [maybe(self.getClaimant(row['name']).AEM(row['discountRate'])).or_else(
+                [None]) for row in self.rows]
+        elif self.function == "LE":
+            return [maybe(self.getClaimant(row['name']).LE()).or_else(
+                [None]) for row in self.rows]
 
 
 
