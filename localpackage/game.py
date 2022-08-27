@@ -122,6 +122,12 @@ class game():
         elif self.function == "EAD":
             return [maybe([self.getClaimant(row['name']).getEAD()]).or_else(
                 [None]) for row in self.rows]
+        elif self.function == "EDD":
+            return [maybe([self.getClaimant(row['name']).getEAD()]).or_else(
+                [None]) for row in self.rows]
+
+    #            return [maybe([json.dumps(self.getClaimant(row['name']).getEDD().isoformat())]).or_else(
+    #                [None]) for row in self.rows]
 
     def process(self):
         # returns row results and summary statistics
