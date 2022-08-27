@@ -125,6 +125,9 @@ class game():
         elif self.function == "EDD":
             return [maybe([json.dumps(self.getClaimant(row['name']).getEDD().isoformat())]).or_else(
                 [None]) for row in self.rows]
+        elif self.function == "LE":
+            return [maybe(self.getClaimant(row['name']).LE()).or_else(
+                [None]) for row in self.rows]
         elif self.function == "LM":
             return [maybe(self.getClaimant(row['name']).LM(row['discountRate'])).or_else(
                 [None]) for row in self.rows]
@@ -137,8 +140,11 @@ class game():
         elif self.function == "AEM":
             return [maybe(self.getClaimant(row['name']).AEM(row['discountRate'])).or_else(
                 [None]) for row in self.rows]
-        elif self.function == "LE":
-            return [maybe(self.getClaimant(row['name']).LE()).or_else(
+        elif self.function == "JLE":
+            return [maybe(self.getClaimant(row['name']).JLE()).or_else(
+                [None]) for row in self.rows]
+        elif self.function == "JLM":
+            return [maybe(self.getClaimant(row['name']).JLM(row['discountRate'])).or_else(
                 [None]) for row in self.rows]
 
 
