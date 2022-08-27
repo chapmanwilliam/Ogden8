@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from pymaybe import maybe
 from localpackage.person import person
 from localpackage.TablesAD import TablesAD
@@ -120,7 +121,7 @@ class game():
             return [maybe([self.getClaimant(row['name']).getEAD()]).or_else(
                 [None]) for row in self.rows]
         elif self.function=="EDD":
-            return [maybe([self.getClaimant(row['name']).getEDD()]).or_else(
+            return [maybe([json.dumps(self.getClaimant(row['name']).getEDD().isoformat())]).or_else(
                 [None]) for row in self.rows]
 
     def process(self):

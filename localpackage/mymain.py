@@ -3,7 +3,8 @@ from person import person
 from game import game
 from datetime import datetime
 from errorLogging import errors
-
+import json
+from json import JSONEncoder
 
 from pymaybe import maybe
 
@@ -56,7 +57,7 @@ g=game(eg)
 #print(g.process())
 #print(g.getClaimant('Hicken').M(60,'LIFE', freq='Y',options='M'))
 print(g.getClaimant('Norman').M("TRIAL","LIFE", freq='Y'))
-print(g.getClaimant('Norman').getEDD())
+print(json.dumps(g.getClaimant('Norman').getEDD().isoformat()))
 print(g.getClaimant('Norman').LE())
 #print(g.getClaimant('Mason').getAAT())
 #print(g.getClaimant('Mason').LE()[3])
