@@ -128,6 +128,13 @@ class game():
         elif self.function == "LM":
             return [maybe([self.getClaimant(row['name']).LM(row['discountRate'])]).or_else(
                 [None]) for row in self.rows]
+        elif self.function == "PM":
+            return [maybe([self.getClaimant(row['name']).PM(row['discountRate'])]).or_else(
+                [None]) for row in self.rows]
+        elif self.function == "EM":
+            return [maybe([self.getClaimant(row['name']).EM(row['discountRate'])]).or_else(
+                [None]) for row in self.rows]
+
 
 
     def process(self):

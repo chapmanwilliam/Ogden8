@@ -32,8 +32,8 @@ class baseperson():
     def getName(self):
         return self.name
 
-    def LE(self, discountRate=None): #Life expectancy
-        return self.M(self.age,125, options='MI',discountRate=discountRate)
+    def LE(self): #Life expectancy
+        return self.M(self.age,125, options='MI')
 
     def LM(self, discountRate=None): #Life multiplier
         return self.M(self.age,125, options='AMI',discountRate=discountRate)
