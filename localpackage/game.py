@@ -125,7 +125,7 @@ class game():
             return [maybe([self.getClaimant(row['name']).getrevisedAge()]).or_else(
                 [None]) for row in self.rows]
         elif self.function == "DF":
-            return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], freq=row['freq'],
+            return [maybe(self.getClaimant(row['name'])).M(row['fromAge'],
                                                            options='A',
                                                            discountRate=row['discountRate']).or_else(
                 [None, None, None, None]) for row in self.rows]
