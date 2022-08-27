@@ -125,6 +125,10 @@ class game():
         elif self.function == "EDD":
             return [maybe([json.dumps(self.getClaimant(row['name']).getEDD().isoformat())]).or_else(
                 [None]) for row in self.rows]
+        elif self.function == "LM":
+            return [maybe([self.getClaimant(row['name']).LM(row['discountRate'])]).or_else(
+                [None]) for row in self.rows]
+
 
     def process(self):
         # returns row results and summary statistics

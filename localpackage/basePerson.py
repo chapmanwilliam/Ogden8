@@ -32,27 +32,27 @@ class baseperson():
     def getName(self):
         return self.name
 
-    def LE(self): #Life expectancy
-        return self.M(self.age,125, options='MI')
+    def LE(self, discountRate=None): #Life expectancy
+        return self.M(self.age,125, options='MI',discountRate=discountRate)
 
-    def LM(self): #Life multiplier
-        return self.M(self.age,125, options='AMI')
+    def LM(self, discountRate=None): #Life multiplier
+        return self.M(self.age,125, options='AMI',discountRate=discountRate)
 
-    def EM(self): #Earnings multiplier
+    def EM(self, discountRate=None): #Earnings multiplier
         if hasattr(self,'retirement'):
-            return self.M(self.age,self.retirement, options='AMI')
+            return self.M(self.age,self.retirement, options='AMI',discountRate=discountRate)
         return self.M(self.age,self.getStateRetirementAge())
 
-    def PM(self): #Pension multiplier
+    def PM(self, discountRate=None): #Pension multiplier
         if hasattr(self,'retirement'):
-            return self.M(self.retirement,'LIFE', options='AMI')
-        return self.M(self.getStateRetirementAge(), 'LIFE', options='AMI')
+            return self.M(self.retirement,'LIFE', options='AMI',discountRate=discountRate)
+        return self.M(self.getStateRetirementAge(), 'LIFE', options='AMI',discountRate=discountRate)
 
-    def JLE(self): #Joint life expectancy
-        return self.M(self.age,125, options='MID')
+    def JLE(self, discountRate=None): #Joint life expectancy
+        return self.M(self.age,125, options='MID',discountRate=discountRate)
 
-    def JLM(self): #Joint life multiplier
-        return self.M(self.age,125, options='AMID')
+    def JLM(self, discountRate=None): #Joint life multiplier
+        return self.M(self.age,125, options='AMID',discountRate=discountRate)
 
     def getStateRetirementAge(self):
         #returns state retirement age from government web-site
