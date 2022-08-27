@@ -138,6 +138,13 @@ class baseperson():
     def getdiscountRate(self):
         return self.parent.getdiscountRate()
 
+    def getdiscountFactor(self,point,discountRate=None):
+        if discountRate==None:
+            discountRate=self.getdiscountRate()
+        pointAge=self.getAgeFromPoint(point)
+        yrs=pointAge-self.getAge()
+        return discountFactor(yrs,discountRate)
+
     def gettargetLE(self):
         return self.targetLE
 
