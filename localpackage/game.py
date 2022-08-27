@@ -110,6 +110,11 @@ class game():
                                                            options=row['options'],
                                                            discountRate=row['discountRate']).or_else(
                 [None, None, None, None]) for row in self.rows]
+        elif self.function == "JMULTIPLIER":
+            return [maybe(self.getClaimant(row['name'])).JM(row['fromAge'], row['toAge'], freq=row['freq'],
+                                                           options=row['options'],
+                                                           discountRate=row['discountRate']).or_else(
+                [None, None, None, None]) for row in self.rows]
         elif self.function == "INTERESTHOUSE":
             return [maybe(self.getClaimant(row['name'])).INTERESTHOUSE(row['fromAge'], row['toAge']).or_else(
                 [None, None, None, None]) for row in self.rows]
@@ -127,25 +132,25 @@ class game():
                 [None]) for row in self.rows]
         elif self.function == "LE":
             return [maybe(self.getClaimant(row['name']).LE()).or_else(
-                [None]) for row in self.rows]
+                [None, None, None, None]) for row in self.rows]
         elif self.function == "LM":
             return [maybe(self.getClaimant(row['name']).LM(row['discountRate'])).or_else(
-                [None]) for row in self.rows]
+                [None, None, None, None]) for row in self.rows]
         elif self.function == "PM":
             return [maybe(self.getClaimant(row['name']).PM(row['discountRate'])).or_else(
-                [None]) for row in self.rows]
+                [None, None, None, None]) for row in self.rows]
         elif self.function == "EM":
             return [maybe(self.getClaimant(row['name']).EM(row['discountRate'])).or_else(
-                [None]) for row in self.rows]
+                [None, None, None, None]) for row in self.rows]
         elif self.function == "AEM":
             return [maybe(self.getClaimant(row['name']).AEM(row['discountRate'])).or_else(
-                [None]) for row in self.rows]
+                [None, None, None, None]) for row in self.rows]
         elif self.function == "JLE":
             return [maybe(self.getClaimant(row['name']).JLE()).or_else(
-                [None]) for row in self.rows]
+                [None, None, None, None]) for row in self.rows]
         elif self.function == "JLM":
             return [maybe(self.getClaimant(row['name']).JLM(row['discountRate'])).or_else(
-                [None]) for row in self.rows]
+                [None, None, None, None]) for row in self.rows]
 
 
 

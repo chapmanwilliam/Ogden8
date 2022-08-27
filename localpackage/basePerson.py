@@ -198,6 +198,12 @@ class baseperson():
         return result
 
 
+    def JM(self, point1, point2=None, freq="Y", options='AMI', discountRate=None):
+        #joint multiplier
+        if not "D" in options:
+            options=options+"D"
+        return self.M(point1, point2, freq, options, discountRate)
+
     def M(self, point1, point2=None, freq="Y", options='AMI', discountRate=None):
         #builds a curve depending on the options and returns the multiplier
         if not freq:
