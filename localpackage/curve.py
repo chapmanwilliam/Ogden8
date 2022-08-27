@@ -159,7 +159,7 @@ class curve():
         self._LxNoI, self._Lx, self.Rng = self.getCurve(options, cont, discountRate)
 
         calc1 = calcs()
-        result = self.Multiplier(fromAge, toAge, options, freq, cont, calc1)
+        result = self.Multiplier(fromAge, toAge, options, freq, cont, calc1,discountRate)
 
         self.calc.clear()
         self.calc.addText(self.getHeading1(result, fromAge, toAge, freq, cont, options))
@@ -170,7 +170,9 @@ class curve():
 
         return result
 
-    def Multiplier(self, fromAge, toAge=None, options=None, freq="Y", cont=1, calc=None):
+    def Multiplier(self, fromAge, toAge=None, options=None, freq="Y", cont=1, calc=None, discountRate=None):
+        if discountRate==None:
+            discountRate=self.getdiscountRate()
         st, en, factor, timeInterval = returnFreq(freq, fromAge, toAge)
 
         if toAge:
@@ -188,8 +190,8 @@ class curve():
                     futureinterest = 0
                     yrs1 = max(self.getAge(), fromAge) - self.getAge()
                     yrs2 = toAge - self.getAge()
-                    TC1 = termCertain(yrs1, self.getdiscountRate())
-                    TC2 = termCertain(yrs2, self.getdiscountRate())
+                    TC1 = termCertain(yrs1, discountRate)
+                    TC2 = termCertain(yrs2, discountRate)
                     future = TC2 - TC1
                     interest *= factor
                     past *= factor
