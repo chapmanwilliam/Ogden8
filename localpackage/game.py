@@ -125,8 +125,15 @@ class game():
             return [maybe([self.getClaimant(row['name']).getrevisedAge()]).or_else(
                 [None]) for row in self.rows]
         elif self.function == "DF":
-            return [maybe([self.getClaimant(row['name']).getdiscountFactor(discountRate=row['discountRate'])]).or_else(
-                [None]) for row in self.rows]
+            return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], freq=row['freq'],
+                                                           options='A',
+                                                           discountRate=row['discountRate']).or_else(
+                [None, None, None, None]) for row in self.rows]
+        elif self.function == "TC":
+            return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], freq=row['freq'],
+                                                           options='A',
+                                                           discountRate=row['discountRate']).or_else(
+                [None, None, None, None]) for row in self.rows]
         elif self.function == "EAD":
             return [maybe([self.getClaimant(row['name']).getEAD()]).or_else(
                 [None]) for row in self.rows]
