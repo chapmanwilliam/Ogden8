@@ -31,9 +31,9 @@ c2={"name":"Priya","cont":1,"dob":"7/10/1972", 'deltaLE':-5, "sex":"Female", "da
 c3={"name":"Mason","cont":1,"dob":'7/10/1972', 'deltaLE':0, "sex":"Male",'fatal':False,"dataSet":Ogden8, "contDetails":contDetails}
 c4={"name":"Jennifer","cont":1,"dob":'12/3/1949', 'dod':'23/2/2020', 'deltaLE':0, "sex":"Female",'fatal':True,"dataSet":Ogden8, "contDetails":contDetails}
 c5={"name":"Gerald","cont":1,"dob":'6/4/1943', 'deltaLE':0, "sex":"Male",'fatal':False,"dataSet":Ogden8, 'dependenton':'Jennifer', "contDetails":contDetails}
-claimant = {'name':"Jacqueline", 'dob': '25/8/1946', 'dod': '31/7/2017', 'fatal': True, 'sex': 'Female', 'dataSet': Ogden8, 'deltaLE': 0, 'retirement':67, 'cont':0.75}
-dependent1 = {'name': "Norman", 'dob': '25/8/1946', 'sex': 'Male', 'dataSet': Ogden8, 'dependenton':'Jacqueline', 'retirement':57}
-dependent2 = {'name': "Nicholas", 'dob': '25/8/1973', 'sex': 'Male', 'dataSet': Ogden8, 'dependenton':'Jacqueline', 'retirement':57}
+claimant = {'name':"Jacqueline", 'dob': '25/8/1946', 'dod': '31/7/2017', 'fatal': True, 'sex': 'Female', 'dataSet': Ogden8, 'deltaLE': 0, 'retirement':78, 'cont':0.75}
+dependent1 = {'name': "Norman", 'dob': '25/8/1946', 'sex': 'Male', 'dataSet': Ogden8, 'dependenton':'Jacqueline', 'retirement':78}
+dependent2 = {'name': "Nicholas", 'dob': '25/8/1973', 'sex': 'Male', 'dataSet': Ogden8, 'dependenton':'Jacqueline', 'retirement':79}
 
 claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Female', 'dataSet': Ogden7, 'deltaLE': -15, 'retirement':67}
 
@@ -58,7 +58,9 @@ g=game(eg)
 #print(g.getClaimant('Hicken').M(60,'LIFE', freq='Y',options='M'))
 print(g.getClaimant('Norman').M("TRIAL","LIFE", freq='Y'))
 print(json.dumps(g.getClaimant('Norman').getEDD().isoformat()))
-print(g.getClaimant('Norman').LM(None))
+print(g.getClaimant('Norman').AEM(-0.0075))
+print(g.getClaimant('Norman').EM(-0.0075))
+print(g.getClaimant('Jacqueline').AEM(-0.0075))
 #print(g.getClaimant('Mason').getAAT())
 #print(g.getClaimant('Mason').LE()[3])
 #print(g.getClaimant('Mason').getEAD())

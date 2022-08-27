@@ -44,15 +44,16 @@ class baseperson():
         return self.M(self.age,self.getStateRetirementAge())
 
     def AEM(self, discountRate=None): #Adjusted earnings multiplier
-        return self.EM(discountRate) * self.getCont()
+        cont=self.getCont()
+        return [i * cont for i in self.EM(discountRate)]
 
     def PM(self, discountRate=None): #Pension multiplier
         if hasattr(self,'retirement'):
             return self.M(self.retirement,'LIFE', options='AMI',discountRate=discountRate)
         return self.M(self.getStateRetirementAge(), 'LIFE', options='AMI',discountRate=discountRate)
 
-    def JLE(self, discountRate=None): #Joint life expectancy
-        return self.M(self.age,125, options='MID',discountRate=discountRate)
+    def JLE(self): #Joint life expectancy
+        return self.M(self.age,125, options='MID')
 
     def JLM(self, discountRate=None): #Joint life multiplier
         return self.M(self.age,125, options='AMID',discountRate=discountRate)
