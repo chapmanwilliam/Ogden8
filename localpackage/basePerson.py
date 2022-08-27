@@ -143,6 +143,12 @@ class baseperson():
             discountRate=self.getdiscountRate()
         return self.M(point, options='A',discountRate=discountRate)
 
+    def gettermCertain(self,point1,point2,freq="Y",discountRate=None):
+        if discountRate==None:
+            discountRate=self.getdiscountRate()
+        return self.M(point1,point2, freq=freq, options='A',discountRate=discountRate)
+
+
     def gettargetLE(self):
         return self.targetLE
 
