@@ -5,13 +5,15 @@ from datetime import datetime
 from errorLogging import errors
 import json
 from json import JSONEncoder
-
+import numpy as np
 from pymaybe import maybe
 
 from receiver import receiver
 import numpy as np
+import math
 import pandas as pd
 import json
+import pygsheets
 from utils import Ogden7,Ogden8
 from TablesAD import TablesAD
 from SAR import SAR
@@ -41,7 +43,7 @@ claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad':30, 'sex': 'Fema
 
 row={'name': 'Jacqueline','fromAge':76, 'toAge':'LIFE', 'freq': 'Y', 'options':None}
 rows=[row for a in range(1,2)]
-eg={"rows": rows, 'game': {"trialDate":datetime(2022,8,25),"projection":True,"autoYrAttained": False, "discountRate": -0.25/100, "Ogden": 8, "claimants": [claimant, dependent1,nondependent3]}}
+eg={"rows": [], 'game': {"trialDate":datetime(2022,8,25),"projection":True,"autoYrAttained": False, "discountRate": -0.25/100, "Ogden": 8, "claimants": [claimant, dependent1,nondependent3]}}
 
 
 eg2='{"rows":[{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"MI"},{"name":"JANE","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"JOHN","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"JOHN","fromAge":40,"toAge":60,"freq":"Y","options":"AMID"},{"name":"CHRISTOPHER","fromAge":"trial-3Y","toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"},{"name":"","fromAge":"","toAge":"","freq":"","options":""},{"name":"NAME","fromAge":"From Age","toAge":"To Age","freq":"FREQ","options":"OPTIONS"},{"name":"CHRISTOPHER","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"trial-3Y","toAge":60,"freq":"Y","options":"AMID"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"MI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"}],"game":{"discountRate":-0.005,"Ogden":7,"claimants":[{"name":"Christopher","cont":1,"age":58.362765229295,"sex":"Male","dataSet":{"year":2018,"region":"UK","yrAttainedIn":2022},"deltaLE":-5,"dependenton":"","retirement":67},{"name":"Jane","cont":1,"age":36.94455852156057,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLE":0,"aad":"","dependenton":"","retirement":67},{"name":"John","cont":1,"age":25.1088295687885,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLE":0,"aad":"","dependenton":"Christopher","retirement":67}]}}'
@@ -51,6 +53,103 @@ eg4={"rows":[],'game':{"discountRate":-0.0025,"Ogden":8,"trialDate":"29/03/2021"
 eg5={"rows":[{"name":"Zaki","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"}],"game":{"discountRate":-0.01,"trialDate":"31/03/2023","projection":True,"Ogden":8,"claimants":[{"fatal":False,"dependenton":"","dob":"27/02/2005","sex":"Male","qualification":"3","disabled":False,"cont":0.67,"name":"Zaki","targetLE_":30,"dataSet":{"year":2018,"region":"UK","yrAttainedIn":2022},"retirement":100,"region":"UK","liveto_":75,"deltaLE":0,"deltaLEcounter":0,"employed":False,"dod":"13/04/2021","contDetails":{"qualification":"3","employed":False,"disabled":False},"deltaLE_":0}],"autoYrAttained":False}}
 eg6={"rows":[{"name":"Zaki","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"}],"game":{"DOI": "29/3/2012", "claimants":[{"fatal":False,"sex":"Male","livetoN":75,"yrsleftN":98,"cont":0.67,"employed":False,"disabled":False,"dob":"2/9/2002","dependenton":"","dod":"13/04/2021","qualification":"1","retirement":100,"dataSet":{"year":2018,"yrAttainedIn":2022,"region":"UK"},"deltaLEcounter":1,"contDetails":{"disabled":False,"employed":True,"qualification":"2"},"region":"UK","deltaLEN":0,"name":"Zaki"}],"autoYrAttained":False,"Ogden":8,"discountRate":-0.0025,"projection":True,"trialDate":"27/4/2021"}}
 g=game(eg)
+
+spreadsheet_id='1MADead62q5c8M0-O1Xuf-30aYy93FgfrrMM4vFKkmzw'
+service_file_path="/Users/William/Dropbox (Personal)/Python/Code/pyCharm/Ogden8/pro-tracker-360811-236cce02c285.json"
+sheet_name='Sheet1'
+
+
+def joint_lives_table(start_age,end_age,sexes):
+    yrs=end_age-start_age
+    dataJLE={}
+    dataJLM={}
+    first_sex=""
+    second_sex=""
+    if sexes[0]=='M':
+        first_sex='Male'
+    else:
+        first_sex='Female'
+    if sexes[1]=="F":
+        second_sex="Female"
+    else:
+        second_sex="Male"
+    for h in range(start_age,end_age): #column
+        print (h)
+        husband = {'name': "husband", 'age': h, 'sex': first_sex, 'dependenton': 'wife','dataSet': Ogden8,'retirement': 78} #create husband of age h
+        colJLE=[]
+        colJLM=[]
+        for w in range (start_age,end_age): #row
+            print (w)
+            wife = {'name': "wife", 'age': w, 'sex': second_sex, 'dataSet': Ogden8, 'dependenton': 'husband', 'retirement': 78} #create wife of age h
+            eg={"rows": [], 'game': {"trialDate":datetime(2022,8,25),"projection":True,"autoYrAttained": False, "discountRate": -0.25/100, "Ogden": 8, "claimants": [wife,husband]}}
+            g=game(eg)
+            colJLE.append(g.getClaimant('husband').JLE()[3])
+            colJLM.append(g.getClaimant('husband').JLM()[3])
+        dataJLE[h]=colJLE
+        dataJLM[h]=colJLM
+    dfJLE=pd.DataFrame(dataJLE, index=[*range(start_age,end_age)])
+    dfJLM=pd.DataFrame(dataJLM, index=[*range(start_age,end_age)])
+    print(dfJLE)
+    print(dfJLM)
+    titleJLM=""
+    titleJLE=""
+    rowTitle=""
+    colTitle=""
+    if sexes[0]==sexes[1] and sexes[0]=='M':
+        titleJLM="Joint Life Multiplier of two men"
+        titleJLE="Joint Life Expectancy of two men"
+        rowTitle="Age man"
+        colTitle="Age man"
+    elif sexes[0]==sexes[1] and sexes[0]=='F':
+        titleJLM="Joint Life Multiplier of two women"
+        titleJLE="Joint Life Expectancy of two women"
+        rowTitle='Age woman'
+        colTitle='Age woman'
+    elif not sexes[0]==sexes[1]:
+        titleJLM="Joint Life Multiplier of man and woman"
+        titleJLE="Joint Life Expectancy of man and woman"
+        if sexes[0]=='M':
+            colTitle='Age man'
+            rowTitle='Age woman'
+        else:
+            colTitle='Age woman'
+            rowTitle='Age man'
+
+    write_to_gsheet(service_file_path,spreadsheet_id,'JLE ' + sexes,dfJLE,titleJLE,colTitle,rowTitle)
+    write_to_gsheet(service_file_path,spreadsheet_id,'JLM ' + sexes,dfJLM,titleJLM,colTitle,rowTitle)
+
+
+def write_to_gsheet(service_file_path, spreadsheet_id, sheet_name, data_df, title,colTitle,rowTitle):
+    """
+        this function takes data_df and writes it under spreadsheet_id
+        and sheet_name using your credentials under service_file_path
+        """
+    gc = pygsheets.authorize(service_file=service_file_path)
+    sh = gc.open_by_key(spreadsheet_id)
+    try:
+        sh.add_worksheet(sheet_name)
+    except:
+        pass
+    wks_write = sh.worksheet_by_title(sheet_name)
+    #write data
+    wks_write.clear('A1', None, '*')
+    wks_write.cell((1, 1)).wrap_strategy = "WRAP"
+    wks_write.set_dataframe(data_df, (2, 1),copy_index=True, encoding='utf-8', fit=False)
+    #write titles
+    wks_write.cell((1,1)).value=title
+    wks_write.cell((2,1)).value=rowTitle
+    wks_write.cell((1,2)).value=colTitle
+    wks_write.frozen_rows = 2
+    wks_write.frozen_cols = 1
+    #formatting
+    model_cell = pygsheets.Cell("B3")
+    model_cell.set_number_format(
+        format_type=pygsheets.FormatType.NUMBER,
+        pattern="0.00"
+    )
+    left_corner_cell=(3,2)
+    right_corner_cell=[sum(x) for x in zip(left_corner_cell,data_df.shape,(-1,-1))]
+    pygsheets.DataRange(left_corner_cell,right_corner_cell,worksheet=wks_write).apply_format(model_cell)
 #print(g.processRows())
 #print(g.getClaimant('Gadsden').getSummaryStats())
 #print(errors.getLog())
@@ -62,6 +161,9 @@ print(g.getClaimant('Norman').getdiscountFactor(90,-0.0025))
 print(g.getClaimant('Norman').gettermCertain(76,86,discountRate=-0.0075))
 print(json.dumps(g.getClaimant('Norman').getEDD().isoformat()))
 print(g.getClaimant('Norman').JLM())
+joint_lives_table(0,100,'MM')
+joint_lives_table(0,100,'MF')
+joint_lives_table(0,100,'FF')
 #print(g.getClaimant('Mason').getAAT())
 #print(g.getClaimant('Mason').LE()[3])
 #print(g.getClaimant('Mason').getEAD())
@@ -84,6 +186,5 @@ url="https://europe-west2-ogden8.cloudfunctions.net/ogden"
 #print(js)
 #r=requests.post(url,json=eg2)
 #print(r.text)
-
 
 
