@@ -265,13 +265,13 @@ class baseperson():
         if point2:
             age2=self.getAgeFromPoint(point2)
         #point 1 - must be number, string, date.
-        if not age1:
+        if age1==None:
             errors.append("\'From\' date invalid")
         #point 2
         if point2: #i.e. if provided
-            if not age2:
+            if age2==None:
                 errors.append("\'To\' date invalid")
-            if age1 and age2:
+            if not age1==None and not age2==None:
                 if age1>=age2:
                     errors.append("\'To\' date must be after \'From\' date")
         #freq

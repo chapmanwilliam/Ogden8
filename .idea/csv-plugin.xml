@@ -10,6 +10,27 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/localpackage/Data/7TableB.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/localpackage/Data/7TableC.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/localpackage/Data/7TableD.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/localpackage/Data/8TableA.csv">
           <value>
             <Attribute>
