@@ -334,7 +334,7 @@ class baseperson():
                         return None
                 elif part=='INJURY':
                     AAI=self.getAAI()
-                    if (AAI):
+                    if not AAI==None:
                         if flag: age+=self.getAAI()
                         if not flag: age-=self.getAAI()
                     else:
