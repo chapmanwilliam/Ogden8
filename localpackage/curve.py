@@ -292,7 +292,7 @@ class curve():
     def getCurve(self, options, cont, discountRate=None):
         # Returns the curve for past and future applying all relevant discounts
 
-        if(not discountRate):
+        if(discountRate==None):
             discountRate = self.getdiscountRate()
 
         # First check if we already have calculated this one
