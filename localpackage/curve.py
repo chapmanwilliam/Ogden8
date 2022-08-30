@@ -204,7 +204,7 @@ class curve():
                     future *= factor
                     result = past, interest, future, past + interest + future
         else:
-            result = list(self.Lx(fromAge, options))
+            result = list(self.Lx(fromAge, options, discountRate))
 
         if calc:
             calc.addText(self.getBreakdown(fromAge, toAge, factor, result))
@@ -261,7 +261,10 @@ class curve():
 
         return interest, withoutInterest
 
-    def Lx(self, age, options):
+    def Lx(self, age, options, discountRate=None):
+        if(not discountRate):
+            discountRate = self.getdiscountRate()
+
         y = np.interp(age, self.Rng, self._Lx)
         ynoI = np.interp(age, self.Rng, self._LxNoI)
         if age < self.getAge():  # past
@@ -273,7 +276,7 @@ class curve():
             interest = 0
             if options == "A":  # just acceleration
                 yrs = age - self.getAge()
-                future = discountFactor(yrs, self.getdiscountRate())
+                future = discountFactor(yrs, discountRate)
             else:
                 future = y
         return past, interest, future, past + interest + future

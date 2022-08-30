@@ -89,6 +89,7 @@ def joint_lives_table(start_age, end_age, sexes):
     yrs = end_age - start_age
     dataJLE = {}
     dataJLM = {}
+    dataLE={}
     first_sex = ""
     second_sex = ""
     count = 0
@@ -101,24 +102,32 @@ def joint_lives_table(start_age, end_age, sexes):
         second_sex = "Female"
     else:
         second_sex = "Male"
-    for h in range(start_age, end_age):  # column
+    for h in range(start_age, end_age+1):  # column
         husband = {'name': "husband", 'age': h, 'sex': first_sex, 'dependenton': 'wife', 'dataSet': Ogden8,
                    'retirement': 78}  # create husband of age h
         colJLE = []
         colJLM = []
-        for w in range(start_age, end_age):  # row
-            print('{0:.0f%}'.format(count / total))
+        colLE=[]
+        for w in range(start_age, end_age+1):  # row
+            count+=1
+            print (f"{count/total:.0%}")
             wife = {'name': "wife", 'age': w, 'sex': second_sex, 'dataSet': Ogden8, 'dependenton': 'husband',
                     'retirement': 78}  # create wife of age h
             eg = {"rows": [], 'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
                                        "discountRate": -0.25 / 100, "Ogden": 8, "claimants": [wife, husband]}}
             g = game(eg)
+            husbandLE = g.getClaimant('husband').LE()[3]
+            wifeLE = g.getClaimant('wife').LE()[3]
+            LE=min(husbandLE,wifeLE)
+            colLE.append(LE)
             colJLE.append(g.getClaimant('husband').JLE()[3])
             colJLM.append(g.getClaimant('husband').JLM()[3])
         dataJLE[h] = colJLE
         dataJLM[h] = colJLM
+        dataLE[h]=colLE
     dfJLE = pd.DataFrame(dataJLE, index=[*range(start_age, end_age)])
     dfJLM = pd.DataFrame(dataJLM, index=[*range(start_age, end_age)])
+    dfLE = pd.DataFrame(dataLE,index=[*range(start_age,end_age)])
     print(dfJLE)
     print(dfJLM)
     titleJLM = ""
@@ -147,6 +156,7 @@ def joint_lives_table(start_age, end_age, sexes):
 
     write_to_gsheet(service_file_path, spreadsheet_id, 'JLE ' + sexes, dfJLE, titleJLE, colTitle, rowTitle)
     write_to_gsheet(service_file_path, spreadsheet_id, 'JLM ' + sexes, dfJLM, titleJLM, colTitle, rowTitle)
+    write_to_gsheet(service_file_path, spreadsheet_id, 'LE ' + sexes, dfLE, "Shortest life expectancy", "", "")
 
 
 def write_to_gsheet(service_file_path, spreadsheet_id, sheet_name, data_df, title, colTitle, rowTitle):
@@ -171,21 +181,188 @@ def write_to_gsheet(service_file_path, spreadsheet_id, sheet_name, data_df, titl
     wks_write.cell((1, 2)).value = colTitle
     wks_write.frozen_rows = 2
     wks_write.frozen_cols = 1
-    # formatting
+    # formatting - data cells
     model_cell = pygsheets.Cell("B3")
-    model_cell.set_number_format(
-        format_type=pygsheets.FormatType.NUMBER,
-        pattern="0.00"
-    )
+    if not 'discount factor' in title:
+        model_cell.set_number_format(
+            format_type=pygsheets.FormatType.NUMBER,
+            pattern="0.00"
+        )
+    else:
+        model_cell.set_number_format(
+            format_type=pygsheets.FormatType.NUMBER,
+            pattern="0.0000"
+        )
+
     left_corner_cell = (3, 2)
     right_corner_cell = [sum(x) for x in zip(left_corner_cell, data_df.shape, (-1, -1))]
     pygsheets.DataRange(left_corner_cell, right_corner_cell, worksheet=wks_write).apply_format(model_cell)
+    # formatting - top row if Table
+    if 'Table' in title:
+        model_cell = pygsheets.Cell("B2")
+        model_cell.set_number_format(
+            format_type=pygsheets.FormatType.PERCENT,
+            pattern="0.00%"
+        )
+        left_corner_cell = (2, 2)
+        right_corner_cell = (2,14)
+        pygsheets.DataRange(left_corner_cell, right_corner_cell, worksheet=wks_write).apply_format(model_cell)
+    #conditional formatting
+#    wks_write.add_conditional_formatting(left_corner_cell,right_corner_cell,"CUSTOM_FORMULA")
 
 def create_joint_lives_tables(start_age,end_age):
     joint_lives_table(start_age, end_age, 'MM')
     joint_lives_table(start_age, end_age, 'MF')
     joint_lives_table(start_age, end_age, 'FF')
 
+def createTableE():
+    yrstotrial=[*range(1,11)]
+    agedeath=[*range(40,95,5)]
+    print(agedeath)
+    dataMale={}
+    dataFemale={}
+    for c in yrstotrial:
+        colMale = []
+        colFemale = []
+        for r in agedeath:
+            male = {'name': "male", 'age': r, 'sex': "M", 'dataSet': Ogden8,
+                       'retirement': 78}  # create male of age ageatdeath
+            female = {'name': "female", 'age': r, 'sex': "F", 'dataSet': Ogden8,
+                       'retirement': 78}  # create female of age ageatdeath
+            eg = {"rows": [], 'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
+                                       "discountRate": -0.25 / 100, "Ogden": 8, "claimants": [male, female]}}
+            g=game(eg)
+            colMale.append(g.getClaimant('male').M('TRIAL','TRIAL+' + str(c) + "Y",'Y','M')[3]/c)
+            colFemale.append(g.getClaimant('female').M('TRIAL','TRIAL+' + str(c) + "Y",'Y','M')[3]/c)
+        dataMale[c]=colMale
+        dataFemale[c]=colFemale
+    dfMale = pd.DataFrame(dataMale, index=agedeath)
+    dfFemale = pd.DataFrame(dataFemale, index=agedeath)
+    print(dfMale)
+    print(dfFemale)
+    write_to_gsheet(service_file_path, spreadsheet_id, 'Table E (male)', dfMale, "Table E (male)", "Yrs to trial", "Age at death")
+    write_to_gsheet(service_file_path, spreadsheet_id, 'Table E (female)', dfFemale, "Table E (female)", "Yrs to trial", "Age at death")
+
+def createTableF():
+    yrstotrial=[*range(1,11)]
+    agedeath=[*range(40,95,5)]
+    print(agedeath)
+    dataMale={}
+    dataFemale={}
+    for c in yrstotrial:
+        colMale = []
+        colFemale = []
+        for r in agedeath:
+            male = {'name': "male", 'age': r, 'sex': "M", 'dataSet': Ogden8,
+                       'retirement': 78}  # create male of age ageatdeath
+            female = {'name': "female", 'age': r, 'sex': "F", 'dataSet': Ogden8,
+                       'retirement': 78}  # create female of age ageatdeath
+            eg = {"rows": [], 'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
+                                       "discountRate": -0.25 / 100, "Ogden": 8, "claimants": [male, female]}}
+            g=game(eg)
+            colMale.append(g.getClaimant('male').M('TRIAL+' + str(c) + "Y",None,'Y','M')[3])
+            colFemale.append(g.getClaimant('female').M('TRIAL+' + str(c) + "Y",None,'Y','M')[3])
+        dataMale[c]=colMale
+        dataFemale[c]=colFemale
+    dfMale = pd.DataFrame(dataMale, index=agedeath)
+    dfFemale = pd.DataFrame(dataFemale, index=agedeath)
+    print(dfMale)
+    print(dfFemale)
+    write_to_gsheet(service_file_path, spreadsheet_id, 'Table F (male)', dfMale, "Table F (male)", "Yrs to trial", "Age at death")
+    write_to_gsheet(service_file_path, spreadsheet_id, 'Table F (female)', dfFemale, "Table F (female)", "Yrs to trial", "Age at death")
+
+def createTables1to34():
+    drs=[-0.02,-0.015,-0.0075,-0.005,-0.0025,0,0.005,0.01,0.015,0.02, 0.025,0.03]
+    upto=['LIFE',50,55,60,65,68,70,75,80]
+    fr=[50,55,60,65,68,70,75,80]
+    dataMaleUP={}
+    dataFemaleUP={}
+    dataMaleFR={}
+    dataFemaleFR={}
+    tableCountUP=1
+    tableCountFR=19
+    for up in upto:
+        for dr in drs:
+            colMaleUP = []
+            colFemaleUP = []
+            colMaleFR = []
+            colFemaleFR = []
+            if tableCountUP<=2:
+                ages=[*range(0,101)]
+            elif tableCountUP>2 and tableCountUP<=18:
+                ages = [*range(16, up)]
+            for age in ages:
+                male = {'name': "male", 'age': age, 'sex': "M", 'dataSet': Ogden8,
+                        'retirement': 78}  # create male of age age
+                female = {'name': "female", 'age': age, 'sex': "F", 'dataSet': Ogden8,
+                          'retirement': 78}  # create female of age age
+                eg = {"rows": [], 'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
+                                           "discountRate": -0.25 / 100, "Ogden": 8, "claimants": [male, female]}}
+                g=game(eg)
+                colMaleUP.append(g.getClaimant('male').M("TRIAL",up,discountRate=dr)[3])
+                colFemaleUP.append(g.getClaimant('female').M("TRIAL",up,discountRate=dr)[3])
+            if tableCountUP>2:
+                agesFR=[*range(0,up+1)]
+                for age in agesFR:
+                    male = {'name': "male", 'age': age, 'sex': "M", 'dataSet': Ogden8,
+                            'retirement': 78}  # create male of age age
+                    female = {'name': "female", 'age': age, 'sex': "F", 'dataSet': Ogden8,
+                              'retirement': 78}  # create female of age age
+                    eg = {"rows": [],
+                          'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
+                                   "discountRate": -0.25 / 100, "Ogden": 8, "claimants": [male, female]}}
+                    g = game(eg)
+                    colMaleFR.append(g.getClaimant('male').M(up,'LIFE', discountRate=dr)[3])
+                    colFemaleFR.append(g.getClaimant('female').M(up,'LIFE', discountRate=dr)[3])
+            dataMaleUP[dr]=colMaleUP
+            dataFemaleUP[dr]=colFemaleUP
+            if tableCountUP>2:
+                dataMaleFR[dr] = colMaleFR
+                dataFemaleFR[dr] = colFemaleFR
+        dfMaleUP = pd.DataFrame(dataMaleUP, index=ages)
+        dfFemaleUP = pd.DataFrame(dataFemaleUP, index=ages)
+        if tableCountUP>2:
+            dfMaleFR = pd.DataFrame(dataMaleFR, index=agesFR)
+            dfFemaleFR = pd.DataFrame(dataFemaleFR, index=agesFR)
+        print(dfMaleUP)
+        print(dfFemaleUP)
+        if tableCountUP>2:
+            print(dfMaleFR)
+            print(dfFemaleFR)
+        if tableCountUP>2:
+            write_to_gsheet(service_file_path, spreadsheet_id, 'Table ' + str(tableCountFR), dfMaleFR, 'Table ' + str(tableCountFR) + ": multiplier from " + str(up), "Discount rate", "Age")
+            tableCountFR+=1
+            write_to_gsheet(service_file_path, spreadsheet_id, 'Table ' + str(tableCountFR), dfFemaleFR, 'Table ' + str(tableCountFR) + ": multiplier from " + str(up), "Discount rate", "Age")
+            tableCountFR += 1
+        write_to_gsheet(service_file_path, spreadsheet_id, 'Table ' + str(tableCountUP), dfMaleUP, 'Table ' + str(tableCountUP) + ": multiplier to " + str(up), "Discount rate", "Age")
+        tableCountUP+=1
+        write_to_gsheet(service_file_path, spreadsheet_id, 'Table ' + str(tableCountUP), dfFemaleUP, 'Table ' + str(tableCountUP) + ": multiplier to " + str(up), "Discount rate", "Age")
+        tableCountUP+=1
+
+def createDFTable35():
+    drs=[-0.02,-0.015,-0.0075,-0.005,-0.0025,0,0.005,0.01,0.015,0.02, 0.025,0.03]
+    yrs=[*range(1,81)]
+    data={}
+    male = {'name': "male", 'age': 10, 'sex': "M", 'dataSet': Ogden8,
+            'retirement': 78}  # create male of age age
+    eg = {"rows": [], 'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
+                               "discountRate": -0.25 / 100, "Ogden": 8, "claimants": [male]}}
+    g = game(eg)
+
+    for dr in drs:
+        col = []
+        for yr in yrs:
+            col.append(g.getClaimant('male').M("TRIAL + " + str(yr) + "Y",options="A",discountRate=dr)[3])
+        data[dr]=col
+    df = pd.DataFrame(data, index=yrs)
+    print(df)
+    write_to_gsheet(service_file_path, spreadsheet_id, 'Table 35', df, 'Table 35: discount factor', "Discount rate", "Years")
+
+#createTableF()
+#createTableE()
+#createTables1to33()
+createDFTable35()
+#create_joint_lives_tables(0,100)
 
 # print(g.processRows())
 # print(g.getClaimant('Gadsden').getSummaryStats())
@@ -194,7 +371,6 @@ def create_joint_lives_tables(start_age,end_age):
 # print(g.process())
 # print(g.getClaimant('Hicken').M(60,'LIFE', freq='Y',options='M'))
 
-#create_joint_lives_tables(0,100)
 
 print(g.getClaimant('Norman').M('INJURY', 'LIFE', freq='Y'))
 #print(g.getClaimant('Norman').getdiscountFactor(90, -0.0025))
