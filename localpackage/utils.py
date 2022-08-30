@@ -97,7 +97,7 @@ def termCertain(yrs,discountRate):
         return 0
     factor=1/(1+discountRate)
     if factor==1:
-        return 1+yrs
+        return yrs
     else:
         return ((factor**yrs)/(math.log(factor)))-(1/math.log(factor))
 

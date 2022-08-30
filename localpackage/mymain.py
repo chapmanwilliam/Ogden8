@@ -402,9 +402,9 @@ def additionalTables():
 
 def copypasteOgden8publishedTables(spreadsheet_id):
     #test
-    rows=[100,100,34,34,39,39,44,44,49,49,52,52,54,54,59,59,65,65,50,50,55,55,60,60,65,65,68,68,70,70,75,75,80,80,80,80]
+    rows=[101,101,34,34,39,39,44,44,49,49,52,52,54,54,59,59,64,64,51,51,56,56,61,61,66,66,69,69,71,71,76,76,81,81,80,80]
     cols=14
-    tables=[*range(1,37)]
+    tables=[*range(35,37)]
     gc = pygsheets.authorize(service_file=service_file_path)
     shPublished = gc.open_by_key(spreadsheet_id)
     shGenerated = gc.open_by_key(spreadsheet_id_generated)
@@ -413,7 +413,7 @@ def copypasteOgden8publishedTables(spreadsheet_id):
         wks_published = shPublished.worksheet_by_title(sheet_name)
         wks_generated = shGenerated.worksheet_by_title(sheet_name)
         print(rows[table-1]+3)
-        x=wks_published.get_values((4,2),(rows[table-1]+3,cols))
+        x=wks_published.get_values((4,2),(rows[table-1]+3,cols+1))
 
         wks_generated.update_values((rows[table-1]+4, 2),x, extend=True)
         # formatting - data cells
@@ -422,18 +422,20 @@ def copypasteOgden8publishedTables(spreadsheet_id):
             format_type=pygsheets.FormatType.NUMBER,
             pattern="0.00"
         )
-        pygsheets.DataRange((rows[table-1]+4, 2), (2*rows[table-1]+4,cols), worksheet=wks_generated).apply_format(model_cell)
+        pygsheets.DataRange((rows[table-1]+4, 2), (2*rows[table-1]+4,cols+1), worksheet=wks_generated).apply_format(model_cell)
 
 
 def createOgdenTables():
+    print('hello')
     #createTableF()
     #createTableE()
-    createTables1to34()
+    #createTables1to34()
     createDFTables35to36()
-    additionalTables()
+    #additionalTables()
     copypasteOgden8publishedTables(spreadsheet_id_Ogden8published)
     #create_joint_lives_tables(0,100)
 
+createOgdenTables()
 
 # print(g.processRows())
 # print(g.getClaimant('Gadsden').getSummaryStats())
@@ -443,7 +445,7 @@ def createOgdenTables():
 # print(g.getClaimant('Hicken').M(60,'LIFE', freq='Y',options='M'))
 
 
-print(g.getClaimant('Norman').M('TRIAL', 'LIFE', freq='Y',discountRate=0))
+print(g.getClaimant('Norman').M('TRIAL',"TRIAL+1Y",options="A",discountRate=0))
 print(g.getClaimant('Norman').M('TRIAL', 'LIFE', freq='Y'))
 #print(g.getClaimant('Norman').getdiscountFactor(90, -0.0025))
 #print(g.getClaimant('Norman').gettermCertain(76, 86, discountRate=-0.0075))

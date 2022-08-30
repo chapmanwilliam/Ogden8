@@ -262,7 +262,7 @@ class curve():
         return interest, withoutInterest
 
     def Lx(self, age, options, discountRate=None):
-        if(not discountRate):
+        if(discountRate==None):
             discountRate = self.getdiscountRate()
 
         y = np.interp(age, self.Rng, self._Lx)
