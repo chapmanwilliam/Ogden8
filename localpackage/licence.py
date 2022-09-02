@@ -9,7 +9,6 @@ def check_in_list(unique_code):
     shDigitalGoods = gc.open_by_key(spreadsheet_DigitalGoods)
     wks=shDigitalGoods.worksheet_by_title('Codes')
     x = wks.get_col(2,include_tailing_empty=False)
-    print (x)
     if unique_code in x:
         r=x.index(unique_code)
         uses=int(wks.get_value((r+1,3)))
