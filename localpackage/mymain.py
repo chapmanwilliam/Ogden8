@@ -84,7 +84,8 @@ eg6 = {"rows": [{"name": "Zaki", "fromAge": "TRIAL", "toAge": "LIFE", "freq": "Y
 g = game(eg)
 
 spreadsheet_id_generated = '1MADead62q5c8M0-O1Xuf-30aYy93FgfrrMM4vFKkmzw' #for my google sheet
-spreadsheet_id_Ogden8published = '1EoXK2lAKS8KJ5ULLQYxt6lYgJv0VVvnElYa-KqApBWc'
+spreadsheet_id_Ogden8published = '1EoXK2lAKS8KJ5ULLQYxt6lYgJv0VVvnElYa-KqApBWc' #for published Ogden data
+spreadsheet_DigitalGoods="1LtswwaUEeF1uNCVwzYHuqpymKGMDDCnOUoSJ15msjJw" #for digital goods
 service_file_path = "/Users/William/Dropbox (Personal)/Python/Code/pyCharm/Ogden8/pro-tracker-360811-236cce02c285.json" #for credentials
 
 
@@ -454,9 +455,19 @@ def createOgdenTables():
     #createDFTables35to36()
     #additionalTables()
     #copypasteOgden8publishedTables(spreadsheet_id_Ogden8published)
-    create_joint_lives_tables(0,100)
+    #create_joint_lives_tables(0,100)
 
-createOgdenTables()
+
+
+
+
+
+
+
+
+#createOgdenTables()
+
+
 
 # print(g.processRows())
 # print(g.getClaimant('Gadsden').getSummaryStats())
