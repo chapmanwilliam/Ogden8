@@ -74,7 +74,7 @@ class baseperson():
             shortestLEname = self.getShortestLEname()
             claimant = self.parent.getClaimant(shortestLEname)
             m = claimant.M(self.age,125,options='AMI',discountRate=discountRate)
-            TableFs = [self.parent.getClaimant(dep).getTableF() for dep in self.getClaimantsDependentOn()] #list of TableE for each dependent
+            TableFs = [self.parent.getClaimant(dep).getTableF() for dep in self.getClaimantsDependentOn()] #list of TableF for each dependent
             TableF = math.prod(TableFs)
             resM=[0,0,0,0]
             resM[0]=m[0]
@@ -92,10 +92,8 @@ class baseperson():
             claimant=self.parent.getClaimant(shortestLEname)
             m=claimant.M(point1,point2,freq,options=options,discountRate=discountRate) #multiplier for person with shortest LE
             TableEs = [self.parent.getClaimant(dep).getTableE() for dep in self.getClaimantsDependentOn()] #list of TableE for each dependent
-            #TableEs.append(self.getTableE())
             TableE = math.prod(TableEs)
             TableFs = [self.parent.getClaimant(dep).getTableF() for dep in self.getClaimantsDependentOn()] #list of TableE for each dependent
-            #TableFs.append(self.getTableF())
             TableF = math.prod(TableFs)
             resM=[0,0,0,0]
             resM[0] = m[0] * TableE

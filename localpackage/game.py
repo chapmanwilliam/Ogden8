@@ -143,6 +143,12 @@ class game():
         elif self.function == "EDD":
             return [maybe([json.dumps(self.getClaimant(row['name']).getEDD().isoformat())]).or_else(
                 [None]) for row in self.rows]
+        elif self.function == "TABLE_E":
+            return [maybe([self.getClaimant(row['name']).getTableE()]).or_else(
+                [None]) for row in self.rows]
+        elif self.function == "TABLE_F":
+            return [maybe([self.getClaimant(row['name']).getTableF()]).or_else(
+                [None]) for row in self.rows]
         elif self.function == "LE":
             return [maybe(self.getClaimant(row['name']).LE()).or_else(
                 [None, None, None, None]) for row in self.rows]
