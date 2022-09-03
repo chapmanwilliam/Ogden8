@@ -159,7 +159,7 @@ class curve():
         self._LxNoI, self._Lx, self.Rng = self.getCurve(options, cont, discountRate)
 
         calc1 = calcs()
-        result = self.Multiplier(fromAge, toAge, options, freq, cont, calc1,discountRate)
+        result = self.Multiplier(fromAge, toAge, options, freq, cont, calc1, discountRate)
 
         self.calc.clear()
         self.calc.addText(self.getHeading1(result, fromAge, toAge, freq, cont, options))

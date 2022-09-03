@@ -37,11 +37,11 @@ c4 = {"name": "Jennifer", "cont": 1, "dob": '12/3/1949', 'dod': '23/2/2020', 'de
       'fatal': True, "dataSet": Ogden8, "contDetails": contDetails}
 c5 = {"name": "Gerald", "cont": 1, "dob": '6/4/1943', 'deltaLE': 0, "sex": "Male", 'fatal': False, "dataSet": Ogden8,
       'dependenton': 'Jennifer', "contDetails": contDetails}
-claimant = {'name': "Jacqueline", 'dob': '25/8/1946', 'dod': '31/7/2017', 'fatal': True, 'sex': 'Female',
+claimant = {'name': "Jacqueline", 'dob': '31/7/1948', 'dod': '31/7/2018', 'fatal': True, 'sex': 'Female',
             'dataSet': Ogden8, 'deltaLE': 0, 'retirement': 78, 'cont': 0.75}
-dependent1 = {'name': "Norman", 'dob': '31/07/2017', 'sex': 'Male', 'dataSet': Ogden8, 'dependenton': 'John',
+dependent1 = {'name': "Norman", 'dob': '31/07/1946', 'sex': 'Male', 'dataSet': Ogden8, 'dependenton': 'Jacqueline',
               'retirement': 78}
-dependent2 = {'name': "John", 'dob': '31/07/2017', 'sex': 'Male', 'dataSet': Ogden8, 'dependenton': 'Norman',
+dependent2 = {'name': "John", 'dob': '31/07/2017', 'sex': 'Male', 'dataSet': Ogden8, 'dependenton': 'Jacqueline',
               'retirement': 79}
 nondependent3 = {'name': "Brian", 'dob': '25/8/1990', 'sex': 'Male', 'dataSet': Ogden8, 'retirement': 79}
 
@@ -50,7 +50,7 @@ claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad': 30, 'sex': 'Fem
 
 row = {'name': 'Jacqueline', 'fromAge': 76, 'toAge': 'LIFE', 'freq': 'Y', 'options': None}
 rows = [row for a in range(1, 2)]
-eg = {"rows": [], 'game': {"trialDate": datetime(2017, 7, 31), "DOI": datetime(2017,7,31), "projection": True, "autoYrAttained": False,
+eg = {"rows": [], 'game': {"trialDate": datetime(2022, 7, 31), "DOI": datetime(2018,7,31), "projection": True, 'useTablesEF': True, "autoYrAttained": False,
                            "discountRate": -0.25 / 100, "Ogden": 8, "claimants": [claimant, dependent1, dependent2]}}
 
 eg2 = '{"rows":[{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"MI"},{"name":"JANE","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"JOHN","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"JOHN","fromAge":40,"toAge":60,"freq":"Y","options":"AMID"},{"name":"CHRISTOPHER","fromAge":"trial-3Y","toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"},{"name":"","fromAge":"","toAge":"","freq":"","options":""},{"name":"NAME","fromAge":"From Age","toAge":"To Age","freq":"FREQ","options":"OPTIONS"},{"name":"CHRISTOPHER","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"trial-3Y","toAge":60,"freq":"Y","options":"AMID"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"MI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"}],"game":{"discountRate":-0.005,"Ogden":7,"claimants":[{"name":"Christopher","cont":1,"age":58.362765229295,"sex":"Male","dataSet":{"year":2018,"region":"UK","yrAttainedIn":2022},"deltaLE":-5,"dependenton":"","retirement":67},{"name":"Jane","cont":1,"age":36.94455852156057,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLE":0,"aad":"","dependenton":"","retirement":67},{"name":"John","cont":1,"age":25.1088295687885,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLE":0,"aad":"","dependenton":"Christopher","retirement":67}]}}'
@@ -87,9 +87,6 @@ spreadsheet_id_generated = '1MADead62q5c8M0-O1Xuf-30aYy93FgfrrMM4vFKkmzw' #for m
 spreadsheet_id_Ogden8published = '1EoXK2lAKS8KJ5ULLQYxt6lYgJv0VVvnElYa-KqApBWc' #for published Ogden data
 spreadsheet_DigitalGoods="1LtswwaUEeF1uNCVwzYHuqpymKGMDDCnOUoSJ15msjJw" #for digital goods
 service_file_path = "/Users/William/Dropbox (Personal)/Python/Code/pyCharm/Ogden8/pro-tracker-360811-236cce02c285.json" #for credentials
-
-
-
 
 def write_to_gsheet(service_file_path, spreadsheet_id, sheet_name, data_df, title, colTitle, rowTitle, start_cell=(2,1)):
     """
@@ -149,7 +146,6 @@ def write_to_gsheet(service_file_path, spreadsheet_id, sheet_name, data_df, titl
     #conditional formatting
 #    wks_write.add_conditional_formatting(left_corner_cell,right_corner_cell,"CUSTOM_FORMULA")
 
-
 def joint_lives_tablev2(start_age,end_age,sexes):
     print("Creating joint lives tables....")
     ages=[*range(0,101)]
@@ -206,34 +202,26 @@ def joint_lives_tablev2(start_age,end_age,sexes):
 
     print('Finished joint lives tables.')
 
-
 def joint_lives_table(start_age, end_age, sexes):
+    print('Creating joint lives tables....')
     yrs = end_age - start_age
     dataJLE = {}
     dataJLM = {}
     dataLE={}
-    first_sex = ""
-    second_sex = ""
+    dataLM={}
     count = 0
     total = (end_age - start_age) * (end_age - start_age)
-    if sexes[0] == 'M':
-        first_sex = 'Male'
-    else:
-        first_sex = 'Female'
-    if sexes[1] == "F":
-        second_sex = "Female"
-    else:
-        second_sex = "Male"
     for h in range(start_age, end_age+1):  # column
-        husband = {'name': "husband", 'age': h, 'sex': first_sex, 'dependenton': 'wife', 'dataSet': Ogden8,
+        husband = {'name': "husband", 'age': h, 'sex': sexes[0], 'dependenton': 'wife', 'dataSet': Ogden8,
                    'retirement': 78}  # create husband of age h
         colJLE = []
         colJLM = []
         colLE=[]
+        colLM=[]
         for w in range(start_age, end_age+1):  # row
             count+=1
             print (f"{count/total:.0%}")
-            wife = {'name': "wife", 'age': w, 'sex': second_sex, 'dataSet': Ogden8, 'dependenton': 'husband',
+            wife = {'name': "wife", 'age': w, 'sex': sexes[1], 'dataSet': Ogden8, 'dependenton': 'husband',
                     'retirement': 78}  # create wife of age h
             eg = {"rows": [], 'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
                                        "discountRate": -0.25 / 100, "Ogden": 8, "claimants": [wife, husband]}}
@@ -242,14 +230,20 @@ def joint_lives_table(start_age, end_age, sexes):
             wifeLE = g.getClaimant('wife').LE()[3]
             LE=min(husbandLE,wifeLE)
             colLE.append(LE)
+            husbandLM = g.getClaimant('husband').LM()[3]
+            wifeLM = g.getClaimant('wife').LM()[3]
+            LM=min(husbandLM,wifeLM)
+            colLM.append(LM)
             colJLE.append(g.getClaimant('husband').JLE()[3])
             colJLM.append(g.getClaimant('husband').JLM()[3])
         dataJLE[h] = colJLE
         dataJLM[h] = colJLM
         dataLE[h]=colLE
+        dataLM[h]=colLM
     dfJLE = pd.DataFrame(dataJLE, index=[*range(start_age, end_age+1)])
     dfJLM = pd.DataFrame(dataJLM, index=[*range(start_age, end_age+1)])
     dfLE = pd.DataFrame(dataLE,index=[*range(start_age,end_age+1)])
+    dfLM = pd.DataFrame(dataLM,index=[*range(start_age,end_age+1)])
     print(dfJLE)
     print(dfJLM)
     titleJLM = ""
@@ -275,10 +269,12 @@ def joint_lives_table(start_age, end_age, sexes):
         else:
             colTitle = 'Age woman'
             rowTitle = 'Age man'
-
+    print('Writing joint lives tables...')
     write_to_gsheet(service_file_path, spreadsheet_id_generated, 'JLE ' + sexes, dfJLE, titleJLE, colTitle, rowTitle)
     write_to_gsheet(service_file_path, spreadsheet_id_generated, 'JLM ' + sexes, dfJLM, titleJLM, colTitle, rowTitle)
     write_to_gsheet(service_file_path, spreadsheet_id_generated, 'LE ' + sexes, dfLE, "Shortest life expectancy", "", "")
+    write_to_gsheet(service_file_path, spreadsheet_id_generated, 'LM ' + sexes, dfLM, "Shortest life multiplier", "", "")
+    print('Finished joint lives tables.')
 
 def create_joint_lives_tables(start_age,end_age):
     print('Creating joint lives tables....')
@@ -292,7 +288,7 @@ def createTableE():
     yrstotrial=[*range(1,11)]
     agedeath=[*range(40,95,5)]
     men=[{'name': "male " + str(age), 'age': age, 'sex': "M", 'dataSet': Ogden8} for age in agedeath]  # create women of age age
-    women=[{'name': "female " + str(age), 'age': age, 'sex': "M", 'dataSet': Ogden8} for age in agedeath]  # create men of age age
+    women=[{'name': "female " + str(age), 'age': age, 'sex': "F", 'dataSet': Ogden8} for age in agedeath]  # create men of age age
     egMen = {"rows": [], 'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
                            "discountRate": -0.25/100, "Ogden": 8, "claimants": men}}
     egWomen = {"rows": [], 'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
@@ -300,8 +296,8 @@ def createTableE():
     gMen=game(egMen)
     gWomen=game(egWomen)
 
-    dataMale=[[gMen.getClaimant(man).M('TRIAL','TRIAL+' + str(c) + "Y",'Y','M')[3]/c for c in yrstotrial] for man in gMen.getClaimants()]
-    dataFemale=[[gWomen.getClaimant(woman).M('TRIAL','TRIAL+' + str(c) + "Y",'Y','M')[3]/c for c in yrstotrial] for woman in gWomen.getClaimants()]
+    dataMale=[[gMen.getClaimant(man).M('TRIAL','TRIAL+' + str(c) + "Y",options='M')[3]/c for c in yrstotrial] for man in gMen.getClaimants()]
+    dataFemale=[[gWomen.getClaimant(woman).M('TRIAL','TRIAL+' + str(c) + "Y",options='M')[3]/c for c in yrstotrial] for woman in gWomen.getClaimants()]
     dfMale = pd.DataFrame(dataMale, index=agedeath).set_axis(yrstotrial,'columns')
     dfFemale = pd.DataFrame(dataFemale, index=agedeath).set_axis(yrstotrial,'columns')
     print('Writing tables...')
@@ -314,7 +310,7 @@ def createTableF():
     yrstotrial=[*range(1,11)]
     agedeath=[*range(40,95,5)]
     men=[{'name': "male " + str(age), 'age': age, 'sex': "M", 'dataSet': Ogden8} for age in agedeath]  # create women of age age
-    women=[{'name': "female " + str(age), 'age': age, 'sex': "M", 'dataSet': Ogden8} for age in agedeath]  # create men of age age
+    women=[{'name': "female " + str(age), 'age': age, 'sex': "F", 'dataSet': Ogden8} for age in agedeath]  # create men of age age
     egMen = {"rows": [], 'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
                            "discountRate": -0.25/100, "Ogden": 8, "claimants": men}}
     egWomen = {"rows": [], 'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
@@ -322,15 +318,14 @@ def createTableF():
     gMen=game(egMen)
     gWomen=game(egWomen)
 
-    dataMale=[[gMen.getClaimant(man).M('TRIAL','TRIAL+' + str(c) + "Y",'Y','M')[3] for c in yrstotrial] for man in gMen.getClaimants()]
-    dataFemale=[[gWomen.getClaimant(woman).M('TRIAL','TRIAL+' + str(c) + "Y",'Y','M')[3] for c in yrstotrial] for woman in gWomen.getClaimants()]
+    dataMale=[[gMen.getClaimant(man).M('TRIAL+' + str(c) + "Y",options='M')[3] for c in yrstotrial] for man in gMen.getClaimants()]
+    dataFemale=[[gWomen.getClaimant(woman).M('TRIAL+' + str(c) + "Y",options='M')[3] for c in yrstotrial] for woman in gWomen.getClaimants()]
     dfMale = pd.DataFrame(dataMale, index=agedeath).set_axis(yrstotrial,'columns')
     dfFemale = pd.DataFrame(dataFemale, index=agedeath).set_axis(yrstotrial,'columns')
     print('Writing tables...')
-    write_to_gsheet(service_file_path, spreadsheet_id_generated, 'Table E (male)', dfMale, "Table E (male)", "Yrs to trial", "Age at death")
-    write_to_gsheet(service_file_path, spreadsheet_id_generated, 'Table E (female)', dfFemale, "Table E (female)", "Yrs to trial", "Age at death")
+    write_to_gsheet(service_file_path, spreadsheet_id_generated, 'Table F (male)', dfMale, "Table F (male)", "Yrs to trial", "Age at death")
+    write_to_gsheet(service_file_path, spreadsheet_id_generated, 'Table F (female)', dfFemale, "Table F (female)", "Yrs to trial", "Age at death")
     print('Finished Table F.')
-
 
 def createTables1to34():
     print('Generating Tables 1 to 34....')
@@ -379,8 +374,6 @@ def createTables1to34():
         tCount+=1
     print('Finished generating Tables 1 to 34.')
 
-
-
 def createDFTables35to36():
     print('Generating Tables 35 to 36...')
     drs=[-0.02,-0.0175,-0.015,-0.01,-0.0075,-0.005,-0.0025,0,0.005,0.01,0.015,0.02, 0.025,0.03]
@@ -404,7 +397,7 @@ def additionalTables():
     tos=[*range(1,126)] #cols
     ages=[*range(0,116)] #rows
     men=[{'name': "male " + str(age), 'age': age, 'sex': "M", 'dataSet': Ogden8} for age in ages]  # create women of age age
-    women=[{'name': "female " + str(age), 'age': age, 'sex': "M", 'dataSet': Ogden8} for age in ages]  # create men of age age
+    women=[{'name': "female " + str(age), 'age': age, 'sex': "F", 'dataSet': Ogden8} for age in ages]  # create men of age age
     egMen = {"rows": [], 'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
                            "discountRate": -0.25/100, "Ogden": 8, "claimants": men}}
     egWomen = {"rows": [], 'game': {"trialDate": datetime(2022, 8, 25), "projection": True, "autoYrAttained": False,
@@ -446,9 +439,8 @@ def copypasteOgden8publishedTables(spreadsheet_id):
         )
         pygsheets.DataRange((rows[table-1]+4, 2), (2*rows[table-1]+4,cols+1), worksheet=wks_generated).apply_format(model_cell)
 
-
 def createOgdenTables():
-    print('hello')
+    x=0
     #createTableE()
     #createTableF()
     #createTables1to34()
@@ -465,7 +457,44 @@ def createOgdenTables():
 
 
 
-#createOgdenTables()
+createOgdenTables()
+
+def check_in_list(unique_code):
+    #returns true if unique code in list
+    #get list
+    gc = pygsheets.authorize(service_file=service_file_path)
+    shDigitalGoods = gc.open_by_key(spreadsheet_DigitalGoods)
+    wks=shDigitalGoods.worksheet_by_title('Codes')
+    codes = [wks.get_col(2,include_tailing_empty=False),wks.get_col(4,include_tailing_empty=False),wks.get_col(6,include_tailing_empty=False)] #the three codes
+    col=1
+    for code in codes:
+        col+=2
+        if unique_code in code:
+            ro=code.index(unique_code)
+            dt=wks.get_value((ro+1,col))
+            if dt=="":
+                #unactivated - so add date
+                wks.update_value((ro+1,col),datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+                return True
+            else : #check if expired
+                n=datetime.today()
+                a=datetime.strptime(dt,'%Y-%m-%d %H:%M:%S')
+                e=add_years(a,1)
+                if n<=e:
+                    return True
+    return False
+
+def add_years(d, years):
+    """Return a date that's `years` years after the date (or datetime)
+    object `d`. Return the same calendar date (month and day) in the
+    destination year, if it exists, otherwise use the following day
+    (thus changing February 29 to March 1).
+
+    """
+    try:
+        return d.replace(year = d.year + years)
+    except ValueError:
+        return d + (datetime(d.year + years, 1, 1) - datetime(d.year, 1, 1))
 
 
 
@@ -477,8 +506,10 @@ def createOgdenTables():
 # print(g.getClaimant('Hicken').M(60,'LIFE', freq='Y',options='M'))
 
 
-print(g.getClaimant('Norman').M('TRIAL',"TRIAL+1Y",options="A",discountRate=0))
-print(g.getClaimant('Norman').M('TRIAL','LIFE',freq='Y'))
+print(g.getClaimant('Norman').JLE())
+print(g.getClaimant('Norman').JLM(-0.02))
+print(g.getClaimant('Norman').M('TRIAL','LIFE','Y','AMID',-0.02))
+#print(g.getClaimant('Norman').M('TRIAL','LIFE',freq='Y'))
 #print(g.getClaimant('Norman').getdiscountFactor(90, -0.0025))
 #print(g.getClaimant('Norman').gettermCertain(76, 86, discountRate=-0.0075))
 #print(json.dumps(g.getClaimant('Norman').getEDD().isoformat()))

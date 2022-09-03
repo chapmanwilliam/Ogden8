@@ -8,6 +8,7 @@ from localpackage.SAR import SAR
 from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, parsedate, \
     parsedateString, discountOptions, fr, discountFactor, defaultSwiftCarpenterDiscountRate
 from localpackage.errorLogging import errors
+import math
 
 class baseperson():
 
@@ -53,10 +54,57 @@ class baseperson():
         return self.M(self.getStateRetirementAge(), 'LIFE', options='AMI',discountRate=discountRate)
 
     def JLE(self): #Joint life expectancy
-        return self.M(self.age,125, options='MID')
+        if self.parent.getUseTablesEF():
+            shortestLEname=self.getShortestLEname()
+            claimant=self.parent.getClaimant(shortestLEname)
+            m=claimant.M(self.age,125,options='MI')
+            TableFs = [self.parent.getClaimant(dep).getTableF() for dep in self.getClaimantsDependentOn()] #list of TableE for each dependent
+            TableF = math.prod(TableFs)
+            resM=[0,0,0,0]
+            resM[0]=m[0]
+            resM[1]=m[1]
+            resM[2]=m[2]*TableF
+            resM[3]=m[0]+m[1]+m[2]
+            return resM
+        else:
+            return self.M(self.age,125, options='MID')
 
     def JLM(self, discountRate=None): #Joint life multiplier
-        return self.M(self.age,125, options='AMID',discountRate=discountRate)
+        if self.parent.getUseTablesEF():
+            shortestLEname = self.getShortestLEname()
+            claimant = self.parent.getClaimant(shortestLEname)
+            m = claimant.M(self.age,125,options='AMI',discountRate=discountRate)
+            TableFs = [self.parent.getClaimant(dep).getTableF() for dep in self.getClaimantsDependentOn()] #list of TableE for each dependent
+            TableF = math.prod(TableFs)
+            resM=[0,0,0,0]
+            resM[0]=m[0]
+            resM[1]=m[1]
+            resM[2]=m[2]*TableF
+            resM[3]=m[0]+m[1]+m[2]
+            return m
+        else:
+            return self.M(self.age,125, options='AMID',discountRate=discountRate)
+
+    def JM(self, point1, point2=None, freq="Y", options='AMI', discountRate=None): #joint multiplier
+        if self.parent.getUseTablesEF():
+            options=options.replace('D','')
+            shortestLEname=self.getShortestLEname()
+            claimant=self.parent.getClaimant(shortestLEname)
+            m=claimant.M(point1,point2,freq,options=options,discountRate=discountRate) #multiplier for person with shortest LE
+            TableEs = [self.parent.getClaimant(dep).getTableE() for dep in self.getClaimantsDependentOn()] #list of TableE for each dependent
+            TableE = math.prod(TableEs)
+            TableFs = [self.parent.getClaimant(dep).getTableF() for dep in self.getClaimantsDependentOn()] #list of TableE for each dependent
+            TableF = math.prod(TableFs)
+            resM=[0,0,0,0]
+            resM[0] = m[0] * TableE
+            resM[1] = m[1]
+            resM[2] = m[2] * TableF
+            resM[3] = m[0] + m[1] + m[2]
+            return m
+        else:
+            if not "D" in options:
+                options=options+"D"
+            return self.M(point1, point2, freq, options, discountRate)
 
     def getStateRetirementAge(self):
         #returns state retirement age from government web-site
@@ -76,7 +124,27 @@ class baseperson():
         else:
             return None
 
+    def getDependentWithShortestLE(self):
+        #returns name of the dependent with the shortest LE
+        deps=self.getClaimantsDependentOn()
+        shortestLE=1000
+        shortestDepLE=None
+        for dep in deps:
+            LE=self.parent.getClaimant(dep).LE()[3]
+            if LE<shortestLE:
+                shortestLE=LE
+                shortestDepLE=dep
+        return shortestDepLE
 
+    def getShortestLEname(self):
+        #returns name of claimant and deps with shortest LE
+        shortestDepLE=self.getDependentWithShortestLE()
+        if shortestDepLE:
+            if self.parent.getClaimant(shortestDepLE).LE()[3]>self.LE()[3]:
+                return self.getName()
+            else:
+                return shortestDepLE
+        return self.getName()
 
     def getClaimantsDependentOn(self):
         #returns list of names claimant is dependent on
@@ -208,14 +276,9 @@ class baseperson():
         result=[past_expected_years, interest_expected_years, future_expected_years, total]
         return result
 
-
-    def JM(self, point1, point2=None, freq="Y", options='AMI', discountRate=None):
-        #joint multiplier
-        if not "D" in options:
-            options=options+"D"
-        return self.M(point1, point2, freq, options, discountRate)
-
     def M(self, point1, point2=None, freq="Y", options='AMI', discountRate=None):
+        if self.parent.getUseTablesEF() and 'D' in options:
+            return self.JM(point1,point2, freq,options, discountRate)
         #builds a curve depending on the options and returns the multiplier
         if not freq:
             freq="Y"

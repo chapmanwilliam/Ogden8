@@ -9,6 +9,9 @@ from localpackage.errorLogging import errors
 
 class game():
 
+    def getUseTablesEF(self):
+        return self.useTablesEF
+
     def getSummaryStatsClaimants(self):
         # returns summary statistics for each Claimant
         claimantStats = {}
@@ -184,6 +187,10 @@ class game():
         self.projection = True
         if 'projection' in attributes['game']:
             self.projection = attributes['game']['projection']
+
+        self.useTablesEF = False
+        if 'useTablesEF' in attributes['game']:
+            self.useTablesEF = attributes['game']['useTablesEF']
 
         if 'trialDate' in attributes['game']:  # if trial date supplied, accept; otherwise use today's date
             if type(attributes['game']['trialDate']) is str:
