@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime, timedelta
 import numpy as np
 import re
@@ -57,7 +58,7 @@ class baseperson():
         if self.parent.getUseTablesEF():
             shortestLEname=self.getShortestLEname()
             claimant=self.parent.getClaimant(shortestLEname)
-            m=claimant.M(self.age,125,options='MI')
+            m=claimant.MifNotDead(self.age,125,options='MI')
             TableFs = [self.parent.getClaimant(dep).getTableF() for dep in self.getClaimantsDependentOn()] #list of TableE for each dependent
             TableF = math.prod(TableFs)
             resM=[0,0,0,0]
@@ -73,7 +74,7 @@ class baseperson():
         if self.parent.getUseTablesEF():
             shortestLEname = self.getShortestLEname()
             claimant = self.parent.getClaimant(shortestLEname)
-            m = claimant.M(self.age,125,options='AMI',discountRate=discountRate)
+            m = claimant.MifNotDead(self.age,125,options='AMI',discountRate=discountRate)
             TableFs = [self.parent.getClaimant(dep).getTableF() for dep in self.getClaimantsDependentOn()] #list of TableF for each dependent
             TableF = math.prod(TableFs)
             resM=[0,0,0,0]
@@ -90,7 +91,7 @@ class baseperson():
             options=options.replace('D','')
             shortestLEname=self.getShortestLEname()
             claimant=self.parent.getClaimant(shortestLEname)
-            m=claimant.M(point1,point2,freq,options=options,discountRate=discountRate) #multiplier for person with shortest LE
+            m=claimant.MifNotDead(point1,point2,freq,options=options,discountRate=discountRate) #multiplier for person with shortest LE if not dead
             TableEs = [self.parent.getClaimant(dep).getTableE() for dep in self.getClaimantsDependentOn()] #list of TableE for each dependent
             TableE = math.prod(TableEs)
             TableFs = [self.parent.getClaimant(dep).getTableF() for dep in self.getClaimantsDependentOn()] #list of TableE for each dependent
@@ -124,13 +125,29 @@ class baseperson():
         else:
             return None
 
+    def getLEifNotDead(self):
+        copyme=copy.deepcopy(self)
+        copyme.fatal=False
+        copyme.setDirty(True)
+        copyme.refresh()
+        return copyme.LE()
+
+    def MifNotDead(self, point1, point2=None, freq="Y", options='AMI', discountRate=None):
+        copyme=copy.deepcopy(self)
+        copyme.fatal=False
+        copyme.setDirty(True)
+        copyme.refresh()
+        return copyme.M(point1, point2, freq=freq, options=options, discountRate=discountRate)
+
+
     def getDependentWithShortestLE(self):
         #returns name of the dependent with the shortest LE
         deps=self.getClaimantsDependentOn()
         shortestLE=1000
         shortestDepLE=None
         for dep in deps:
-            LE=self.parent.getClaimant(dep).LE()[3]
+            claimant=self.parent.getClaimant(dep)
+            LE=claimant.getLEifNotDead()[3]
             if LE<shortestLE:
                 shortestLE=LE
                 shortestDepLE=dep
@@ -139,8 +156,9 @@ class baseperson():
     def getShortestLEname(self):
         #returns name of claimant and deps with shortest LE
         shortestDepLE=self.getDependentWithShortestLE()
+        claimant = self.parent.getClaimant(shortestDepLE)
         if shortestDepLE:
-            if self.parent.getClaimant(shortestDepLE).LE()[3]>self.LE()[3]:
+            if self.parent.getClaimant(shortestDepLE).getLEifNotDead()[3]>self.getLEifNotDead()[3]:
                 return self.getName()
             else:
                 return shortestDepLE
@@ -445,9 +463,9 @@ class baseperson():
 
     def setDirty(self,value=True):
         self.dirty=value
-        [ds.setdirtyCalcs(value) for ds in self.dataSets.values()]  # make all the future data sets dirty
-        self.getSAR().setDirty(value)  # make part data set dirty
-        [c.setDirty(value) for c in self.curves.values()] #make all curves dirty
+        self.dataSet.setdirtyCalcs(value)  # make all the future data sets dirty
+        self.getSAR().setDirty(value)  # make past data set dirty
+        self.curve.setDirty(value) #make all curves dirty
 
     def refresh(self):
         if self.dirty:

@@ -509,6 +509,7 @@ def add_years(d, years):
 #print(g.getClaimant('Norman').JLE())
 #print(g.getClaimant('Norman').JLM())
 print(g.getClaimant('Jacqueline').M('TRIAL','TRIAL+10Y','Y','AMID'))
+print(g.getClaimant('Jacqueline').JM('TRIAL','TRIAL+10Y'))
 #print(g.getClaimant('Norman').M('TRIAL','LIFE',freq='Y'))
 #print(g.getClaimant('Norman').getdiscountFactor(90, -0.0025))
 #print(g.getClaimant('Norman').gettermCertain(76, 86, discountRate=-0.0075))
