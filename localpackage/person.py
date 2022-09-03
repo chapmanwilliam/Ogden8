@@ -8,9 +8,10 @@ class person(baseperson):
     def getTableE(self):
         #This is average chance of death from date of death until trial
         #Take the multiplier to trial and divide by number of years
+        if not self.isFatal(): return 1
         AAD=self.getAAD()
         AAT=self.getAAT()
-        if AAD>=AAT or not self.isFatal(): return 1
+        if AAD>=AAT: return 1
         return self.M(AAD, AAT,options='M')[3]/(AAT-AAD)
 
     def getTableF(self):

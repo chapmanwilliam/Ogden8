@@ -64,7 +64,7 @@ class baseperson():
             resM[0]=m[0]
             resM[1]=m[1]
             resM[2]=m[2]*TableF
-            resM[3]=m[0]+m[1]+m[2]
+            resM[3]=resM[0]+resM[1]+resM[2]
             return resM
         else:
             return self.M(self.age,125, options='MID')
@@ -80,8 +80,8 @@ class baseperson():
             resM[0]=m[0]
             resM[1]=m[1]
             resM[2]=m[2]*TableF
-            resM[3]=m[0]+m[1]+m[2]
-            return m
+            resM[3]=resM[0]+resM[1]+resM[2]
+            return resM
         else:
             return self.M(self.age,125, options='AMID',discountRate=discountRate)
 
@@ -92,15 +92,17 @@ class baseperson():
             claimant=self.parent.getClaimant(shortestLEname)
             m=claimant.M(point1,point2,freq,options=options,discountRate=discountRate) #multiplier for person with shortest LE
             TableEs = [self.parent.getClaimant(dep).getTableE() for dep in self.getClaimantsDependentOn()] #list of TableE for each dependent
+            #TableEs.append(self.getTableE())
             TableE = math.prod(TableEs)
             TableFs = [self.parent.getClaimant(dep).getTableF() for dep in self.getClaimantsDependentOn()] #list of TableE for each dependent
+            #TableFs.append(self.getTableF())
             TableF = math.prod(TableFs)
             resM=[0,0,0,0]
             resM[0] = m[0] * TableE
             resM[1] = m[1]
             resM[2] = m[2] * TableF
-            resM[3] = m[0] + m[1] + m[2]
-            return m
+            resM[3] = resM[0] + resM[1] + resM[2]
+            return resM
         else:
             if not "D" in options:
                 options=options+"D"
