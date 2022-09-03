@@ -8,6 +8,9 @@ class SAR():
         self.loadSAR()
         self.dirty=True
         self.refresh()
+        self.dfSAR
+        self.Rng
+        self._Lx
 
     def setDirty(self,value=True):
         self.dirty=True
@@ -27,6 +30,7 @@ class SAR():
         return self.parent.getAge()
 
     def calcs(self):
+        self.loadSAR()
         self._Lx, self.Rng=self.getLx()
 
     def transformLx(self,newRng,shift=0):
