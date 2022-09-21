@@ -134,7 +134,7 @@ class game():
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "TC":
             return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], freq=row['freq'],
-                                                           options='A',
+                                                           options='AI',
                                                            discountRate=row['discountRate']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "EAD":
