@@ -380,7 +380,7 @@ class baseperson():
             #Error, wrong type
             print('Wrong type passed to getAgeFromPoint')
             print(type(point))
-            errors.add('Wrong type passed to getAgeFromPoint: ' + type(point))
+            errors.add('Wrong type passed to getAgeFromPoint: ' + type(point).__name__)
         return age
 
     def parseTextPoint(self,point):
