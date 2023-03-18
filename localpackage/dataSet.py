@@ -180,15 +180,15 @@ class dataSet():
         #creates CSVs of the date
         #Files of type 'cohortMUK2008'
         for year in years:
-            periodFile = 'localpackage/Data/perioddata ' + str(self.year) + '.xlsx'
-            cohortFile = 'localpackage/Data/cohortdata ' + str(year) + '.xlsx'
+            periodFile = '../localpackage/Data/perioddata ' + str(self.year) + '.xlsx'
+            cohortFile = '../localpackage/Data/cohortdata ' + str(year) + '.xlsx'
             for sex in sexes:
                 for region in regions:
                     sheet = region + " " + sex + 's'
                     self.dfPeriod = pd.read_excel(periodFile, sheet, index_col=0, header=0)
                     self.dfCohort = pd.read_excel(cohortFile, sheet, index_col=0, header=0)
-                    pathPeriod="localpackage/Data/period"+sex[0]+region+str(year) + '.csv'
-                    pathCohort="localpackage/Data/cohort"+sex[0]+region+str(year) + '.csv'
+                    pathPeriod="../localpackage/Data/period"+sex[0]+region+str(year) + '.csv'
+                    pathCohort="../localpackage/Data/cohort"+sex[0]+region+str(year) + '.csv'
                     self.dfPeriod.to_csv(pathPeriod, index=True)
                     self.dfCohort.to_csv(pathCohort, index=True)
 
@@ -196,8 +196,8 @@ class dataSet():
         return 'ONS ' + self.getSex()[0] + self.region + str(self.year) + ', year attained in ' + str(self.calcYrAttained())
 
     def loaddataSetCSV(self):
-        periodFile='localpackage/Data/period'+self.getSex()[0]+self.region+str(self.year)+'.csv'
-        cohortFile='localpackage/Data/cohort'+self.getSex()[0]+self.region+str(self.year)+'.csv'
+        periodFile='../localpackage/Data/period'+self.getSex()[0]+self.region+str(self.year)+'.csv'
+        cohortFile='../localpackage/Data/cohort'+self.getSex()[0]+self.region+str(self.year)+'.csv'
         try:
             self.dfPeriod = pd.read_csv(periodFile, index_col=0, header=0)
             self.dfPeriod.columns=self.dfPeriod.columns.astype(int)
@@ -210,8 +210,8 @@ class dataSet():
 
     def loaddataSet(self):
         if not self.valid(): return False
-        periodFile='localpackage/Data/perioddata ' + str(self.year) + '.xlsx'
-        cohortFile='localpackage/Data/cohortdata ' + str(self.year)+ '.xlsx'
+        periodFile='../localpackage/Data/perioddata ' + str(self.year) + '.xlsx'
+        cohortFile='../localpackage/Data/cohortdata ' + str(self.year)+ '.xlsx'
         sheet=self.region + " " + self.getSex()[0] + 's'
 
         try:

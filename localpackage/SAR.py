@@ -44,7 +44,8 @@ class SAR():
         self.dfSAR=self.dfSAR[:self.gettrialDate()]
         if self.dfSAR.iloc[-1].name<self.gettrialDate():
             a=pd.Series({'Rate':0.2},name=self.gettrialDate()) #arbitrary rate
-            self.dfSAR=self.dfSAR.append(a)
+            #self.dfSAR = self.dfSAR.append(a)
+            self.dfSAR=pd.concat([self.dfSAR,a.to_frame().T])
         self.dfSAR['Rate']=self.dfSAR['Rate'].shift(+1)
         self.dfSAR['tvalue'] = self.dfSAR.index
 
@@ -79,7 +80,7 @@ class SAR():
         if self.dirty: self.calcs()
 
     def loadSAR(self):
-        file= 'localpackage/Data/SAR.csv'
+        file= '../localpackage/Data/SAR.csv'
 
         try:
             self.dfSAR = pd.read_csv(file, index_col=0, header=0, parse_dates=True, dayfirst=True)

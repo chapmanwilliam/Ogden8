@@ -221,8 +221,11 @@ class baseperson():
     def getdeltaLE(self):
         return self.deltaLE
 
-    def getdiscountRate(self):
-        return self.parent.getdiscountRate()
+    def getUseMultipleRates(self):
+        return self.parent.getUseMultipleRates()
+
+    def getdiscountRate(self, yrs=0):
+        return self.parent.getdiscountRate(yrs)
 
     def getdiscountFactor(self,point,discountRate=None):
         if discountRate==None:

@@ -111,8 +111,11 @@ class curve():
     def getSAR(self):
         return self.parent.getSAR()
 
-    def getdiscountRate(self):
-        return self.parent.getdiscountRate()
+    def getUseMultipleRates(self):
+        return self.parent.getUseMultipleRates()
+
+    def getdiscountRate(self, yrs=0):
+        return self.parent.getdiscountRate(yrs)
 
     def gettrialDate(self):
         return self.parent.gettrialDate()
@@ -186,12 +189,12 @@ class curve():
                     axis=0).tolist()
             else:  # this is continuous
                 interest, past = self.cont(fromAge, min(self.getAge(), toAge), options)
-                if options == 'A':
+                if options == 'A' and not self.getUseMultipleRates():
                     futureinterest = 0
                     yrs1 = max(self.getAge(), fromAge) - self.getAge()
                     yrs2 = toAge - self.getAge()
-                    TC1 = termCertain(yrs1, discountRate)
-                    TC2 = termCertain(yrs2, discountRate)
+                    TC1 = termCertain(yrs1, self.getdiscountRate(yrs1))
+                    TC2 = termCertain(yrs2, self.getdiscountRate(yrs2))
                     future = TC2 - TC1
                     interest *= factor
                     past *= factor
@@ -276,7 +279,7 @@ class curve():
             interest = 0
             if options == "A":  # just acceleration
                 yrs = age - self.getAge()
-                future = discountFactor(yrs, discountRate)
+                future = discountFactor(yrs, self.getdiscountRate(yrs))
             else:
                 future = y
         return past, interest, future, past + interest + future
@@ -295,15 +298,16 @@ class curve():
         if(discountRate==None):
             discountRate = self.getdiscountRate()
 
-        # First check if we already have calculated this one
-        if discountRate in self.curveOptions:
-            if options in self.curveOptions[discountRate]: #options is a string like 'AMID' and self.curveOptions is a dictionary
-                result = self.curveOptions[discountRate][options]
-                return result['LxNoI'], result['Lx'], result['Rng']
+        # First check if we already have calculated this one for a given SINGLE discount rate
+        if not self.getUseMultipleRates():
+            if discountRate in self.curveOptions:
+                if options in self.curveOptions[discountRate]: #options is a string like 'AMID' and self.curveOptions is a dictionary
+                    result = self.curveOptions[discountRate][options]
+                    return result['LxNoI'], result['Lx'], result['Rng']
+                else:
+                    self.curveOptions[discountRate][options] = {}
             else:
-                self.curveOptions[discountRate][options] = {}
-        else:
-            self.curveOptions[discountRate] = {}
+                self.curveOptions[discountRate] = {}
 
         def expand_past_range():
             # makes the past more granular
@@ -323,13 +327,13 @@ class curve():
         _disc = np.full((Rng.size), 1)
         _cont = np.full((Rng.size), 1)
         _Lx = np.full((Rng.size), 1)
-        _interest = np.full((Rng.size), 1)
-        _deceased = np.full((Rng.size), 1)
+        _interest = np.full(Rng.size, 1)
+        _deceased = np.full(Rng.size, 1)
 
         # discount factor
         if 'A' in options:
             _discp = np.full((rp.size), 1)  # 1 in the past
-            _discf = np.array([discountFactor(a - age, discountRate) for a in rf])
+            _discf = np.array([discountFactor(a - age, self.getdiscountRate(a-age)) for a in rf])
             _disc = np.concatenate((_discp, _discf))
         # mortality
         if 'M' in options:
@@ -367,6 +371,7 @@ class curve():
         Lx = np.prod(B, axis=0)
 
         result = {'LxNoI': LxNoI, 'Lx': Lx, 'Rng': Rng}
-        self.curveOptions[discountRate][options]=result
+        if not self.getUseMultipleRates():
+            self.curveOptions[discountRate][options]=result
 
         return LxNoI, Lx, Rng

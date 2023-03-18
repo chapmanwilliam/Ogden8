@@ -10,6 +10,7 @@ wordPoints=['TRIAL', 'LIFE', 'RETIREMENT', 'INJURY']
 plusMinus=['+','-']
 fr=['Y','M','W','D','A']
 discountOptions=['A','M','I','C','D']
+DRMethods=['BLENDED','SWITCHED','STEPPED']
 
 defaultdiscountRate=-0.25/100
 defaultSwiftCarpenterDiscountRate=5/100
@@ -18,6 +19,7 @@ Ogden=[7,8]
 ContDetailsdefault={'employed':True,'qualification':'D','disabled':False} #default
 Ogden7={'year':2008,'region':'UK','yrAttainedIn':2011}
 Ogden8={'year':2018,'region':'UK','yrAttainedIn':2022}
+defaultMultipleRates=[{'rate':-0.015,'switch':15},{'rate':0.015,'switch':125}]
 
 
 def isfloat(value):

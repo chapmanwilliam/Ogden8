@@ -3,7 +3,8 @@ import json
 from pymaybe import maybe
 from localpackage.person import person
 from localpackage.TablesAD import TablesAD
-from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden, parsedateString
+from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden, parsedateString, DRMethods, \
+    defaultMultipleRates
 from localpackage.errorLogging import errors
 
 
@@ -80,8 +81,54 @@ class game():
         game = {'discountRate': self.getdiscountRate(), 'Ogden': self.ogden, 'claimants': cs}
         return game
 
-    def getdiscountRate(self):
-        return self.discountRate
+    def getUseMultipleRates(self):
+        return self.useMultipleRates
+
+    def getdiscountRate(self, yrs=0):
+        if not self.useMultipleRates:
+            return self.discountRate
+        else:
+            if self.DRMethod == "BLENDED":
+                # this method blends the rates together after each switch point
+                # after each switch point the discount FACTOR is multiplied by the new discount FACTOR
+                # to calculate this you 1) calculate the discount FACTOR 2) convert that back to an equivalent discount rate
+                if yrs == 0:  # deal with special case
+                    return 1
+                cumDF = 1
+                last_switch = 0
+                for r in self.getMultipleRates():
+                    if yrs > r['switch']: #then we'll take all of it
+                        # how many yrs at this rate?
+                        yrs_at_this_rate = r['switch']-last_switch
+                        DF = (1 / (1 + r['rate'])) ** yrs_at_this_rate
+                        cumDF *= DF
+                        last_switch = r['switch']
+                    else:
+                        yrs_at_this_rate = yrs - last_switch
+                        DF = (1 / (1 + r['rate'])) ** yrs_at_this_rate
+                        cumDF *= DF
+                        break
+                # now convert back to equivalent discount rate
+                if cumDF>0:
+                    DR = ((1 / cumDF) ** (1 / yrs)) - 1
+                else:
+                    DR=0
+                return DR
+            elif self.DRMethod == 'SWITCHED':
+                # this method returns the discount rate for the number of years
+                # so if yrs is short you get short discount rate; if yrs is long you get long discount rate
+                for r in self.getMultipleRates():
+                    if yrs <= r['switch']:
+                        return r['rate']
+            elif self.DRMethod == 'STEPPED':
+                # this looks at the longest period in the game.
+                # if the longest period is long, then long rate; if short, short rate
+                # effectively you use a single rate for whole game depending on that
+                # PROBLEM - knowing the full game - think this has to be done client side
+                return self.discountRate
+            else:
+                errors.append('Incorrect DRmethod; using single rate')
+                return self.discountRate
 
     def setdiscountRate(self, rate):
         self.discountRate = rate
@@ -115,8 +162,8 @@ class game():
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "JMULTIPLIER":
             return [maybe(self.getClaimant(row['name'])).JM(row['fromAge'], row['toAge'], freq=row['freq'],
-                                                           options=row['options'],
-                                                           discountRate=row['discountRate']).or_else(
+                                                            options=row['options'],
+                                                            discountRate=row['discountRate']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "INTERESTHOUSE":
             return [maybe(self.getClaimant(row['name'])).INTERESTHOUSE(row['fromAge'], row['toAge']).or_else(
@@ -171,7 +218,21 @@ class game():
             return [maybe(self.getClaimant(row['name']).JLM(row['discountRate'])).or_else(
                 [None, None, None, None]) for row in self.rows]
 
+    def getMultipleRates(self):
+        return self.multipleRates
 
+    def validateMultipleRates(self):
+        # check rates within bounds and switch is monotonically increasing
+        last_switch = 0
+        for r in self.getMultipleRates():
+            if not r['switch'] > last_switch:
+                errors.append("Not monotonically increasing")
+                return False
+            if r['rate'] > 0.3 or r['rate'] < -0.3:
+                errors.append("Rate out of bounds")
+                return False
+            last_switch = r['switch']
+        return True
 
     def process(self):
         # returns row results and summary statistics
@@ -227,10 +288,34 @@ class game():
         self.TablesAD = TablesAD(self.ogden)
 
         self.claimants = {}  # dictionary for storing the claimants by name
-        self.dependents = {}  # dictionary for storing the dependents by name
+        self.multipleRates = []  # list for storing multiple discount rates
 
         if 'claimants' in attributes['game']:
             [self.addClaimant(person(cs, parent=self)) for cs in attributes['game']['claimants']]
         else:
             print('No claimants added')
             errors.add("No claimants added")
+
+        if 'useMultipleRates' in attributes['game']:
+            self.useMultipleRates = attributes['game']['useMultipleRates']
+        else:
+            self.useMultipleRates = False
+
+        if 'DRMethod' in attributes['game']:
+            if attributes['game']['DRMethod'] in DRMethods:
+                self.DRMethod = attributes['game']['DRMethod']
+            else:
+                self.DRMethod = 'BLENDED'
+        else:
+            self.DRMethod = 'BLENDED'
+
+        if 'multipleRates' in attributes['game']:
+            [self.multipleRates.append(r) for r in attributes['game']['multipleRates']]
+            if not self.validateMultipleRates():
+                self.multipleRates = defaultMultipleRates
+                print('Invalid multiple rates supplied; default used.')
+                errors.add('Invalid multiple rates supplied; default used.')
+        else:
+            print('No multiple rates added')
+            errors.add('no multiple rates added')
+        print(self.getMultipleRates())
