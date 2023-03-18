@@ -81,7 +81,7 @@ class SAR():
         if self.dirty: self.calcs()
 
     def loadSAR(self):
-        file = os.path.dirname(os.path.abspath(__file__)) + '/Data/SAR.csv'
+        file = 'localpackage/Data/SAR.csv'
 
         try:
             self.dfSAR = pd.read_csv(file, index_col=0, header=0, parse_dates=True, dayfirst=True)
