@@ -329,5 +329,3 @@ class game():
         else:
             print('No multiple rates added')
             errors.add('no multiple rates added')
-        print(self.getUseMultipleRates())
-        print(self.getMultipleRates())
