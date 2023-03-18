@@ -227,6 +227,9 @@ class baseperson():
     def getdiscountRate(self, yrs=0):
         return self.parent.getdiscountRate(yrs)
 
+    def getMultipleRates(self):
+        return self.parent.getMultipleRates()
+
     def getdiscountFactor(self,point,discountRate=None):
         if discountRate==None:
             discountRate=self.getdiscountRate()

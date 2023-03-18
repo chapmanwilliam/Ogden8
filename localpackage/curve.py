@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 import os
 from localpackage.utils import returnFreq, discountFactor, termCertain
 from localpackage.calcs import calcs
-
+import json
 
 class curve():
 
     def __init__(self, parent=None):
         self.parent = parent
         self._LxNoI = self._Lx = None
-        self.curveOptions = {}  # dictionary to store different options [discountRate][options] with each entry  [0.0025]['AM'] or 'AMD' etc. Should be 2^4 = 16 options for each discount rate
+        self.curveOptions = {}  # dictionary to store hashes of results
         self.dirty = True
         self.calc = calcs()
 
@@ -174,8 +174,8 @@ class curve():
         return result
 
     def Multiplier(self, fromAge, toAge=None, options=None, freq="Y", cont=1, calc=None, discountRate=None):
-        if discountRate==None:
-            discountRate=self.getdiscountRate()
+        if discountRate == None:
+            discountRate = self.getdiscountRate()
         st, en, factor, timeInterval = returnFreq(freq, fromAge, toAge)
 
         if toAge:
@@ -265,7 +265,7 @@ class curve():
         return interest, withoutInterest
 
     def Lx(self, age, options, discountRate=None):
-        if(discountRate==None):
+        if (discountRate == None):
             discountRate = self.getdiscountRate()
 
         y = np.interp(age, self.Rng, self._Lx)
@@ -292,22 +292,30 @@ class curve():
             self.curveOptions.clear()
             self.dirty = False
 
+    def getMultipleRates(self):
+        return self.parent.getMultipleRates()
+
     def getCurve(self, options, cont, discountRate=None):
         # Returns the curve for past and future applying all relevant discounts
 
-        if(discountRate==None):
+        if (discountRate == None):
             discountRate = self.getdiscountRate()
 
-        # First check if we already have calculated this one for a given SINGLE discount rate
-        if not self.getUseMultipleRates():
-            if discountRate in self.curveOptions:
-                if options in self.curveOptions[discountRate]: #options is a string like 'AMID' and self.curveOptions is a dictionary
-                    result = self.curveOptions[discountRate][options]
-                    return result['LxNoI'], result['Lx'], result['Rng']
-                else:
-                    self.curveOptions[discountRate][options] = {}
+        def createHashObject(options):
+            # multiple rates -> multipleRates, options
+            # single rate: -> discountRate, options
+            if self.getUseMultipleRates():
+                hObj = {'useMultipleRates':self.getUseMultipleRates(), 'rates':self.getMultipleRates(), 'options':options}
             else:
-                self.curveOptions[discountRate] = {}
+                hObj = {'useMultipleRates': self.getUseMultipleRates(), 'rate': self.getdiscountRate(), 'options': options}
+            hObjJSON=json.dumps(hObj,sort_keys=True)
+            return hash(hObjJSON)
+
+        # First check if we already have calculated this one for a given SINGLE discount rate
+        h = createHashObject(options)
+        if h in self.curveOptions:
+            result = self.curveOptions[h]
+            return result['LxNoI'], result['Lx'], result['Rng']
 
         def expand_past_range():
             # makes the past more granular
@@ -333,7 +341,7 @@ class curve():
         # discount factor
         if 'A' in options:
             _discp = np.full((rp.size), 1)  # 1 in the past
-            _discf = np.array([discountFactor(a - age, self.getdiscountRate(a-age)) for a in rf])
+            _discf = np.array([discountFactor(a - age, self.getdiscountRate(a - age)) for a in rf])
             _disc = np.concatenate((_discp, _discf))
         # mortality
         if 'M' in options:
@@ -371,7 +379,6 @@ class curve():
         Lx = np.prod(B, axis=0)
 
         result = {'LxNoI': LxNoI, 'Lx': Lx, 'Rng': Rng}
-        if not self.getUseMultipleRates():
-            self.curveOptions[discountRate][options]=result
+        self.curveOptions[h] = result
 
         return LxNoI, Lx, Rng

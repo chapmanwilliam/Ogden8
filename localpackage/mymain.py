@@ -50,7 +50,7 @@ claimantdeceased = {'name': 'John', 'age': 55, 'aai': 25, 'aad': 30, 'sex': 'Fem
 
 row = {'name': 'Jacqueline', 'fromAge': 76, 'toAge': 'LIFE', 'freq': 'Y', 'options': None}
 rows = [row for a in range(1, 2)]
-eg = {"rows": [], 'game': {"trialDate": datetime(2022, 7, 31), "DOI": datetime(2012,7,31), "useMultipleRates": True, 'DRMethod': 'BLENDED', "projection": True, 'useTablesEF': True, "autoYrAttained": False,
+eg = {"rows": [], 'game': {"trialDate": datetime(2022, 7, 31), "DOI": datetime(2012,7,31), "useMultipleRates": False, 'DRMethod': 'BLENDED', "projection": True, 'useTablesEF': True, "autoYrAttained": False,
                            "discountRate": -1.5 / 100, "Ogden": 8, "multipleRates":[{'rate':-0.015,'switch':15},{'rate':0.015,'switch':125}], "claimants": [claimant, dependent1]}}
 
 eg2 = '{"rows":[{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"MI"},{"name":"JANE","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"JOHN","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"JOHN","fromAge":40,"toAge":60,"freq":"Y","options":"AMID"},{"name":"CHRISTOPHER","fromAge":"trial-3Y","toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"},{"name":"","fromAge":"","toAge":"","freq":"","options":""},{"name":"NAME","fromAge":"From Age","toAge":"To Age","freq":"FREQ","options":"OPTIONS"},{"name":"CHRISTOPHER","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"trial-3Y","toAge":60,"freq":"Y","options":"AMID"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"MI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"}],"game":{"discountRate":-0.005,"Ogden":7,"claimants":[{"name":"Christopher","cont":1,"age":58.362765229295,"sex":"Male","dataSet":{"year":2018,"region":"UK","yrAttainedIn":2022},"deltaLE":-5,"dependenton":"","retirement":67},{"name":"Jane","cont":1,"age":36.94455852156057,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLE":0,"aad":"","dependenton":"","retirement":67},{"name":"John","cont":1,"age":25.1088295687885,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLE":0,"aad":"","dependenton":"Christopher","retirement":67}]}}'
@@ -509,7 +509,7 @@ def add_years(d, years):
 #print(g.getClaimant('Norman').JLE())
 #print(g.getClaimant('Norman').JLM())
 print(g.getClaimant('Jacqueline').M('TRIAL',40,'Y','A'))
-print(g.getClaimant('Jacqueline').M('TRIAL',40,"Y","AM"))
+print(g.getClaimant('Jacqueline').M('TRIAL',40,"Y","A"))
 #print(g.getClaimant('Norman').M('TRIAL','LIFE',freq='Y'))
 #print(g.getClaimant('Norman').getdiscountFactor(90, -0.0025))
 #print(g.getClaimant('Norman').gettermCertain(76, 86, discountRate=-0.0075))

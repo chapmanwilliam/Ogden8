@@ -88,6 +88,14 @@ class game():
         if not self.useMultipleRates:
             return self.discountRate
         else:
+            def getHashObject():
+                hObj = {'DRmethod': self.DRMethod, 'rates': self.getMultipleRates(), 'yrs': str(yrs)}
+                hJSONObj = json.dumps(hObj, sort_keys=True)
+                return hash(hJSONObj)
+
+            h = getHashObject()
+            if h in self.discountRateOptions:
+                return self.discountRateOptions[h]
             if self.DRMethod == "BLENDED":
                 # this method blends the rates together after each switch point
                 # after each switch point the discount FACTOR is multiplied by the new discount FACTOR
@@ -97,9 +105,9 @@ class game():
                 cumDF = 1
                 last_switch = 0
                 for r in self.getMultipleRates():
-                    if yrs > r['switch']: #then we'll take all of it
+                    if yrs > r['switch']:  # then we'll take all of it
                         # how many yrs at this rate?
-                        yrs_at_this_rate = r['switch']-last_switch
+                        yrs_at_this_rate = r['switch'] - last_switch
                         DF = (1 / (1 + r['rate'])) ** yrs_at_this_rate
                         cumDF *= DF
                         last_switch = r['switch']
@@ -109,16 +117,18 @@ class game():
                         cumDF *= DF
                         break
                 # now convert back to equivalent discount rate
-                if cumDF>0:
+                if cumDF > 0:
                     DR = ((1 / cumDF) ** (1 / yrs)) - 1
                 else:
-                    DR=0
+                    DR = 0
+                self.discountRateOptions[h] = DR
                 return DR
             elif self.DRMethod == 'SWITCHED':
                 # this method returns the discount rate for the number of years
                 # so if yrs is short you get short discount rate; if yrs is long you get long discount rate
                 for r in self.getMultipleRates():
                     if yrs <= r['switch']:
+                        self.discountRateOptions[h] = r['rate']
                         return r['rate']
             elif self.DRMethod == 'STEPPED':
                 # this looks at the longest period in the game.
@@ -239,6 +249,7 @@ class game():
         return {'rows': self.processRows(), 'summary': self.getSummaryStatsClaimants(), 'errorLog': errors.getLog()}
 
     def __init__(self, attributes):
+        self.discountRateOptions = {}  # dictionary to store hashes of results
 
         self.function = "MULTIPLIER"  # default
         if 'function' in attributes:
