@@ -85,7 +85,6 @@ class SAR():
 
         try:
             self.dfSAR = pd.read_csv(file, index_col=0, header=0, parse_dates=True, dayfirst=True)
-            print(self.dfSAR)
         except:
             return False
 

@@ -196,8 +196,8 @@ class dataSet():
         return 'ONS ' + self.getSex()[0] + self.region + str(self.year) + ', year attained in ' + str(self.calcYrAttained())
 
     def loaddataSetCSV(self):
-        periodFile=os.path.dirname(os.path.abspath(__file__))+'/Data/period'+self.getSex()[0]+self.region+str(self.year)+'.csv'
-        cohortFile=os.path.dirname(os.path.abspath(__file__))+ '/Data/cohort'+self.getSex()[0]+self.region+str(self.year)+'.csv'
+        periodFile = os.path.dirname(os.path.abspath(__file__)) + '/Data/period'+self.getSex()[0]+self.region+str(self.year)+'.csv'
+        cohortFile = os.path.dirname(os.path.abspath(__file__)) + '/Data/cohort'+self.getSex()[0]+self.region+str(self.year)+'.csv'
         try:
             self.dfPeriod = pd.read_csv(periodFile, index_col=0, header=0)
             self.dfPeriod.columns=self.dfPeriod.columns.astype(int)
@@ -210,8 +210,8 @@ class dataSet():
 
     def loaddataSet(self):
         if not self.valid(): return False
-        periodFile=os.path.dirname(os.path.abspath(__file__))+'/Data/perioddata ' + str(self.year) + '.xlsx'
-        cohortFile=os.path.dirname(os.path.abspath(__file__))+'/Data/cohortdata ' + str(self.year)+ '.xlsx'
+        periodFile = os.path.dirname(os.path.abspath(__file__)) + '/Data/perioddata ' + str(self.year) + '.xlsx'
+        cohortFile = os.path.dirname(os.path.abspath(__file__)) + '/Data/cohortdata ' + str(self.year)+ '.xlsx'
         sheet=self.region + " " + self.getSex()[0] + 's'
 
         try:
