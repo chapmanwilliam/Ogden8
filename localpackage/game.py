@@ -85,6 +85,8 @@ class game():
         return self.useMultipleRates
 
     def getdiscountRate(self, yrs=0, discountRate=None, DRMethodOverride=None):
+        if discountRate: #if a discount rate is provided it overrides everything else
+            return discountRate
         if not self.useMultipleRates and DRMethodOverride is None:
             if discountRate:
                 return discountRate
