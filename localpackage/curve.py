@@ -114,8 +114,8 @@ class curve():
     def getUseMultipleRates(self):
         return self.parent.getUseMultipleRates()
 
-    def getdiscountRate(self, yrs=0):
-        return self.parent.getdiscountRate(yrs)
+    def getdiscountRate(self, yrs=0, discountRate=None, DRMethodOverride=None):
+        return self.parent.getdiscountRate(yrs=yrs, discountRate=discountRate, DRMethodOverride=DRMethodOverride)
 
     def gettrialDate(self):
         return self.parent.gettrialDate()
@@ -154,15 +154,15 @@ class curve():
     def getClaimants(self):
         return self.parent.getClaimants()
 
-    def M(self, fromAge, toAge=None, freq="Y", cont=1, options='AMI', discountRate=None):
+    def M(self, fromAge, toAge=None, freq="Y", cont=1, options='AMI', discountRate=None, DRMethodOverride=None):
         # get the right curve
 
         self.refresh()
 
-        self._LxNoI, self._Lx, self.Rng = self.getCurve(options, cont, discountRate)
+        self._LxNoI, self._Lx, self.Rng = self.getCurve(options=options, cont=cont, discountRate=discountRate, DRMethodOverride=DRMethodOverride)
 
         calc1 = calcs()
-        result = self.Multiplier(fromAge, toAge, options, freq, cont, calc1, discountRate)
+        result = self.Multiplier(fromAge, toAge, options, freq, cont, calc1, discountRate=discountRate, DRMethodOverride=DRMethodOverride)
 
         self.calc.clear()
         self.calc.addText(self.getHeading1(result, fromAge, toAge, freq, cont, options))
@@ -173,9 +173,8 @@ class curve():
 
         return result
 
-    def Multiplier(self, fromAge, toAge=None, options=None, freq="Y", cont=1, calc=None, discountRate=None):
-        if discountRate == None:
-            discountRate = self.getdiscountRate()
+    def Multiplier(self, fromAge, toAge=None, options=None, freq="Y", cont=1, calc=None, discountRate=None, DRMethodOverride=None):
+
         st, en, factor, timeInterval = returnFreq(freq, fromAge, toAge)
 
         if toAge:
@@ -185,7 +184,7 @@ class curve():
                 if en:
                     ages = np.arange(start=fromAge + timeInterval, stop=toAge, step=timeInterval)
                 result = np.sum(
-                    np.array([self.Multiplier(fromAge=age, options=options, cont=cont, calc=calc) for age in ages]),
+                    np.array([self.Multiplier(fromAge=age, options=options, cont=cont, calc=calc,DRMethodOverride=DRMethodOverride) for age in ages]),
                     axis=0).tolist()
             else:  # this is continuous
                 interest, past = self.cont(fromAge, min(self.getAge(), toAge), options)
@@ -193,8 +192,8 @@ class curve():
                     futureinterest = 0
                     yrs1 = max(self.getAge(), fromAge) - self.getAge()
                     yrs2 = toAge - self.getAge()
-                    TC1 = termCertain(yrs1, self.getdiscountRate(yrs1))
-                    TC2 = termCertain(yrs2, self.getdiscountRate(yrs2))
+                    TC1 = termCertain(yrs1, self.getdiscountRate(yrs=yrs1, discountRate=discountRate, DRMethodOverride=DRMethodOverride))
+                    TC2 = termCertain(yrs2, self.getdiscountRate(yrs=yrs2, discountRate=discountRate, DRMethodOverride=DRMethodOverride))
                     future = TC2 - TC1
                     interest *= factor
                     past *= factor
@@ -207,7 +206,7 @@ class curve():
                     future *= factor
                     result = past, interest, future, past + interest + future
         else:
-            result = list(self.Lx(fromAge, options, discountRate))
+            result = list(self.Lx(fromAge, options=options, discountRate=discountRate, DRMethodOverride=DRMethodOverride))
 
         if calc:
             calc.addText(self.getBreakdown(fromAge, toAge, factor, result))
@@ -226,16 +225,16 @@ class curve():
             s = 'Age ' + '{:.2f}'.format(fromAge) + ' to {:.2f}'.format(toAge) + ' : ' + s
         return s
 
-    def cont(self, fromAge, toAge, options):
+    def cont(self, fromAge, toAge, options, discountRate=None, DRMethodOverride=None):
         if fromAge < toAge:
-            Tx1I, Tx1 = self.Tx(fromAge, options)
-            Tx2I, Tx2 = self.Tx(toAge, options)
+            Tx1I, Tx1 = self.Tx(fromAge, options, discountRate=discountRate, DRMethodOverride=None)
+            Tx2I, Tx2 = self.Tx(toAge, options, discountRate=discountRate, DRMethodOverride=None)
             interest = Tx2I - Tx1I
             withoutInterest = Tx2 - Tx1
             return interest, withoutInterest
         return 0, 0
 
-    def Tx(self, age, options):
+    def Tx(self, age, options, discountRate=None, DRMethodOverride=None):
         if age < 0: return 0
         a = self.Rng[self.Rng <= age]
         if len(a) == 0: return 0, 0
@@ -248,13 +247,13 @@ class curve():
 
         # additional chunk
         lowerL = Lx[-1]
-        higherLpast, higherLinterest, higherLfuture, higherLtotal = self.Lx(age, options)
+        higherLpast, higherLinterest, higherLfuture, higherLtotal = self.Lx(age, options=options, discountRate=discountRate, DRMethodOverride=DRMethodOverride)
         yrsBetween = age - a[-1]
         additionalChunk = 0.5 * (lowerL + higherLtotal) * yrsBetween  # with interest
 
         # additional chunk
         lowerL = LnoI[-1]
-        higherLpast, higherLinterest, higherLfuture, higherLtotal = self.Lx(age, options)
+        higherLpast, higherLinterest, higherLfuture, higherLtotal = self.Lx(age, options, discountRate=discountRate, DRMethodOverride=DRMethodOverride)
         yrsBetween = age - a[-1]
         additionalChunknoI = 0.5 * (lowerL + higherLpast + higherLfuture) * yrsBetween  # without interest
 
@@ -264,9 +263,7 @@ class curve():
 
         return interest, withoutInterest
 
-    def Lx(self, age, options, discountRate=None):
-        if (discountRate == None):
-            discountRate = self.getdiscountRate()
+    def Lx(self, age, options, discountRate=None, DRMethodOverride=None):
 
         y = np.interp(age, self.Rng, self._Lx)
         ynoI = np.interp(age, self.Rng, self._LxNoI)
@@ -279,7 +276,7 @@ class curve():
             interest = 0
             if options == "A":  # just acceleration
                 yrs = age - self.getAge()
-                future = discountFactor(yrs, self.getdiscountRate(yrs))
+                future = discountFactor(yrs, self.getdiscountRate(yrs=yrs,discountRate=discountRate,DRMethodOverride=DRMethodOverride))
             else:
                 future = y
         return past, interest, future, past + interest + future
@@ -295,19 +292,17 @@ class curve():
     def getMultipleRates(self):
         return self.parent.getMultipleRates()
 
-    def getCurve(self, options, cont, discountRate=None):
+    def getCurve(self, options, cont, discountRate=None, DRMethodOverride=None):
         # Returns the curve for past and future applying all relevant discounts
 
-        if (discountRate == None):
-            discountRate = self.getdiscountRate()
 
         def createHashObject(options):
             # multiple rates -> multipleRates, options
             # single rate: -> discountRate, options
-            if self.getUseMultipleRates():
-                hObj = {'useMultipleRates':self.getUseMultipleRates(), 'rates':self.getMultipleRates(), 'options':options}
+            if self.getUseMultipleRates() and DRMethodOverride != 'SINGLE':
+                hObj = {'useMultipleRates':True, 'rates':self.getMultipleRates(), 'options':options}
             else:
-                hObj = {'useMultipleRates': self.getUseMultipleRates(), 'rate': self.getdiscountRate(), 'options': options}
+                hObj = {'useMultipleRates': False, 'rate': self.getdiscountRate(), 'options': options}
             hObjJSON=json.dumps(hObj,sort_keys=True)
             return hash(hObjJSON)
 
@@ -341,7 +336,7 @@ class curve():
         # discount factor
         if 'A' in options:
             _discp = np.full((rp.size), 1)  # 1 in the past
-            _discf = np.array([discountFactor(a - age, self.getdiscountRate(a - age)) for a in rf])
+            _discf = np.array([discountFactor(a - age, self.getdiscountRate(yrs=a - age, discountRate=discountRate,DRMethodOverride=DRMethodOverride)) for a in rf])
             _disc = np.concatenate((_discp, _discf))
         # mortality
         if 'M' in options:

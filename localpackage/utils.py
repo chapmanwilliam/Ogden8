@@ -10,7 +10,7 @@ wordPoints=['TRIAL', 'LIFE', 'RETIREMENT', 'INJURY']
 plusMinus=['+','-']
 fr=['Y','M','W','D','A']
 discountOptions=['A','M','I','C','D']
-DRMethods=['BLENDED','SWITCHED','STEPPED']
+DRMethods=['BLENDED','SWITCHED','SINGLE']
 
 defaultdiscountRate=-0.25/100
 defaultSwiftCarpenterDiscountRate=5/100

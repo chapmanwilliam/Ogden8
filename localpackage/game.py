@@ -84,8 +84,10 @@ class game():
     def getUseMultipleRates(self):
         return self.useMultipleRates
 
-    def getdiscountRate(self, yrs=0):
-        if not self.useMultipleRates:
+    def getdiscountRate(self, yrs=0, discountRate=None, DRMethodOverride=None):
+        if not self.useMultipleRates and DRMethodOverride is None:
+            if discountRate:
+                return discountRate
             return self.discountRate
         else:
             def getHashObject():
@@ -93,10 +95,15 @@ class game():
                 hJSONObj = json.dumps(hObj, sort_keys=True)
                 return hash(hJSONObj)
 
+            if DRMethodOverride:
+                DRMethod=DRMethodOverride
+            else:
+                DRMethod=self.DRMethod
+
             h = getHashObject()
             if h in self.discountRateOptions:
                 return self.discountRateOptions[h]
-            if self.DRMethod == "BLENDED":
+            if DRMethod == "BLENDED":
                 # this method blends the rates together after each switch point
                 # after each switch point the discount FACTOR is multiplied by the new discount FACTOR
                 # to calculate this you 1) calculate the discount FACTOR 2) convert that back to an equivalent discount rate
@@ -123,21 +130,23 @@ class game():
                     DR = 0
                 self.discountRateOptions[h] = DR
                 return DR
-            elif self.DRMethod == 'SWITCHED':
+            elif DRMethod == 'SWITCHED':
                 # this method returns the discount rate for the number of years
                 # so if yrs is short you get short discount rate; if yrs is long you get long discount rate
                 for r in self.getMultipleRates():
                     if yrs <= r['switch']:
                         self.discountRateOptions[h] = r['rate']
                         return r['rate']
-            elif self.DRMethod == 'STEPPED':
+            elif DRMethod=='SINGLE':
+                return self.discountRate
+            elif DRMethod == 'STEPPED':
                 # this looks at the longest period in the game.
                 # if the longest period is long, then long rate; if short, short rate
                 # effectively you use a single rate for whole game depending on that
                 # PROBLEM - knowing the full game - think this has to be done client side
                 return self.discountRate
             else:
-                errors.append('Incorrect DRmethod; using single rate')
+                errors.add('Incorrect DRmethod; using single rate')
                 return self.discountRate
 
     def setdiscountRate(self, rate):
@@ -168,12 +177,14 @@ class game():
         if self.function == "MULTIPLIER":
             return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], freq=row['freq'],
                                                            options=row['options'],
-                                                           discountRate=row['discountRate']).or_else(
+                                                           discountRate=row['discountRate'],
+                                                           DRMethodOverride=row['DRMethodOverride']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "JMULTIPLIER":
             return [maybe(self.getClaimant(row['name'])).JM(row['fromAge'], row['toAge'], freq=row['freq'],
                                                             options=row['options'],
-                                                            discountRate=row['discountRate']).or_else(
+                                                            discountRate=row['discountRate'],
+                                                            DRMethodOverride=row['DRMethodOverride']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "INTERESTHOUSE":
             return [maybe(self.getClaimant(row['name'])).INTERESTHOUSE(row['fromAge'], row['toAge']).or_else(
@@ -187,12 +198,14 @@ class game():
         elif self.function == "DF":
             return [maybe(self.getClaimant(row['name'])).M(row['fromAge'],
                                                            options='A',
-                                                           discountRate=row['discountRate']).or_else(
+                                                           discountRate=row['discountRate'],
+                                                           DRMethodOverride=row['DRMethodOverride']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "TC":
             return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], freq=row['freq'],
                                                            options='AI',
-                                                           discountRate=row['discountRate']).or_else(
+                                                           discountRate=row['discountRate'],
+                                                           DRMethodOverride=row['DRMethodOverride']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "EAD":
             return [maybe([self.getClaimant(row['name']).getEAD()]).or_else(
