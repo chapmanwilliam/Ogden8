@@ -207,4 +207,6 @@ def Process(request):
 
     #returns an array of tuples (past,interest,future,total), one for each row and summary statistics for each claimant
 
+    print('Got here')
+
     return (json.dumps(game(attributes=attributes).process()), 200, headers)

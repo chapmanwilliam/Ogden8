@@ -56,9 +56,7 @@ class TablesAD():
             Tabs={}
             for Table in Tables:
                 path = os.path.dirname(os.path.abspath(__file__))+"/Data/" + str(O)+"Table"+Table+".csv"
-                print(path)
                 Tabs[Table]=pd.read_csv(path, index_col=0,header=[0,1])
-                print(Tabs[Table])
                 def spl(x):
                     return int(x.split('-')[0])
                 Tabs[Table].index=Tabs[Table].index.map(spl)
