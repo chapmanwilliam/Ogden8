@@ -1,6 +1,7 @@
 from localpackage.utils import Ogden
 import pandas as pd
 import math
+import os
 
 Sex=['M','F']
 Tables=['A','B','C','D']
@@ -54,7 +55,7 @@ class TablesAD():
         for O in Ogden:
             Tabs={}
             for Table in Tables:
-                path = "../localpackage/Data/" + str(O)+"Table"+Table+".csv"
+                path = os.getcwd() + "/Data/" + str(O)+"Table"+Table+".csv"
                 Tabs[Table]=pd.read_csv(path, index_col=0,header=[0,1])
                 def spl(x):
                     return int(x.split('-')[0])

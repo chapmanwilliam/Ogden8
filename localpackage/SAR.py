@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import os
 
 
 class SAR():
@@ -80,7 +81,7 @@ class SAR():
         if self.dirty: self.calcs()
 
     def loadSAR(self):
-        file= '../localpackage/Data/SAR.csv'
+        file= os.getcwd()+'/Data/SAR.csv'
 
         try:
             self.dfSAR = pd.read_csv(file, index_col=0, header=0, parse_dates=True, dayfirst=True)
@@ -88,3 +89,6 @@ class SAR():
             return False
 
         return True
+
+    def getBaseDir(self):
+        return os.getcwd()
