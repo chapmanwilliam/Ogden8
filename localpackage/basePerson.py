@@ -261,6 +261,12 @@ class baseperson():
     def getCurve(self):
         return self.curve
 
+    def getDependentOn(self):
+        return self.dependenton
+
+    def setDependentOn(self,dependenton):
+        self.dependenton=dependenton
+
     def getContDependentsOn(self):
         dependentonlist = self.getClaimantsDependentOn()
         if len(dependentonlist) == 0: return 1  # i.e. not dependent on anyone
@@ -320,10 +326,21 @@ class baseperson():
             self.setSex(result['SEX'])
         if 'AGE' in result:
             self.setAge(float(result['AGE']))
+        if 'DEPENDENTON' in result:
+            self.setDependentOn(result['DEPENDENTON'])
+        if 'DRMETHOD' in result:
+            self.parent.setDRMethod(result['DRMETHOD'])
+            self.parent.setUseMultipleRates(True)
+
+    def getOriginalValues(self):
+        return self.originalValues
 
     def setOriginalValues(self):
-        self.setSex(self.originalValues['SEX'])
-        self.setAge(self.originalValues['AGE'])
+        self.setSex(self.getOriginalValues()['SEX'])
+        self.setAge(self.getOriginalValues()['AGE'])
+        self.setDependentOn(self.getOriginalValues()['DEPENDENTON'])
+        self.parent.setDRMethod(self.parent.getOriginalValues()['DRMETHOD'])
+        self.parent.setUseMultipleRates(self.parent.getOriginalValues()['USEMULTIPLERATES'])
 
     def M(self, point1, point2=None, freq="Y", options='AMI', discountRate=None, DRMethodOverride=None, overrides=None):
         #deal with overrides
@@ -592,14 +609,14 @@ class baseperson():
         if 'contDetails' in attributes: self.contDetails = attributes[
             'contDetails']  # should be {'employed','qualification','disabled'}
 
-        if 'dependenton' in self.attributes: self.dependenton = self.attributes['dependenton'].strip()
+        if 'dependenton' in self.attributes: self.setDependentOn(self.attributes['dependenton'].strip())
 
         self.dataSet = dataSet(self)
         self.curve = curve(self)
 
         self.SAR = SAR(parent=self)
 
-        self.originalValues = {'SEX':self.getSex(),'AGE': self.getAge()}
+        self.originalValues = {'SEX':self.getSex(),'AGE': self.getAge(),'DEPENDENTON':self.getDependentOn()}
 
         self.setUp()
 

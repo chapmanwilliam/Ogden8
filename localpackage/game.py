@@ -240,6 +240,21 @@ class game():
     def getMultipleRates(self):
         return self.multipleRates
 
+    def getUseMultipleRates(self):
+        return self.useMultipleRates
+
+    def setUseMultipleRates(self,useMultipleRates):
+        self.useMultipleRates=useMultipleRates
+
+    def getDRMethod(self):
+        return self.DRMethod
+
+    def setDRMethod(self,drmethod):
+        self.DRMethod=drmethod
+
+    def getOriginalValues(self):
+        return self.originalValues
+
     def validateMultipleRates(self):
         # check rates within bounds and switch is monotonically increasing
         last_switch = 0
@@ -316,17 +331,17 @@ class game():
             errors.add("No claimants added")
 
         if 'useMultipleRates' in attributes['game']:
-            self.useMultipleRates = attributes['game']['useMultipleRates']
+            self.setUseMultipleRates(attributes['game']['useMultipleRates'])
         else:
-            self.useMultipleRates = False
+            self.setUseMultipleRates(False)
 
         if 'DRMethod' in attributes['game']:
             if attributes['game']['DRMethod'] in DRMethods:
-                self.DRMethod = attributes['game']['DRMethod']
+                self.setDRMethod(attributes['game']['DRMethod'])
             else:
-                self.DRMethod = 'BLENDED'
+                self.setDRMethod('BLENDED')
         else:
-            self.DRMethod = 'BLENDED'
+            self.setDRMethod('BLENDED')
 
         if 'multipleRates' in attributes['game']:
             [self.multipleRates.append(r) for r in attributes['game']['multipleRates']]
@@ -337,3 +352,6 @@ class game():
         else:
             print('No multiple rates added')
             errors.add('no multiple rates added')
+
+        self.originalValues = {'USEMULTIPLERATES':self.getUseMultipleRates(),'DRMETHOD': self.getDRMethod()}
+
