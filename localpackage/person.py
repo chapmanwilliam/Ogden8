@@ -6,20 +6,19 @@ from localpackage.utils import parsedateString
 class person(baseperson):
 
     def getTableE(self):
-        #This is average chance of death from date of death until trial
-        #Take the multiplier to trial and divide by number of years
+        # This is average chance of death from date of death until trial
+        # Take the multiplier to trial and divide by number of years
         if not self.isFatal(): return 1
-        AAD=self.getAAD()
-        AAT=self.getAAT()
-        if AAD>=AAT: return 1
-        return self.M(AAD, AAT,options='M')[3]/(AAT-AAD)
+        AAD = self.getAAD()
+        AAT = self.getAAT()
+        if AAD >= AAT: return 1
+        return self.M(AAD, AAT, options='M')[3] / (AAT - AAD)
 
     def getTableF(self):
-        #This is chance of death at trial
-        #Take the multiplier to trial
-        AAT=self.getAAT()
-        return self.M(AAT,options='M')[3]
-
+        # This is chance of death at trial
+        # Take the multiplier to trial
+        AAT = self.getAAT()
+        return self.M(AAT, options='M')[3]
 
     def getDict(self):
         return {'age': self.getAge(), 'aai': self.getAAI(), 'sex': self.getSex(),
@@ -37,8 +36,8 @@ class person(baseperson):
 
     def getEDD(self):
         # return expected date of death
-        EAD=self.getEAD()
-        dob=self.getDOB()
+        EAD = self.getEAD()
+        dob = self.getDOB()
         return dob + timedelta(days=(EAD * 365.25))
 
     def getEAD(self):
@@ -75,5 +74,5 @@ class person(baseperson):
         if 'fatal' in self.attributes:
             self.fatal = self.attributes['fatal']
 
-        if not 'name' in self.attributes:
+        if 'name' not in self.attributes:
             self.name = 'CLAIMANT_' + str(len(self.getClaimants()))

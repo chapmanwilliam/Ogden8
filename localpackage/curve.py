@@ -8,10 +8,9 @@ import json
 class curve():
 
     def __init__(self, parent=None):
-        self.parent = parent
+        self.parent = parent #parent is baseperson
         self._LxNoI = self._Lx = None
         self.curveOptions = {}  # dictionary to store hashes of results
-        self.dirty = True
         self.calc = calcs()
 
     def getPlot(self, result, fromAge, toAge, freq, cont, options):
@@ -126,6 +125,8 @@ class curve():
     def getName(self):
         return self.parent.getName()
 
+    def getRevisedAge(self):
+        return self.parent.getRevisedAge()
     def getAAT(self):
         return self.parent.getAAT()
 
@@ -156,8 +157,6 @@ class curve():
 
     def M(self, fromAge, toAge=None, freq="Y", cont=1, options='AMI', discountRate=None, DRMethodOverride=None):
         # get the right curve
-
-        self.refresh()
 
         self._LxNoI, self._Lx, self.Rng = self.getCurve(options=options, cont=cont, discountRate=discountRate, DRMethodOverride=DRMethodOverride)
 
@@ -281,16 +280,23 @@ class curve():
                 future = y
         return past, interest, future, past + interest + future
 
-    def setDirty(self, value=True):
-        self.dirty = value
-
     def refresh(self):
-        if self.dirty:
-            self.curveOptions.clear()
-            self.dirty = False
+        self.curveOptions.clear()
 
     def getMultipleRates(self):
         return self.parent.getMultipleRates()
+
+    def getRegion(self):
+        return self.parent.getRegion()
+
+    def getYear(self):
+        return self.parent.getYear()
+
+    def getProjection(self):
+        return self.parent.getProjection()
+
+    def getAutoYrAttained(self):
+        return self.parent.getAutoYrAttained()
 
     def getCurve(self, options, cont, discountRate=None, DRMethodOverride=None):
         # Returns the curve for past and future applying all relevant discounts
@@ -300,9 +306,9 @@ class curve():
             # multiple rates -> multipleRates, options
             # single rate: -> discountRate, options
             if self.getUseMultipleRates() and DRMethodOverride != 'SINGLE':
-                hObj = {'useMultipleRates':True, 'rates':self.getMultipleRates(), 'options':options}
+                hObj = {'useMultipleRates':True, 'rates':self.getMultipleRates(), 'options':options, 'sex': self.getSex(), 'revisedage': self.getRevisedAge(), 'region': self.getRegion(), 'year': self.getYear(), 'autoYrAttained':self.getAutoYrAttained()}
             else:
-                hObj = {'useMultipleRates': False, 'rate': self.getdiscountRate(), 'options': options}
+                hObj = {'useMultipleRates': False, 'rate': self.getdiscountRate(), 'options': options,'sex': self.getSex(), 'revisedage': self.getRevisedAge(), 'region': self.getRegion(), 'year': self.getYear(), 'autoYrAttained':self.getAutoYrAttained()}
             hObjJSON=json.dumps(hObj,sort_keys=True)
             return hash(hObjJSON)
 
@@ -314,7 +320,7 @@ class curve():
 
         def expand_past_range():
             # makes the past more granular
-            rp = self.getSAR().Rng  # get the range for the change in interest
+            rp = self.getSAR().getLx()[1]  # get the range for the change in interest
             yrrp = np.arange(rp[0], rp[-1], 1)  # and for every year
             res = np.concatenate((rp, yrrp))  # join them
             return np.sort(res, axis=None)  # sort them
@@ -323,7 +329,7 @@ class curve():
 
         rp = expand_past_range()
 
-        rf = self.getdataSet().Rng[self.getdataSet().Rng >= age]  # range in the future
+        rf = self.getdataSet().getLx(self.getRevisedAge())[1][self.getdataSet().getLx(self.getRevisedAge())[1] >= age]  # range in the future
         Rng = np.concatenate((rp, rf))  # range past and future
 
         # defaults
@@ -345,7 +351,7 @@ class curve():
                 _Lxf = self.getdataSet().transformLx(rf)  # probability of death
             else:
                 _Lxp = np.full((rp.size), 1)  # probability 1 in the past
-                _Lxf = self.getdataSet()._Lx  # probability of death in the future
+                _Lxf = self.getdataSet().getLx(self.getRevisedAge())[0]  # probability of death in the future
             _Lx = np.concatenate((_Lxp, _Lxf))
         # interest
         if 'I' in options:

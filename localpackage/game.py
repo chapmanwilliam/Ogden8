@@ -20,10 +20,10 @@ class game():
             claimantStats[claimant] = self.getClaimant(claimant).getSummaryStats()
         return claimantStats
 
-    def getprojection(self):
+    def getProjection(self):
         return self.projection
 
-    def getautoYrAttained(self):
+    def getAutoYrAttained(self):
         return self.autoYrAttained
 
     def getAAD(self, name):
@@ -153,7 +153,6 @@ class game():
 
     def setdiscountRate(self, rate):
         self.discountRate = rate
-        self.setDirty(True)  # TODO: actually we only need to make dirty the data set
 
     def getTablesAD(self):
         return self.TablesAD
@@ -161,17 +160,11 @@ class game():
     def gettrialDate(self):
         return self.trialDate
 
-    def setDirty(self, value=True):
-        [claimant.setDirty(True) for claimant in self.claimants]  # make all claimants dirty
-        self.dirty = True
-
     def settrialDate(self, trialDate):
         self.trialDate = trialDate
-        self.setDirty(True)
 
     def refresh(self):
         [claimant.refresh() for claimant in self.claimants.values()]  # refresh all the claimants
-        self.dirty = False
 
     def processRows(self):
         # rows is a list of rows of form
@@ -310,7 +303,6 @@ class game():
         else:
             self.ogden = defaultOgden
 
-        self.dirty = True
         self.TablesAD = TablesAD(self.ogden)
 
         self.claimants = {}  # dictionary for storing the claimants by name

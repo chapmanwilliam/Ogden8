@@ -37,7 +37,7 @@ c4 = {"name": "Jennifer", "cont": 1, "dob": '12/3/1949', 'dod': '23/2/2020', 'de
       'fatal': True, "dataSet": Ogden8, "contDetails": contDetails}
 c5 = {"name": "Gerald", "cont": 1, "dob": '6/4/1943', 'deltaLE': 0, "sex": "Male", 'fatal': False, "dataSet": Ogden8,
       'dependenton': 'Jennifer', "contDetails": contDetails}
-claimant = {'name': "Jacqueline", 'age': 20, 'fatal': False, 'sex': 'Female','dependenton': 'Norman',
+claimant = {'name': "Jacqueline", 'age': 60, 'fatal': False, 'sex': 'Female',
             'dataSet': Ogden8, 'deltaLE': 0, 'retirement': 78, 'cont': 0.75}
 dependent1 = {'name': "Norman", 'age': 60, 'aad':50, 'sex': 'Male', 'fatal' :True, 'dataSet': Ogden8,
               'retirement': 78}
@@ -508,8 +508,8 @@ def add_years(d, years):
 
 #print(g.getClaimant('Norman').JLE())
 #print(g.getClaimant('Norman').JLM())
-print(g.getClaimant('Jacqueline').M('TRIAL',40,'Y','A'))
-print(g.getClaimant('Jacqueline').M('TRIAL',40,"Y","A",discountRate=-0.005))
+print(g.getClaimant('Jacqueline').M('INJURY',"LIFE",'Y','AMI'))
+print(g.getClaimant('Jacqueline').M('INJURY',"LIFE","Y","AMI"))
 #print(g.getClaimant('Norman').M('TRIAL','LIFE',freq='Y'))
 #print(g.getClaimant('Norman').getdiscountFactor(90, -0.0025))
 #print(g.getClaimant('Norman').gettermCertain(76, 86, discountRate=-0.0075))

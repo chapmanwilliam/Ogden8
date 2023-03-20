@@ -30,7 +30,7 @@ class baseperson():
         return self.parent.getprojection()
 
     def getautoYrAttained(self):
-        return self.parent.getautoYrAttained()
+        return self.parent.getAutoYrAttained()
 
     def getName(self):
         return self.name
@@ -192,6 +192,9 @@ class baseperson():
     def isFatal(self):
         return self.fatal
 
+    def getDeltaLE(self):
+        return self.deltaLE
+
     def getSex(self):
         return self.sex
 
@@ -231,11 +234,25 @@ class baseperson():
     def getdeltaLE(self):
         return self.deltaLE
 
+    def getRegion(self):
+        return self.parent.getRegion()
+
+    def getYear(self):
+        return self.parent.getYear()
+
+    def getProjection(self):
+        return self.parent.getProjection()
+
+    def getAutoYrAttained(self):
+        return self.parent.getAutoYrAttained()
+    def getRevisedAge(self):
+        return self.dataSet.getrevisedAge()
+
     def getUseMultipleRates(self):
         return self.parent.getUseMultipleRates()
 
     def getdiscountRate(self, yrs=0, discountRate=None, DRMethodOverride=None):
-        return self.parent.getdiscountRate(yrs=yrs,discountRate=discountRate, DRMethodOverride=DRMethodOverride)
+        return self.parent.getdiscountRate(yrs=yrs, discountRate=discountRate, DRMethodOverride=DRMethodOverride)
 
     def getMultipleRates(self):
         return self.parent.getMultipleRates()
@@ -300,6 +317,11 @@ class baseperson():
         return result
 
     def M(self, point1, point2=None, freq="Y", options='AMI', discountRate=None, DRMethodOverride=None):
+        #deal with overrides
+        #self.age = 30
+        #self.dob = self.gettrialDate() - timedelta(days=(self.age * 365.25))
+        #self.sex="Male"
+
         if self.parent.getUseTablesEF() and 'D' in options:
             return self.JM(point1, point2, freq, options, discountRate, DRMethodOverride)
         # builds a curve depending on the options and returns the multiplier
@@ -317,13 +339,16 @@ class baseperson():
         age1 = self.getAgeFromPoint(point1)
         if age1 == None: return None  # i.e. if nothing valid submitted return None
         if point2: age2 = self.getAgeFromPoint(point2)
+
         c = self.getCurve()
+
         if 'D' in options:
             co = self.getContDependentsOn()  # if this is a dependency claim then we need cont of deceased in uninjured state
         else:
             co = self.getCont()
         if (freq == 'A'):
-            result1 = c.M(age1, age2, freq="Y", cont=co, options="M", discountRate=discountRate, DRMethodOverride=DRMethodOverride);  # expected years
+            result1 = c.M(age1, age2, freq="Y", cont=co, options="M", discountRate=discountRate,
+                          DRMethodOverride=DRMethodOverride);  # expected years
             result2 = c.M(age1, age2, freq="Y", cont=co, options=options,
                           discountRate=discountRate, DRMethodOverride=DRMethodOverride);  # normal multiplier
             past = 0
@@ -337,7 +362,8 @@ class baseperson():
             total = past + interest + future
             result = past, interest, future, total
         else:
-            result = c.M(age1, age2, freq=freq, cont=co, options=options, discountRate=discountRate, DRMethodOverride=DRMethodOverride)
+            result = c.M(age1, age2, freq=freq, cont=co, options=options, discountRate=discountRate,
+                         DRMethodOverride=DRMethodOverride)
         #       print(c.calc.show())
         #        c.getPlot(result, age1, age2, freq, co, options)
         return result
@@ -472,26 +498,30 @@ class baseperson():
     def gettrialDate(self):
         return self.parent.gettrialDate()
 
-    def setDirty(self, value=True):
-        self.dirty = value
-        self.dataSet.setdirtyCalcs(value)  # make all the future data sets dirty
-        self.getSAR().setDirty(value)  # make past data set dirty
-        self.curve.setDirty(value)  # make all curves dirty
+    def getYear(self):
+        return self.year
+
+    def getYrAttainedIn(self):
+        return self.yrAttainedIn
+
+    def getRegion(self):
+        return self.region
 
     def refresh(self):
-        if self.dirty:
-            self.getdataSet().refresh()  # refresh all the future data sets
-            self.getSAR().refresh()  # refresh the past data set
-            self.getCurve().refresh()  # refresh the curves
-            self.dirty = False
+        self.getSAR().refresh()
+        self.getdataSet().refresh()
+        self.getCurve().refresh()  # refresh the curves
 
     def __init__(self, attributes, parent):
 
         self.parent = parent  # reference to game object
         self.attributes = attributes
-        self.dirty = True
         self.fatal = False
         self.dependenton = None
+
+        self.year = attributes['dataSet']['year']
+        self.region = attributes['dataSet']['region']
+        self.yrAttainedIn = attributes['dataSet']['yrAttainedIn']
 
         if 'name' in attributes:
             self.name = attributes['name']
@@ -555,13 +585,12 @@ class baseperson():
 
         if 'dependenton' in self.attributes: self.dependenton = self.attributes['dependenton'].strip()
 
-        self.dataSet = dataSet(attributes['dataSet'], self, self.deltaLE)
+        self.dataSet = dataSet(self)
         self.curve = curve(self)
 
         self.SAR = SAR(parent=self)
 
         self.setUp()
-        self.refresh()
 
     def setUp(self):
         # to be overridden
