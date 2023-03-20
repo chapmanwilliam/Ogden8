@@ -38,25 +38,26 @@ class baseperson():
     def LE(self):  # Life expectancy
         return self.M(self.age, 125, options='MI')
 
-    def LM(self, discountRate=None, DRMethodOverride=None):  # Life multiplier
-        return self.M(self.age, 125, options='AMI', discountRate=discountRate, DRMethodOverride=DRMethodOverride)
+    def LM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Life multiplier
+        return self.M(self.age, 125, options='AMI', discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)
 
-    def EM(self, discountRate=None, DRMethodOverride=None):  # Earnings multiplier
+    def EM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Earnings multiplier
         if hasattr(self, 'retirement'):
             return self.M(self.age, self.retirement, options='AMI', discountRate=discountRate,
-                          DRMethodOverride=DRMethodOverride)
-        return self.M(self.age, self.getStateRetirementAge())
+                          DRMethodOverride=DRMethodOverride, overrides=overrides)
+        return self.M(self.age, self.getStateRetirementAge(), options='AMI', discountRate=discountRate,
+                      DRMethodOverride=DRMethodOverride, overrides=overrides)
 
-    def AEM(self, discountRate=None, DRMethodOverride=None):  # Adjusted earnings multiplier
+    def AEM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Adjusted earnings multiplier
         cont = self.getCont()
-        return [i * cont for i in self.EM(discountRate=discountRate, DRMethodOverride=DRMethodOverride)]
+        return [i * cont for i in self.EM(discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)]
 
-    def PM(self, discountRate=None, DRMethodOverride=None):  # Pension multiplier
+    def PM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Pension multiplier
         if hasattr(self, 'retirement'):
             return self.M(self.retirement, 'LIFE', options='AMI', discountRate=discountRate,
-                          DRMethodOverride=DRMethodOverride)
+                          DRMethodOverride=DRMethodOverride, overrides=overrides)
         return self.M(self.getStateRetirementAge(), 'LIFE', options='AMI', discountRate=discountRate,
-                      DRMethodOverride=DRMethodOverride)
+                      DRMethodOverride=DRMethodOverride, overrides=overrides)
 
     def JLE(self):  # Joint life expectancy
         if self.parent.getUseTablesEF():
@@ -75,11 +76,11 @@ class baseperson():
         else:
             return self.M(self.age, 125, options='MID')
 
-    def JLM(self, discountRate=None, DRMethodOverride=None):  # Joint life multiplier
+    def JLM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Joint life multiplier
         if self.parent.getUseTablesEF():
             shortestLEname = self.getShortestLEname()
             claimant = self.parent.getClaimant(shortestLEname)
-            m = claimant.MifNotDead(self.age, 125, options='AMI', discountRate=discountRate, DRMethodOverride=None)
+            m = claimant.MifNotDead(self.age, 125, options='AMI', discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)
             TableFs = [self.parent.getClaimant(dep).getTableF() for dep in
                        self.getClaimantsDependentOn()]  # list of TableF for each dependent
             TableF = math.prod(TableFs)
@@ -90,16 +91,16 @@ class baseperson():
             resM[3] = resM[0] + resM[1] + resM[2]
             return resM
         else:
-            return self.M(self.age, 125, options='AMID', discountRate=discountRate, DRMethodOverride=DRMethodOverride)
+            return self.M(self.age, 125, options='AMID', discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)
 
     def JM(self, point1, point2=None, freq="Y", options='AMI', discountRate=None,
-           DRMethodOverride=None):  # joint multiplier
+           DRMethodOverride=None, overrides=None):  # joint multiplier
         if self.parent.getUseTablesEF():
             options = options.replace('D', '')
             shortestLEname = self.getShortestLEname()
             claimant = self.parent.getClaimant(shortestLEname)
             m = claimant.MifNotDead(point1, point2, freq, options=options, discountRate=discountRate,
-                                    DRMethodOverride=DRMethodOverride)  # multiplier for person with shortest LE if not dead
+                                    DRMethodOverride=DRMethodOverride, overrides=None)  # multiplier for person with shortest LE if not dead
             TableEs = [self.parent.getClaimant(dep).getTableE() for dep in
                        self.getClaimantsDependentOn()]  # list of TableE for each dependent
             TableE = math.prod(TableEs)
@@ -116,7 +117,7 @@ class baseperson():
             if not "D" in options:
                 options = options + "D"
             return self.M(point1, point2, freq=freq, options=options, discountRate=discountRate,
-                          DRMethodOverride=DRMethodOverride)
+                          DRMethodOverride=DRMethodOverride, overrides=overrides)
 
     def getStateRetirementAge(self):
         # returns state retirement age from government web-site

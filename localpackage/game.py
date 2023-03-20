@@ -180,7 +180,8 @@ class game():
             return [maybe(self.getClaimant(row['name'])).JM(row['fromAge'], row['toAge'], freq=row['freq'],
                                                             options=row['options'],
                                                             discountRate=row['discountRate'],
-                                                            DRMethodOverride=row['DRMethodOverride']).or_else(
+                                                            DRMethodOverride=row['DRMethodOverride'],
+                                                            overrides=row['overrides']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "INTERESTHOUSE":
             return [maybe(self.getClaimant(row['name'])).INTERESTHOUSE(row['fromAge'], row['toAge']).or_else(
@@ -195,13 +196,15 @@ class game():
             return [maybe(self.getClaimant(row['name'])).M(row['fromAge'],
                                                            options='A',
                                                            discountRate=row['discountRate'],
-                                                           DRMethodOverride=row['DRMethodOverride']).or_else(
+                                                           DRMethodOverride=row['DRMethodOverride'],
+                                                           overrides=row['overrides']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "TC":
             return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], freq=row['freq'],
                                                            options='AI',
                                                            discountRate=row['discountRate'],
-                                                           DRMethodOverride=row['DRMethodOverride']).or_else(
+                                                           DRMethodOverride=row['DRMethodOverride'],
+                                                           overrides=row['overrides']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "EAD":
             return [maybe([self.getClaimant(row['name']).getEAD()]).or_else(
@@ -219,22 +222,32 @@ class game():
             return [maybe(self.getClaimant(row['name']).LE()).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "LM":
-            return [maybe(self.getClaimant(row['name']).LM(row['discountRate'])).or_else(
+            return [maybe(self.getClaimant(row['name']).LM(row['discountRate'],
+                                                           DRMethodOverride=row['DRMethodOverride'],
+                                                           overrides=row['overrides'])).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "PM":
-            return [maybe(self.getClaimant(row['name']).PM(row['discountRate'])).or_else(
+            return [maybe(self.getClaimant(row['name']).PM(row['discountRate'],
+                                                           DRMethodOverride=row['DRMethodOverride'],
+                                                           overrides=row['overrides'])).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "EM":
-            return [maybe(self.getClaimant(row['name']).EM(row['discountRate'])).or_else(
+            return [maybe(self.getClaimant(row['name']).EM(row['discountRate'],
+                                                           DRMethodOverride=row['DRMethodOverride'],
+                                                           overrides=row['overrides'])).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "AEM":
-            return [maybe(self.getClaimant(row['name']).AEM(row['discountRate'])).or_else(
+            return [maybe(self.getClaimant(row['name']).AEM(row['discountRate'],
+                                                            DRMethodOverride=row['DRMethodOverride'],
+                                                            overrides=row['overrides'])).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "JLE":
             return [maybe(self.getClaimant(row['name']).JLE()).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "JLM":
-            return [maybe(self.getClaimant(row['name']).JLM(row['discountRate'])).or_else(
+            return [maybe(self.getClaimant(row['name']).JLM(row['discountRate'],
+                                                            DRMethodOverride=row['DRMethodOverride'],
+                                                            overrides=row['overrides'])).or_else(
                 [None, None, None, None]) for row in self.rows]
 
     def getMultipleRates(self):
