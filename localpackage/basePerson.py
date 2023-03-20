@@ -39,13 +39,13 @@ class baseperson():
         return self.M(self.age, 125, options='MI')
 
     def LM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Life multiplier
-        return self.M(self.age, 125, options='AMI', discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)
+        return self.M('TRIAL', 'LIFE', options='AMI', discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)
 
     def EM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Earnings multiplier
         if hasattr(self, 'retirement'):
-            return self.M(self.age, self.retirement, options='AMI', discountRate=discountRate,
+            return self.M('TRIAL', self.retirement, options='AMI', discountRate=discountRate,
                           DRMethodOverride=DRMethodOverride, overrides=overrides)
-        return self.M(self.age, self.getStateRetirementAge(), options='AMI', discountRate=discountRate,
+        return self.M('TRIAL', self.getStateRetirementAge(), options='AMI', discountRate=discountRate,
                       DRMethodOverride=DRMethodOverride, overrides=overrides)
 
     def AEM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Adjusted earnings multiplier
@@ -63,7 +63,7 @@ class baseperson():
         if self.parent.getUseTablesEF():
             shortestLEname = self.getShortestLEname()
             claimant = self.parent.getClaimant(shortestLEname)
-            m = claimant.MifNotDead(self.age, 125, options='MI')
+            m = claimant.MifNotDead('TRIAL', 'LIFE', options='MI')
             TableFs = [self.parent.getClaimant(dep).getTableF() for dep in
                        self.getClaimantsDependentOn()]  # list of TableE for each dependent
             TableF = math.prod(TableFs)
@@ -74,13 +74,13 @@ class baseperson():
             resM[3] = resM[0] + resM[1] + resM[2]
             return resM
         else:
-            return self.M(self.age, 125, options='MID')
+            return self.M('TRIAL', 'LIFE', options='MID')
 
     def JLM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Joint life multiplier
         if self.parent.getUseTablesEF():
             shortestLEname = self.getShortestLEname()
             claimant = self.parent.getClaimant(shortestLEname)
-            m = claimant.MifNotDead(self.age, 125, options='AMI', discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)
+            m = claimant.MifNotDead('TRIAL', 'LIFE', options='AMI', discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)
             TableFs = [self.parent.getClaimant(dep).getTableF() for dep in
                        self.getClaimantsDependentOn()]  # list of TableF for each dependent
             TableF = math.prod(TableFs)
@@ -91,7 +91,7 @@ class baseperson():
             resM[3] = resM[0] + resM[1] + resM[2]
             return resM
         else:
-            return self.M(self.age, 125, options='AMID', discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)
+            return self.M('TRIAL', 'LIFE', options='AMID', discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)
 
     def JM(self, point1, point2=None, freq="Y", options='AMI', discountRate=None,
            DRMethodOverride=None, overrides=None):  # joint multiplier
