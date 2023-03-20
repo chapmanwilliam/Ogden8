@@ -173,7 +173,8 @@ class game():
             return [maybe(self.getClaimant(row['name'])).M(row['fromAge'], row['toAge'], freq=row['freq'],
                                                            options=row['options'],
                                                            discountRate=row['discountRate'],
-                                                           DRMethodOverride=row['DRMethodOverride']).or_else(
+                                                           DRMethodOverride=row['DRMethodOverride'],
+                                                           Overrides=row['overrides']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "JMULTIPLIER":
             return [maybe(self.getClaimant(row['name'])).JM(row['fromAge'], row['toAge'], freq=row['freq'],

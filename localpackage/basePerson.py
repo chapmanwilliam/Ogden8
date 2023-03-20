@@ -7,7 +7,7 @@ from localpackage.dataSet import dataSet
 from localpackage.curve import curve
 from localpackage.SAR import SAR
 from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, parsedate, \
-    parsedateString, discountOptions, fr, discountFactor, defaultSwiftCarpenterDiscountRate, DRMethods
+    parsedateString, discountOptions, fr, discountFactor, defaultSwiftCarpenterDiscountRate, DRMethods, parseOverrides
 from localpackage.errorLogging import errors
 import math
 
@@ -200,7 +200,6 @@ class baseperson():
 
     def setSex(self, sex):
         self.sex = sex
-        self.setDirty(True)
 
     def getDOI(self):
         return self.parent.getDOI()
@@ -219,7 +218,6 @@ class baseperson():
     def setAge(self, age):
         self.age = age
         self.dob = self.gettrialDate() - timedelta(days=(self.age * 365.25))
-        self.setDirty(True)
 
     def getAAT(self):
         # return age at trial (will be different if this is a fatal case from age)
@@ -316,11 +314,22 @@ class baseperson():
         result = [past_expected_years, interest_expected_years, future_expected_years, total]
         return result
 
-    def M(self, point1, point2=None, freq="Y", options='AMI', discountRate=None, DRMethodOverride=None):
+    def setOverrides(self,overrides):
+        result=parseOverrides(overrides)
+        if 'SEX' in result:
+            self.setSex(result['SEX'])
+        if 'AGE' in result:
+            self.setAge(result['AGE'])
+
+    def setOriginalValues(self):
+        self.setSex(self.originalValues['SEX'])
+        self.setAge(self.originalValues['AGE'])
+
+    def M(self, point1, point2=None, freq="Y", options='AMI', discountRate=None, DRMethodOverride=None, overrides=None):
         #deal with overrides
-        #self.age = 30
-        #self.dob = self.gettrialDate() - timedelta(days=(self.age * 365.25))
-        #self.sex="Male"
+        self.setOriginalValues()
+        if(overrides):
+            self.setOverrides(overrides)
 
         if self.parent.getUseTablesEF() and 'D' in options:
             return self.JM(point1, point2, freq, options, discountRate, DRMethodOverride)
@@ -589,6 +598,8 @@ class baseperson():
         self.curve = curve(self)
 
         self.SAR = SAR(parent=self)
+
+        self.originalValues = {'SEX':self.getSex(),'AGE': self.getAge()}
 
         self.setUp()
 
