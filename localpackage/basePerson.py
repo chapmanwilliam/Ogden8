@@ -319,7 +319,7 @@ class baseperson():
         if 'SEX' in result:
             self.setSex(result['SEX'])
         if 'AGE' in result:
-            self.setAge(result['AGE'])
+            self.setAge(float(result['AGE']))
 
     def setOriginalValues(self):
         self.setSex(self.originalValues['SEX'])
