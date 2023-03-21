@@ -78,7 +78,7 @@ class game():
     def getDict(self):
         # encodes the game, claimants, dependents
         cs = [claimant.getDict() for claimant in self.claimants]
-        game = {'discountRate': self.getdiscountRate(), 'Ogden': self.ogden, 'claimants': cs}
+        game = {'discountRate': self.discountRate(), 'Ogden': self.ogden, 'claimants': cs}
         return game
 
     def getUseMultipleRates(self):
@@ -139,7 +139,7 @@ class game():
                     if yrs <= r['switch']:
                         self.discountRateOptions[h] = r['rate']
                         return r['rate']
-            elif DRMethod=='SINGLE':
+            elif DRMethod == 'SINGLE':
                 return self.discountRate
             elif DRMethod == 'STEPPED':
                 # this looks at the longest period in the game.
@@ -170,7 +170,7 @@ class game():
         return self.getMultipleRates()[1]['rate']
 
     def getSingleRate(self):
-        return self.getdiscountRate()
+        return self.discountRate
 
     def getSwitch(self):
         return self.getMultipleRates()[0]['switch']

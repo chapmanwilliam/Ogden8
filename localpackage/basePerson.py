@@ -337,7 +337,7 @@ class baseperson():
             self.setDependentOn(result['DEPENDENTON'])
         if 'DRMETHOD' in result:
             self.parent.setDRMethod(result['DRMETHOD'])
-            if result['DRMETHOD'] == 'SINGLERATE':
+            if result['DRMETHOD'] == 'SINGLE':
                 self.parent.setUseMultipleRates(False)
             else:
                 self.parent.setUseMultipleRates(True)
