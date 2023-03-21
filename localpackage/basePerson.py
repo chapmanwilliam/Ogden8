@@ -346,7 +346,7 @@ class baseperson():
         if 'LONGRATE' in result:
             self.parent.setLongRate(float(result['LONGRATE']))
         if 'SINGLERATE' in result:
-            self.parent.setLongRate(float(result['SINGLERATE']))
+            self.parent.setSingleRate(float(result['SINGLERATE']))
         if 'SWITCH' in result:
             self.parent.setSwitch(float(result['SWITCH']))
 
@@ -361,6 +361,7 @@ class baseperson():
         self.parent.setUseMultipleRates(self.parent.getOriginalValues()['USEMULTIPLERATES'])
         self.parent.setShortRate(self.parent.getOriginalValues()['SHORTRATE'])
         self.parent.setLongRate(self.parent.getOriginalValues()['LONGRATE'])
+        self.parent.setSingleRate(self.parent.getOriginalValues()['SINGLERATE'])
         self.parent.setSwitch(self.parent.getOriginalValues()['SWITCH'])
 
     def M(self, point1, point2=None, freq="Y", options='AMI', discountRate=None, DRMethodOverride=None, overrides=None):
