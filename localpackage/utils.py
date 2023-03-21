@@ -11,7 +11,7 @@ plusMinus = ['+', '-']
 fr = ['Y', 'M', 'W', 'D', 'A']
 discountOptions = ['A', 'M', 'I', 'C', 'D']
 DRMethods = ['BLENDED', 'SWITCHED', 'SINGLE']
-overrides = ['DRMETHOD', 'SHORTRATE', 'LONGRATE', 'SINGLERATE', 'SEX', 'AGE', 'DEPENDENTON', 'REGION']
+overrides = ['DRMETHOD', 'SHORTRATE', 'LONGRATE', 'SINGLERATE', 'SWITCH', 'SEX', 'AGE', 'DEPENDENTON', 'REGION']
 
 defaultdiscountRate = -0.25 / 100
 defaultSwiftCarpenterDiscountRate = 5 / 100

@@ -510,7 +510,7 @@ def add_years(d, years):
 #print(g.getClaimant('Norman').JLM())
 #print(g.getClaimant('Jacqueline').M('INJURY',"LIFE",'Y','AMI',overrides="{SEX:MALE,AGE:20,DRMETHOD: SINGLE}"))
 #print(g.getClaimant('Jacqueline').M('INJURY',"LIFE","Y","AMI"))
-print(g.getClaimant('Jacqueline').M('TRIAL','LIFE',overrides="{SEX:FEMALE, AGE:50}"))
+print(g.getClaimant('Jacqueline').M('TRIAL','LIFE',overrides="{SEX:FEMALE, AGE:50, DRMETHOD: BLENDED, LONGRATE: 0.05}"))
 print(g.getClaimant('Jacqueline').LM(overrides="{SEX:FEMALE, AGE:50}"))
 print(g.getClaimant('Jacqueline').LM(overrides="{SEX:FEMALE}"))
 #print(g.getClaimant('Norman').M('TRIAL','LIFE',freq='Y'))

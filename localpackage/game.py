@@ -151,6 +151,30 @@ class game():
                 errors.add('Incorrect DRmethod; using single rate')
                 return self.discountRate
 
+    def setShortRate(self,rate):
+        self.getMultipleRates()[0]['rate']=rate
+
+    def setLongRate(self, rate):
+        self.getMultipleRates()[1]['rate']=rate
+
+    def setSingleRate(self,rate):
+        self.setdiscountRate(rate)
+
+    def setSwitch(self, switch):
+        self.getMultipleRates()[0]['switch']=switch
+
+    def getShortRate(self):
+        return self.getMultipleRates()[0]['rate']
+
+    def getLongRate(self):
+        return self.getMultipleRates()[1]['rate']
+
+    def getSingleRate(self):
+        return self.getdiscountRate()
+
+    def getSwitch(self):
+        return self.getMultipleRates()[0]['switch']
+
     def setdiscountRate(self, rate):
         self.discountRate = rate
 
@@ -356,15 +380,24 @@ class game():
         else:
             self.setDRMethod('BLENDED')
 
+        #Add default rates
+        r1 = {'rate': -0.015, 'switch': 15}
+        r2 = {'rate': +0.015, 'switch': 125}
+        self.multipleRates.append(r1)
+        self.multipleRates.append(r2)
+
         if 'multipleRates' in attributes['game']:
+            self.multipleRates.clear()
             [self.multipleRates.append(r) for r in attributes['game']['multipleRates']]
             if not self.validateMultipleRates():
                 self.multipleRates = defaultMultipleRates
                 print('Invalid multiple rates supplied; default used.')
                 errors.add('Invalid multiple rates supplied; default used.')
-        else:
-            print('No multiple rates added')
-            errors.add('no multiple rates added')
 
-        self.originalValues = {'USEMULTIPLERATES':self.getUseMultipleRates(),'DRMETHOD': self.getDRMethod()}
+        self.originalValues = {'USEMULTIPLERATES':self.getUseMultipleRates(),
+                               'DRMETHOD': self.getDRMethod(),
+                               'SHORTRATE':self.getShortRate(),
+                               'LONGRATE': self.getLongRate(),
+                               'SINGLERATE': self.getSingleRate(),
+                               'SWITCH':self.getSwitch()}
 

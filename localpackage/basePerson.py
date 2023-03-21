@@ -39,7 +39,8 @@ class baseperson():
         return self.M(self.age, 125, options='MI')
 
     def LM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Life multiplier
-        return self.M('TRIAL', 'LIFE', options='AMI', discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)
+        return self.M('TRIAL', 'LIFE', options='AMI', discountRate=discountRate, DRMethodOverride=DRMethodOverride,
+                      overrides=overrides)
 
     def EM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Earnings multiplier
         if hasattr(self, 'retirement'):
@@ -50,7 +51,8 @@ class baseperson():
 
     def AEM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Adjusted earnings multiplier
         cont = self.getCont()
-        return [i * cont for i in self.EM(discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)]
+        return [i * cont for i in
+                self.EM(discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)]
 
     def PM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Pension multiplier
         if hasattr(self, 'retirement'):
@@ -80,7 +82,8 @@ class baseperson():
         if self.parent.getUseTablesEF():
             shortestLEname = self.getShortestLEname()
             claimant = self.parent.getClaimant(shortestLEname)
-            m = claimant.MifNotDead('TRIAL', 'LIFE', options='AMI', discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)
+            m = claimant.MifNotDead('TRIAL', 'LIFE', options='AMI', discountRate=discountRate,
+                                    DRMethodOverride=DRMethodOverride, overrides=overrides)
             TableFs = [self.parent.getClaimant(dep).getTableF() for dep in
                        self.getClaimantsDependentOn()]  # list of TableF for each dependent
             TableF = math.prod(TableFs)
@@ -91,7 +94,8 @@ class baseperson():
             resM[3] = resM[0] + resM[1] + resM[2]
             return resM
         else:
-            return self.M('TRIAL', 'LIFE', options='AMID', discountRate=discountRate, DRMethodOverride=DRMethodOverride, overrides=overrides)
+            return self.M('TRIAL', 'LIFE', options='AMID', discountRate=discountRate, DRMethodOverride=DRMethodOverride,
+                          overrides=overrides)
 
     def JM(self, point1, point2=None, freq="Y", options='AMI', discountRate=None,
            DRMethodOverride=None, overrides=None):  # joint multiplier
@@ -100,7 +104,8 @@ class baseperson():
             shortestLEname = self.getShortestLEname()
             claimant = self.parent.getClaimant(shortestLEname)
             m = claimant.MifNotDead(point1, point2, freq, options=options, discountRate=discountRate,
-                                    DRMethodOverride=DRMethodOverride, overrides=None)  # multiplier for person with shortest LE if not dead
+                                    DRMethodOverride=DRMethodOverride,
+                                    overrides=None)  # multiplier for person with shortest LE if not dead
             TableEs = [self.parent.getClaimant(dep).getTableE() for dep in
                        self.getClaimantsDependentOn()]  # list of TableE for each dependent
             TableE = math.prod(TableEs)
@@ -244,6 +249,7 @@ class baseperson():
 
     def getAutoYrAttained(self):
         return self.parent.getAutoYrAttained()
+
     def getRevisedAge(self):
         return self.dataSet.getrevisedAge()
 
@@ -265,8 +271,8 @@ class baseperson():
     def getDependentOn(self):
         return self.dependenton
 
-    def setDependentOn(self,dependenton):
-        self.dependenton=dependenton
+    def setDependentOn(self, dependenton):
+        self.dependenton = dependenton
 
     def getContDependentsOn(self):
         dependentonlist = self.getClaimantsDependentOn()
@@ -321,8 +327,8 @@ class baseperson():
         result = [past_expected_years, interest_expected_years, future_expected_years, total]
         return result
 
-    def setOverrides(self,overrides):
-        result=parseOverrides(overrides)
+    def setOverrides(self, overrides):
+        result = parseOverrides(overrides)
         if 'SEX' in result:
             self.setSex(result['SEX'])
         if 'AGE' in result:
@@ -331,7 +337,18 @@ class baseperson():
             self.setDependentOn(result['DEPENDENTON'])
         if 'DRMETHOD' in result:
             self.parent.setDRMethod(result['DRMETHOD'])
-            self.parent.setUseMultipleRates(True)
+            if result['DRMETHOD'] == 'SINGLERATE':
+                self.parent.setUseMultipleRates(False)
+            else:
+                self.parent.setUseMultipleRates(True)
+        if 'SHORTRATE' in result:
+            self.parent.setShortRate(float(result['SHORTRATE']))
+        if 'LONGRATE' in result:
+            self.parent.setLongRate(float(result['LONGRATE']))
+        if 'SINGLERATE' in result:
+            self.parent.setLongRate(float(result['SINGLERATE']))
+        if 'SWITCH' in result:
+            self.parent.setSwitch(float(result['SWITCH']))
 
     def getOriginalValues(self):
         return self.originalValues
@@ -342,11 +359,14 @@ class baseperson():
         self.setDependentOn(self.getOriginalValues()['DEPENDENTON'])
         self.parent.setDRMethod(self.parent.getOriginalValues()['DRMETHOD'])
         self.parent.setUseMultipleRates(self.parent.getOriginalValues()['USEMULTIPLERATES'])
+        self.parent.setShortRate(self.parent.getOriginalValues()['SHORTRATE'])
+        self.parent.setLongRate(self.parent.getOriginalValues()['LONGRATE'])
+        self.parent.setSwitch(self.parent.getOriginalValues()['SWITCH'])
 
     def M(self, point1, point2=None, freq="Y", options='AMI', discountRate=None, DRMethodOverride=None, overrides=None):
-        #deal with overrides
+        # deal with overrides
         self.setOriginalValues()
-        if(overrides):
+        if (overrides):
             self.setOverrides(overrides)
 
         if self.parent.getUseTablesEF() and 'D' in options:
@@ -617,7 +637,7 @@ class baseperson():
 
         self.SAR = SAR(parent=self)
 
-        self.originalValues = {'SEX':self.getSex(),'AGE': self.getAge(),'DEPENDENTON':self.getDependentOn()}
+        self.originalValues = {'SEX': self.getSex(), 'AGE': self.getAge(), 'DEPENDENTON': self.getDependentOn()}
 
         self.setUp()
 
