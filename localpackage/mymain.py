@@ -37,7 +37,7 @@ c4 = {"name": "Jennifer", "cont": 1, "dob": '12/3/1949', 'dod': '23/2/2020', 'de
       'fatal': True, "dataSet": Ogden8, "contDetails": contDetails}
 c5 = {"name": "Gerald", "cont": 1, "dob": '6/4/1943', 'deltaLE': 0, "sex": "Male", 'fatal': False, "dataSet": Ogden8,
       'dependenton': 'Jennifer', "contDetails": contDetails}
-claimant = {'name': "Jacqueline", 'age': 10, 'fatal': False, 'sex': 'Male',
+claimant = {'name': "Jacqueline", 'age': 20, 'fatal': False, 'sex': 'Male',
             'dataSet': Ogden8, 'deltaLE': 0, 'retirement': 78, 'cont': 0.75}
 dependent1 = {'name': "Norman", 'age': 60, 'aad':50, 'sex': 'Male', 'fatal' :True, 'dataSet': Ogden8,
               'retirement': 78}

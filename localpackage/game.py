@@ -92,15 +92,16 @@ class game():
                 return discountRate
             return self.discountRate
         else:
-            def getHashObject():
-                hObj = {'DRmethod': self.DRMethod, 'rates': self.getMultipleRates(), 'yrs': str(yrs)}
-                hJSONObj = json.dumps(hObj, sort_keys=True)
-                return hash(hJSONObj)
 
-            if DRMethodOverride:
+            if DRMethodOverride: #take the supplied DRMethod or use the game DRmethod
                 DRMethod=DRMethodOverride
             else:
                 DRMethod=self.DRMethod
+
+            def getHashObject():
+                hObj = {'DRmethod': DRMethod, 'rates': self.getMultipleRates(), 'yrs': str(yrs)}
+                hJSONObj = json.dumps(hObj, sort_keys=True)
+                return hash(hJSONObj)
 
             h = getHashObject()
             if h in self.discountRateOptions:
