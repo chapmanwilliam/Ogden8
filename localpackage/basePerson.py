@@ -1,6 +1,7 @@
 import copy
 from datetime import datetime, timedelta
 import numpy as np
+import pandas as pd
 import re
 import requests
 from localpackage.dataSet import dataSet
@@ -10,9 +11,145 @@ from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdef
     parsedateString, discountOptions, fr, discountFactor, defaultSwiftCarpenterDiscountRate, DRMethods, parseOverrides
 from localpackage.errorLogging import errors
 import math
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 class baseperson():
+
+    def showLEPlot(self):
+        results = self.getLEDistribution()
+        ax = sns.lineplot(results, x='age', y='mort%')
+        title = 'Dist. of LE: ' + self.getSex() + ', age ' + '{:.1f}'.format(self.getAge())
+        if self.getRevisedAge() != self.getAge():
+            title += " (revised age " + '{:.1f}'.format(self.getRevisedAge()) + ")"
+        ax.set(title=title)
+        ax.set_ylim(bottom=0)
+
+        results['dfprod'] = results['mort%'] * (results['age'] - 0.5)
+        mean = results['dfprod'].sum()
+        EAD = self.LE()[3] + self.getAge()
+
+        results['dfdev'] = (((results['age'] - 0.5) - mean) ** 2) * results['mort%']
+        stdev = results['dfdev'].sum() ** 0.5
+
+        results['cummort%'] = results['mort%'].cumsum()
+        median = results[results['cummort%'] <= 0.5]['age'].iloc[-1]
+        lower5 = results[results['cummort%'] <= 0.05]['age'].iloc[-1]
+        upper5 = results[results['cummort%'] <= 0.95]['age'].iloc[-1]
+
+        mode = results.loc[results['mort%'].idxmax()]['age']
+
+        txt = ""
+        txt += "{:,.2f}".format(mode) + ' mode' + "\n"
+        txt += "{:,.2f}".format(median) + ' median' + "\n"
+        txt += "{:,.2f}".format(mean) + ' mean' + "\n"
+        txt += "{:,.2f}".format(stdev) + ' std dev' + "\n"
+        txt += "90% range: " + "{:,.2f}".format(lower5) + ' to ' + "{:,.2f}".format(upper5)
+        plt.text(0.025, 0.9, txt, horizontalalignment='left', verticalalignment='top', size='medium', color='black',
+                 weight='semibold', transform=ax.transAxes)
+        plt.show()
+
+    def showCapitalLeftPlot(self, lump_sum, annual_expense, avg_annual_return=None, std_dev_return=None):
+        results = self.monteCarlo(lump_sum, annual_expense, avg_annual_return, std_dev_return)
+        ax = sns.histplot(results)
+        title = "Distribution of capital left with lump sum of £" + '{:,}'.format(
+            lump_sum) + "\n" + "with avg real return of " + '{:.2%}'.format(
+            avg_annual_return) + ", " + "with stdev of " + '{:.2%}'.format(std_dev_return)
+        title += '\n' + self.getSex() + ', age ' + '{:.1f}'.format(self.getAge())
+        if self.getRevisedAge() != self.getAge():
+            title += " (revised age " + '{:.1f}'.format(self.getRevisedAge()) + ")"
+        ax.set(xlabel="capital left, £")
+        plt.title(title, fontsize=10)
+        plt.legend([], [], frameon=False)
+
+        lower5, upper5 = np.percentile(results, [5, 95])
+
+        less_than_zero = results[results < 0].count()
+        total_count = results.count()
+        percent = less_than_zero.iloc[0] / total_count.iloc[0]
+        median = results.median().iloc[0]
+        mean = results.mean().iloc[0]
+        stdev = results.std().iloc[0]
+
+        txt = ""
+        txt += "{0:.0%}".format(percent) + ' chance of < £0' + "\n"
+        txt += "£" + "{:,.0f}".format(median) + ' median' + "\n"
+        txt += "£" + "{:,.0f}".format(mean) + ' mean' + "\n"
+        txt += "£" + "{:,.0f}".format(stdev) + ' std dev' + "\n"
+        txt += "90% range: £" + "{:,.0f}".format(lower5) + ' to £' + "{:,.0f}".format(upper5)
+        plt.text(0.4, 0.9, txt, horizontalalignment='left', verticalalignment='top', size='medium', color='red',
+                 weight='semibold', transform=ax.transAxes)
+
+        results.describe()
+        plt.show()
+
+    def monteCarlo(self, lump_sum, annual_expense, avg_annual_return=None, std_dev_return=None):
+        # Use a breakpoint in the code line below to debug your script.
+        if avg_annual_return is None:
+            avg_annual_return = 1.5 / 100
+        if std_dev_return is None:
+            std_dev_return = 0.5 / 100
+
+        start_capital = lump_sum
+
+        num_simulations = 100000
+        num_reps = 1000
+
+        all_stats = []
+
+        rv_life_left = self.getSampleLifeLeft(num_reps)
+        rv_annual_return = np.random.normal(avg_annual_return, std_dev_return, 1000)
+
+        for i in range(num_simulations):
+            print(i)
+            all_stats.append(
+                self.capital_left(start_capital, rv_annual_return, annual_expense, np.random.choice(rv_life_left)))
+
+        results = np.array(all_stats)
+        results = pd.DataFrame(all_stats, columns=['capital_left'])
+        return results
+
+    def capital_left(self, start_capital, rv_annual_return, annual_expense, life_left):
+        def next_years_capital(capital, annual_return, annual_expense):
+            capital *= 1 + annual_return  # increase
+            capital -= annual_expense  # decrease
+            return capital
+
+        for r in range(0, int(life_left)):  # capital left after many years
+            start_capital = next_years_capital(start_capital, np.random.choice(rv_annual_return), annual_expense)
+
+        return start_capital
+
+    def getLEDistribution(self):
+        # returns data frame of life expectancy distribution
+        df = pd.DataFrame(data={'age': self.getCurve().getCurve('M', 1)[2],
+                                'Lx': self.getCurve().getCurve('M', 1)[1]})
+        df = df[(df['age'] >= self.getAge())]
+        df['mort%'] = -df.diff()['Lx']
+        df['prod'] = df['age'] * df['mort%']
+        return df[['age', 'mort%']]
+
+    def getSampleLifeLeft(self, num_reps):
+        # returns numpy of LE sample
+        df = self.getLEDistribution()
+        df['yrs_left'] = df['age'] - self.getAge()
+        df['freq'] = df['mort%'] * num_reps
+        x = df[['yrs_left', 'freq']].to_numpy()[1:]
+        l = []
+
+        def add_to_list(r):
+            value = r[0]
+            freq = r[1]
+            rnd_freq = int(freq.round(0))
+            for i in range(rnd_freq):
+                l.append(value - 0.5)
+
+        np.apply_along_axis(add_to_list, axis=1, arr=x)
+        result = np.array(l)
+        #        print(np.mean(result))
+        #        print(np.std(result))
+        return result
 
     def getSummaryStats(self):
         return {
@@ -534,8 +671,8 @@ class baseperson():
     def getdataSet(self):
         return self.dataSet
 
-    def getrevisedAge(self):
-        return self.getdataSet().getrevisedAge(self.getdeltaLE())
+    #    def getrevisedAge(self):
+    #        return self.getdataSet().getrevisedAge(self.getdeltaLE())
 
     def getTablesAD(self):
         return self.parent.getTablesAD()

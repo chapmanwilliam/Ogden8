@@ -321,6 +321,7 @@ class curve():
         def expand_past_range():
             # makes the past more granular
             rp = self.getSAR().getLx()[1]  # get the range for the change in interest
+            rp=rp[:-1] #get rid of last element to avoid duplication of age at trial
             yrrp = np.arange(rp[0], rp[-1], 1)  # and for every year
             res = np.concatenate((rp, yrrp))  # join them
             return np.sort(res, axis=None)  # sort them
@@ -328,7 +329,6 @@ class curve():
         age = self.getAge()
 
         rp = expand_past_range()
-
         rf = self.getdataSet().getLx(self.getRevisedAge())[1][self.getdataSet().getLx(self.getRevisedAge())[1] >= age]  # range in the future
         Rng = np.concatenate((rp, rf))  # range past and future
 

@@ -191,7 +191,8 @@ class dataSet():
 
     def transformLx(self, newRng, shift=0):
         # Takes a newRng and returns a corresponding Lx
-        newLx = np.array([np.interp(age - shift, self.Rng, self._Lx, left=1, right=0) for age in newRng])
+        Lx, Rng = self.getLx(self.getrevisedAge())
+        newLx = np.array([np.interp(age - shift, Rng, Lx, left=1, right=0) for age in newRng])
         return newLx
 
     def createCSV(self):
