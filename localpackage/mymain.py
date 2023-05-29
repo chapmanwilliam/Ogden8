@@ -594,6 +594,7 @@ def do(c):
 #do('Mason')
 
 print (g.getClaimant("Dependent").JLE())
+print (g.getClaimant("Deceased").LE())
 #g.getClaimant("Mason").showCapitalLeftPlot(12909031,190000,-0.25/100, 0/100)
 #print(g.getClaimant('Mason').getDOB())
 #print(g.getClaimant('Mason').LE())
