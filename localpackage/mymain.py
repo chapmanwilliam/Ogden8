@@ -38,7 +38,7 @@ mason = {"name": "Mason", "cont": 1, "dob": '21/10/2001', 'deltaLE': -3.5, "sex"
 repc = {"name": "Repc", "cont": 1, 'age': 41.71371, "sex": "Male", 'fatal': False, "dataSet": Ogden8,
       "contDetails": contDetails}
 
-dependent = {"name": "Dependent", "cont": 1, "dob": '25/05/1993', 'dod': '23/2/2020', 'deltaLE': 0, "sex": "Male",
+dependent = {"name": "Dependent", "cont": 1, "dob": '25/05/1993', 'dod': '23/2/2020', 'deltaLE': 4, "sex": "Male",
       'fatal': False, "dataSet": Ogden8, "contDetails": contDetails, "dependenton":"Deceased"}
 c5 = {"name": "Gerald", "cont": 1, "dob": '6/4/1943', 'deltaLE': 0, "sex": "Male", 'fatal': False, "dataSet": Ogden8,
       'dependenton': 'Jennifer', "contDetails": contDetails}
@@ -61,7 +61,7 @@ eg = {"rows": [], 'game': {"trialDate": datetime(2023, 5, 25), "DOI": datetime(2
                            "multipleRates": [{'rate': -0.015, 'switch': 15}, {'rate': 0.015, 'switch': 125}],
                            "claimants": [dependent, deceased, mason, repc]}}
 
-eg={'game':{"discountRate":-0.0025,"useTablesEF":False,"autoYrAttained":False,"claimants":[{"deltaLE":0,"sex":"Male","retirement":67,"employed":False,"fatal":False,"qualification":"3","dependenton":"Deceased","dob":"25/05/1993","dod":"25/05/2023","name":"Dependent","contDetails":{"qualification":"3","disabled":False,"employed":False},"disabled":False,"deltaLEN":0,"livetoN":62.5,"cont":0.75,"region":"UK","dataSet":{"region":"UK","year":2018,"yrAttainedIn":2022},"yrsleftN":30,"deltaLEcounter":0},{"deltaLE":0,"sex":"Male","retirement":67,"employed":False,"fatal":True,"qualification":"3","dependenton":"","dob":"25/05/1968","name":"Deceased","dod":"25/05/2023","disabled":False,"contDetails":{"qualification":"3","disabled":False,"employed":False},"deltaLEN":0,"livetoN":62.5,"cont":0.75,"region":"UK","dataSet":{"region":"UK","year":2018,"yrAttainedIn":2022},"yrsleftN":30,"deltaLEcounter":0}],"useMultipleRates":False,"DRMethod":"BLENDED","DOS":"25/05/2023","trialDate":"25/05/2023","projection":True,"Ogden":8,"multipleRates":[{"rate":-0.015,"switch":15},{"rate":0.015,"switch":125}],"DOI":"25/05/2023"}}
+eg={'game':{"discountRate":-0.0025,"useTablesEF":False,"autoYrAttained":False,"claimants":[dependent,deceased],"useMultipleRates":False,"DRMethod":"BLENDED","DOS":"25/05/2023","trialDate":"25/05/2023","projection":True,"Ogden":8,"multipleRates":[{"rate":-0.015,"switch":15},{"rate":0.015,"switch":125}],"DOI":"25/05/2023"}}
 
 eg2 = '{"rows":[{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"MI"},{"name":"JANE","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"JOHN","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"JOHN","fromAge":40,"toAge":60,"freq":"Y","options":"AMID"},{"name":"CHRISTOPHER","fromAge":"trial-3Y","toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"},{"name":"","fromAge":"","toAge":"","freq":"","options":""},{"name":"NAME","fromAge":"From Age","toAge":"To Age","freq":"FREQ","options":"OPTIONS"},{"name":"CHRISTOPHER","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":55,"toAge":125,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":40,"toAge":60,"freq":"Y","options":"AMI"},{"name":"CHRISTOPHER","fromAge":"trial-3Y","toAge":60,"freq":"Y","options":"AMID"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"MI"},{"name":"CHRISTOPHER","fromAge":"TRIAL","toAge":"LIFE","freq":"Y","options":"AMI"}],"game":{"discountRate":-0.005,"Ogden":7,"claimants":[{"name":"Christopher","cont":1,"age":58.362765229295,"sex":"Male","dataSet":{"year":2018,"region":"UK","yrAttainedIn":2022},"deltaLE":-5,"dependenton":"","retirement":67},{"name":"Jane","cont":1,"age":36.94455852156057,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLE":0,"aad":"","dependenton":"","retirement":67},{"name":"John","cont":1,"age":25.1088295687885,"sex":"Male","dataSet":{"year":2008,"region":"UK","yrAttainedIn":2011},"deltaLE":0,"aad":"","dependenton":"Christopher","retirement":67}]}}'
 
@@ -593,7 +593,7 @@ def do(c):
 
 #do('Mason')
 
-print (g.getClaimant("Dependent").JLE())
+print (g.getClaimant("Dependent").LE())
 print (g.getClaimant("Deceased").LE())
 #g.getClaimant("Mason").showCapitalLeftPlot(12909031,190000,-0.25/100, 0/100)
 #print(g.getClaimant('Mason').getDOB())
