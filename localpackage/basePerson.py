@@ -540,10 +540,13 @@ class baseperson():
             future = 0
             interest = 0
             if (result1[0] + result1[1] != 0):
-                past = result2[0] / (result1[0] + result1[1])
-                interest = result2[1] / (result1[0] + result1[1])
+                #past = result2[0] / (result1[0] + result1[1])
+                #interest = result2[1] / (result1[0] + result1[1])
+                past = result2[0] / result1[3]
+                interest = result2[1] / result1[3]
             if (result1[2] != 0):
-                future = result2[2] / result1[2]
+                #future = result2[2] / result1[2]
+                future = result2[2] / result1[3]
             total = past + interest + future
             result = past, interest, future, total
         else:
