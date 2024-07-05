@@ -595,7 +595,7 @@ def do(c):
 
 #print (g.getClaimant("Griesbach").M("5/4/2022","5/4/2023"))
 #print (g.getClaimant("Griesbach").M("5/4/2023","5/4/2024"))
-print (g.getClaimant("Griesbach").M("5/4/2026","5/4/2027","A","AID"))
+print (g.getClaimant("Griesbach").M("5/4/2026","5/4/2027","Y","AMI",-0/100))
 #g.getClaimant("Mason").showCapitalLeftPlot(12909031,190000,-0.25/100, 0/100)
 #print(g.getClaimant('Mason').getDOB())
 #print(g.getClaimant('Mason').LE())
