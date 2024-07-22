@@ -536,17 +536,25 @@ class baseperson():
                           DRMethodOverride=DRMethodOverride);  # expected years
             result2 = c.M(age1, age2, freq="Y", cont=co, options=options,
                           discountRate=discountRate, DRMethodOverride=DRMethodOverride);  # normal multiplier
-            past = 0
-            future = 0
-            interest = 0
-            if (result1[0] + result1[1] != 0):
+            past=result2[0]
+            interest=result2[1]
+            future=result2[2]
+            totalYrs = age2-age1
+            if(totalYrs>0):
+                past /= totalYrs
+                interest /= totalYrs
+                future /= totalYrs
+            #past = 0
+            #future = 0
+            #interest = 0
+            #if (result1[0] + result1[1] != 0):
                 #past = result2[0] / (result1[0] + result1[1])
                 #interest = result2[1] / (result1[0] + result1[1])
-                past = result2[0] / result1[3]
-                interest = result2[1] / result1[3]
-            if (result1[2] != 0):
+                #past = result2[0] / result1[3]
+                #interest = result2[1] / result1[3]
+            #if (result1[2] != 0):
                 #future = result2[2] / result1[2]
-                future = result2[2] / result1[3]
+                #future = result2[2] / result1[3]
             total = past + interest + future
             result = past, interest, future, total
         else:
