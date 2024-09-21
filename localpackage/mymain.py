@@ -93,7 +93,9 @@ eg6 = {"rows": [{"name": "Zaki", "fromAge": "TRIAL", "toAge": "LIFE", "freq": "Y
                 "trialDate": "27/4/2021"}}
 g = game(eg)
 
-spreadsheet_id_generated = '1MADead62q5c8M0-O1Xuf-30aYy93FgfrrMM4vFKkmzw'  # for my google sheet
+#spreadsheet_id_generated = '1MADead62q5c8M0-O1Xuf-30aYy93FgfrrMM4vFKkmzw'  # for my google sheet 1
+#https://docs.google.com/spreadsheets/d/1Gz5bo7cZbsUBeyH_01D16ZYPHyj3XZQaTHRMDGRmP1Q/edit?gid=0#gid=0
+spreadsheet_id_generated = '1Gz5bo7cZbsUBeyH_01D16ZYPHyj3XZQaTHRMDGRmP1Q' # for my google sheet 2
 spreadsheet_id_Ogden8published = '1EoXK2lAKS8KJ5ULLQYxt6lYgJv0VVvnElYa-KqApBWc'  # for published Ogden data
 spreadsheet_DigitalGoods = "1LtswwaUEeF1uNCVwzYHuqpymKGMDDCnOUoSJ15msjJw"  # for digital goods
 service_file_path = "/Users/William/Dropbox (Personal)/Python/Code/pyCharm/Ogden8/pro-tracker-360811-236cce02c285.json"  # for credentials
@@ -453,7 +455,8 @@ def createDFTables35to36():
 
 def additionalTables():
     print('Generating additional tables....')
-    drs = [-0.015, -0.0075, -0.0025, 0]  # discount rates
+    drs = [-0.015, -0.0075, -0.0025, 0, 0.005, 0.01, 0.015, 0.02]  # discount rates
+#    drs = [0.02]  # discount rates
     tos = [*range(1, 126)]  # cols
     ages = [*range(0, 116)]  # rows
     men = [{'name': "male " + str(age), 'age': age, 'sex': "M", 'dataSet': Ogden8} for age in
@@ -469,12 +472,14 @@ def additionalTables():
     dfM = {}
     dfW = {}
     for dr in drs:  # for each discount rate
+        print("Calculating for " + f'{dr:0.2%}')
         dfM[dr] = pd.DataFrame(
             [[gMen.getClaimant(c).M('TRIAL', to, discountRate=dr)[3] for to in tos] for c in gMen.claimants],
             index=ages).set_axis(tos, axis='columns').replace("'To' date must be after 'From' date", "")
         dfW[dr] = pd.DataFrame(
             [[gWomen.getClaimant(c).M('TRIAL', to, discountRate=dr)[3] for to in tos] for c in gWomen.claimants],
             index=ages).set_axis(tos, axis='columns').replace("'To' date must be after 'From' date", "")
+        print("Printing to spreadsheet..")
         write_to_gsheet(service_file_path, spreadsheet_id_generated, 'Males ' + f'{dr:0.2%}', dfM[dr],
                         'Males ' + f'{dr:0.2%}',
                         "Age until", "Age at trial")
@@ -593,10 +598,13 @@ def do(c):
 
 #do('Mason')
 
+additionalTables()
+
 #print (g.getClaimant("Griesbach").M("5/4/2022","5/4/2023"))
 #print (g.getClaimant("Griesbach").M("5/4/2023","5/4/2024"))
-print (g.getClaimant("Griesbach").M(59,100))
-print (g.getClaimant("Griesbach").M(59,100,"A"))
+#print (g.getClaimant("Griesbach").M(59,61))
+#print (g.getClaimant("Griesbach").M(59,61,"A"))
+#print (g.getClaimant("Griesbach").getSAR().getLx())
 #g.getClaimant("Mason").showCapitalLeftPlot(12909031,190000,-0.25/100, 0/100)
 #print(g.getClaimant('Mason').getDOB())
 #print(g.getClaimant('Mason').LE())

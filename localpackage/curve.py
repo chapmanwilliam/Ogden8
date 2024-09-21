@@ -308,7 +308,7 @@ class curve():
             if self.getUseMultipleRates() and DRMethodOverride != 'SINGLE':
                 hObj = {'useMultipleRates':True, 'rates':self.getMultipleRates(), 'options':options, 'sex': self.getSex(), 'revisedage': self.getRevisedAge(), 'region': self.getRegion(), 'year': self.getYear(), 'autoYrAttained':self.getAutoYrAttained()}
             else:
-                hObj = {'useMultipleRates': False, 'rate': self.getdiscountRate(), 'options': options,'sex': self.getSex(), 'revisedage': self.getRevisedAge(), 'region': self.getRegion(), 'year': self.getYear(), 'autoYrAttained':self.getAutoYrAttained()}
+                hObj = {'useMultipleRates': False, 'rate': self.getdiscountRate(yrs=0, discountRate=discountRate), 'options': options,'sex': self.getSex(), 'revisedage': self.getRevisedAge(), 'region': self.getRegion(), 'year': self.getYear(), 'autoYrAttained':self.getAutoYrAttained()}
             hObjJSON=json.dumps(hObj,sort_keys=True)
             return hash(hObjJSON)
 
