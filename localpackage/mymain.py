@@ -16,7 +16,7 @@ import math
 import pandas as pd
 import json
 import pygsheets
-from utils import Ogden7, Ogden8
+from utils import Ogden7, Ogden8, Ogden8_1
 from TablesAD import TablesAD
 from SAR import SAR
 import requests
@@ -596,9 +596,9 @@ def do(c):
 
 #do('Mason')
 
-additionalTables()
+#additionalTables()
 
-#print (g.getClaimant("Griesbach").M("5/4/2022","5/4/2023"))
+print (g.getClaimant("Griesbach").LE())
 #print (g.getClaimant("Griesbach").M("5/4/2023","5/4/2024"))
 #print (g.getClaimant("Griesbach").M(59,61))
 #print (g.getClaimant("Griesbach").M(59,61,"A"))

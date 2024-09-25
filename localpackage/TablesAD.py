@@ -53,9 +53,10 @@ class TablesAD():
 
     def loadOgdenCSV(self):
         for O in Ogden:
+            OgdenTableVersion=int(O)
             Tabs={}
             for Table in Tables:
-                path = os.path.dirname(os.path.abspath(__file__))+"/Data/" + str(O)+"Table"+Table+".csv"
+                path = os.path.dirname(os.path.abspath(__file__))+"/Data/" + str(OgdenTableVersion)+"Table"+Table+".csv"
                 Tabs[Table]=pd.read_csv(path, index_col=0,header=[0,1])
                 def spl(x):
                     return int(x.split('-')[0])

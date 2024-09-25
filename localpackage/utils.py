@@ -20,6 +20,7 @@ Ogden = [7, 8]
 ContDetailsdefault = {'employed': True, 'qualification': 'D', 'disabled': False}  # default
 Ogden7 = {'year': 2008, 'region': 'UK', 'yrAttainedIn': 2011}
 Ogden8 = {'year': 2018, 'region': 'UK', 'yrAttainedIn': 2022}
+Ogden8_1 = {'year': 2020, 'region': 'UK', 'yrAttainedIn': 2024}
 defaultMultipleRates = [{'rate': -0.015, 'switch': 15}, {'rate': 0.015, 'switch': 125}]
 
 
