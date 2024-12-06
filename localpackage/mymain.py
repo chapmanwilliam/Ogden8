@@ -42,8 +42,8 @@ dependent = {"name": "Dependent", "cont": 1, "dob": '25/05/1993', 'dod': '23/2/2
       'fatal': False, "dataSet": Ogden8, "contDetails": contDetails, "dependenton":"Deceased"}
 c5 = {"name": "Gerald", "cont": 1, "dob": '6/4/1943', 'deltaLE': 0, "sex": "Male", 'fatal': False, "dataSet": Ogden8,
       'dependenton': 'Jennifer', "contDetails": contDetails}
-deceased = {'name': "deceased", 'dob': '25/7/1990', 'dod':'3/07/2023' , 'fatal': True, 'sex': 'Male',
-            'dataSet': Ogden8, 'targetLE': 20, 'retirement': 78, 'cont': 0.75}
+deceased = {'name': "deceased", 'dob': '25/7/1949', 'dod':'3/07/2023' , 'fatal': True, 'sex': 'Male',
+            'dataSet': Ogden8, 'deltaLE': -10, 'retirement': 78, 'cont': 0.75}
 dependent1 = {'name': "Norman", 'age': 60, 'aad': 50, 'sex': 'Male', 'fatal': True, 'dataSet': Ogden8,
               'retirement': 78}
 dependent2 = {'name': "John", 'dob': '31/07/2017', 'sex': 'Male', 'dataSet': Ogden8, 'dependenton': 'Jacqueline',
