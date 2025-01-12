@@ -161,6 +161,7 @@ class baseperson():
             'JLM': self.JLM(),
             'AutoCont': self.getAutoCont(),
             'StateRetirementAge': self.getStateRetirementAge(),
+            'ageTrial': self.getAAT(),
             'revisedAge': self.getRevisedAge()
         }
 
