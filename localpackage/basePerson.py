@@ -160,7 +160,8 @@ class baseperson():
             'JLE': self.JLE(),
             'JLM': self.JLM(),
             'AutoCont': self.getAutoCont(),
-            'StateRetirementAge': self.getStateRetirementAge()
+            'StateRetirementAge': self.getStateRetirementAge(),
+            'revisedAge': self.getRevisedAge()
         }
 
     def getprojection(self):
