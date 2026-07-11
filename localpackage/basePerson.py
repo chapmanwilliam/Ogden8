@@ -420,7 +420,16 @@ class baseperson():
         return self.parent.getMultipleRates()
 
     def gettargetLE(self):
-        return self.targetLE
+        if self.targetLE is not None:
+            return self.targetLE
+        if getattr(self, 'liveto', None) is not None:
+            # 'liveto' is an absolute age the claimant is expected to reach; convert to a
+            # target LE. For a FATAL claimant the LE is measured from age at DEATH (getAAD),
+            # matching the VBA getTargetLE_CORE (LIVETO - ADOD); otherwise from age at trial.
+            # Deferred to here (not __init__) because fatal status / AAD are only set in setUp().
+            base = self.getAAD() if self.isFatal() else self.getAge()
+            return self.liveto - base
+        return None
 
     def getCurve(self):
         return self.curve
@@ -776,9 +785,12 @@ class baseperson():
             c += 1
             self.targetLE = attributes['targetLE']
 
+        self.liveto = None
         if 'liveto' in attributes:
             c += 1
-            self.targetLE = attributes['liveto'] - self.age
+            # Store raw; the age basis (trial vs death for fatals) is resolved lazily in
+            # gettargetLE() because fatal status / age-at-death are set later in setUp().
+            self.liveto = attributes['liveto']
 
         if c > 1:
             print("Specify only one of targetLE, deltaLE or liveto: targetLE will be used.")
