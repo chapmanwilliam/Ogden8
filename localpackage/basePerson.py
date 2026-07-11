@@ -7,7 +7,7 @@ import requests
 from localpackage.dataSet import dataSet
 from localpackage.curve import curve
 from localpackage.SAR import SAR
-from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, parsedate, \
+from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, isfloat, parsedate, \
     parsedateString, discountOptions, fr, discountFactor, defaultSwiftCarpenterDiscountRate, DRMethods, parseOverrides
 from localpackage.errorLogging import errors
 import math
@@ -617,7 +617,13 @@ class baseperson():
         elif type(point) is datetime:
             age = (point - self.dob).days / 365.25
         elif type(point) is str:  # for entries like TRIAL, LIFE
-            age = self.parseTextPoint(point)
+            if isfloat(point):
+                # A bare numeric string (e.g. "45" from a text-formatted Sheets cell) is an AGE.
+                # Without this, dateutil parses it as a date (year 2045, day/month from today),
+                # silently corrupting the result.
+                age = float(point)
+            else:
+                age = self.parseTextPoint(point)
         else:
             # Error, wrong type
             print('Wrong type passed to getAgeFromPoint')
