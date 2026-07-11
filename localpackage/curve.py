@@ -234,7 +234,7 @@ class curve():
         return 0, 0
 
     def Tx(self, age, options, discountRate=None, DRMethodOverride=None):
-        if age < 0: return 0
+        if age < 0: return 0, 0
         a = self.Rng[self.Rng <= age]
         if len(a) == 0: return 0, 0
         #        if age>a[-1]: age=a[-1]
