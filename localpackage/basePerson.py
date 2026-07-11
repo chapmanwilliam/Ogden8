@@ -281,6 +281,11 @@ class baseperson():
         else:
             return None
 
+    def setDirty(self, dirty=True):
+        # Invalidate cached curves/SAR/mortality results so they are rebuilt on next use.
+        if dirty:
+            self.refresh()
+
     def getLEifNotDead(self):
         copyme = copy.deepcopy(self)
         copyme.fatal = False
@@ -288,13 +293,14 @@ class baseperson():
         copyme.refresh()
         return copyme.LE()
 
-    def MifNotDead(self, point1, point2=None, freq="Y", options='AMI', discountRate=None, DRMethodOverride=None):
+    def MifNotDead(self, point1, point2=None, freq="Y", options='AMI', discountRate=None, DRMethodOverride=None,
+                   overrides=None):
         copyme = copy.deepcopy(self)
         copyme.fatal = False
         copyme.setDirty(True)
         copyme.refresh()
         return copyme.M(point1, point2, freq=freq, options=options, discountRate=discountRate,
-                        DRMethodOverride=DRMethodOverride)
+                        DRMethodOverride=DRMethodOverride, overrides=overrides)
 
     def getDependentWithShortestLE(self):
         # returns name of the dependent with the shortest LE
