@@ -242,7 +242,19 @@ class baseperson():
             options = options.replace('D', '')
             shortestLEname = self.getShortestLEname()
             claimant = self.parent.getClaimant(shortestLEname)
-            m = claimant.MifNotDead(point1, point2, freq, options=options, discountRate=discountRate,
+
+            def translatePoint(p):
+                # Numeric points are ages on THIS claimant's timeline; re-express them on the
+                # shortest-LE claimant's timeline so both refer to the same calendar date.
+                # Strings ('TRIAL', 'LIFE', date strings) already resolve correctly on that life.
+                if isinstance(p, bool):
+                    return p
+                if isinstance(p, (int, float, np.integer, np.floating)):
+                    return min(125, p + (claimant.getAge() - self.getAge()))
+                return p
+
+            m = claimant.MifNotDead(translatePoint(point1), translatePoint(point2), freq, options=options,
+                                    discountRate=discountRate,
                                     DRMethodOverride=DRMethodOverride,
                                     overrides=None)  # multiplier for person with shortest LE if not dead
             TableEs = [self.parent.getClaimant(dep).getTableE() for dep in
