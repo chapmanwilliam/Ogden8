@@ -104,6 +104,12 @@ class dataSet():
                 targetLE = self.gettargetLE()
             else:
                 targetLE = min(125, max(0, np.trapz(Lx) + self.getdeltaLE()))
+            # NOTE (finding F16, OPEN): for a FATAL claimant getAge()/getLx() here work on the
+            # age-at-death (AAD) scale, so this returns the revised age expressed on the
+            # age-at-death scale. The VBA (Claimant.cls calculateRevisedAge_core) rebases to the
+            # trial scale by adding the death->trial gap (getAge - getADOD) and unwinds it downstream
+            # via additionalYears. Behaviour deliberately UNCHANGED; confirming whether the final
+            # fatal-dependency multiplier differs needs a live VBA run. See FABLE_REVIEW_FINDINGS.md F16.
             result = getLE(0, 125, targetLE)
             self.revisedAgeOptions[h] = result
             return result
