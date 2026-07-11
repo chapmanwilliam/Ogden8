@@ -72,7 +72,8 @@ class dataSet():
 
     def getrevisedAge(self):
         def createHashObject():
-            hObj = {'sex': self.getSex(), 'age': self.getAge(), 'deltaLE': self.gettargetLE(), 'region': self.getRegion(),
+            hObj = {'sex': self.getSex(), 'age': self.getAge(), 'deltaLE': self.getdeltaLE(),
+                    'targetLE': self.gettargetLE(), 'region': self.getRegion(),
                     'year': self.getYear(), 'projection': self.getProjection(), 'autoyrattained': self.getautoYrAttained()}
             hObjJSON = json.dumps(hObj, sort_keys=True)
             return hash(hObjJSON)
@@ -109,6 +110,7 @@ class dataSet():
 
     def refresh(self):
         self.dataSetOptions.clear()
+        self.revisedAgeOptions.clear()
 
     def isFatal(self):
         return self.parent.isFatal()
