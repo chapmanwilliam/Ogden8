@@ -265,7 +265,7 @@ class baseperson():
             TableF = math.prod(TableFs)
             resM = [0, 0, 0, 0]
             resM[0] = m[0] * TableE
-            resM[1] = m[1]
+            resM[1] = m[1] * TableE  # interest accrues on the past loss, which is itself scaled by Table E
             resM[2] = m[2] * TableF
             resM[3] = resM[0] + resM[1] + resM[2]
             return resM
