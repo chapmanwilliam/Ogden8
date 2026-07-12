@@ -178,19 +178,31 @@ class curve():
 
         if toAge:
             if st or en:  # this is not continuous
+                # Match the VBA oracle (cCurve.sumWithFixedStep: advance start by one interval
+                # for arrears, then loop `x <= endAge`), which INCLUDES the instalment due at
+                # toAge. np.arange excludes its stop, so extend the stop by half an interval to
+                # capture the toAge payment for exact-multiple spans (previously dropped). (F33)
                 if st:
-                    ages = np.arange(start=fromAge, stop=toAge, step=timeInterval)
+                    ages = np.arange(start=fromAge, stop=toAge + timeInterval / 2, step=timeInterval)
                 if en:
-                    ages = np.arange(start=fromAge + timeInterval, stop=toAge, step=timeInterval)
-                result = np.sum(
-                    np.array([self.Multiplier(fromAge=age, options=options, cont=cont, calc=calc, discountRate=discountRate, DRMethodOverride=DRMethodOverride) for age in ages]),
-                    axis=0).tolist()
+                    ages = np.arange(start=fromAge + timeInterval, stop=toAge + timeInterval / 2, step=timeInterval)
+                if len(ages) == 0:
+                    # span shorter than the interval -> no payments; np.sum of an empty array
+                    # collapses to a scalar and getBreakdown then subscripts it (crash). (F23)
+                    result = [0.0, 0.0, 0.0, 0.0]
+                else:
+                    result = np.sum(
+                        np.array([self.Multiplier(fromAge=age, options=options, cont=cont, calc=calc, discountRate=discountRate, DRMethodOverride=DRMethodOverride) for age in ages]),
+                        axis=0).tolist()
             else:  # this is continuous
                 interest, past = self.cont(fromAge, min(self.getAge(), toAge), options)
                 if options == 'A' and not self.getUseMultipleRates():
                     futureinterest = 0
                     yrs1 = max(self.getAge(), fromAge) - self.getAge()
-                    yrs2 = toAge - self.getAge()
+                    # Clamp at trial age: for a wholly-past span (toAge < age at trial) an
+                    # unclamped yrs2 is negative and termCertain returns a negative "future"
+                    # that corrupts the (correct) past figure. (F32)
+                    yrs2 = max(self.getAge(), toAge) - self.getAge()
                     TC1 = termCertain(yrs1, self.getdiscountRate(yrs=yrs1, discountRate=discountRate, DRMethodOverride=DRMethodOverride))
                     TC2 = termCertain(yrs2, self.getdiscountRate(yrs=yrs2, discountRate=discountRate, DRMethodOverride=DRMethodOverride))
                     future = TC2 - TC1
@@ -304,7 +316,10 @@ class curve():
             # multiple rates -> multipleRates, options
             # single rate: -> discountRate, options
             if self.getUseMultipleRates() and DRMethodOverride != 'SINGLE':
-                hObj = {'useMultipleRates':True, 'rates':self.getMultipleRates(), 'options':options, 'sex': self.getSex(), 'revisedage': self.getRevisedAge(), 'region': self.getRegion(), 'year': self.getYear(), 'autoYrAttained':self.getAutoYrAttained()}
+                # Include DRMethodOverride and the per-row discountRate: the multi-rates curve's
+                # discount factors depend on both (BLENDED vs SWITCHED, and a row rate overrides
+                # everything), so omitting them let a later row replay an earlier row's curve. (F31)
+                hObj = {'useMultipleRates':True, 'rates':self.getMultipleRates(), 'DRMethodOverride': DRMethodOverride, 'rowRate': discountRate, 'options':options, 'sex': self.getSex(), 'revisedage': self.getRevisedAge(), 'region': self.getRegion(), 'year': self.getYear(), 'autoYrAttained':self.getAutoYrAttained()}
             else:
                 hObj = {'useMultipleRates': False, 'rate': self.getdiscountRate(yrs=0, discountRate=discountRate), 'options': options,'sex': self.getSex(), 'revisedage': self.getRevisedAge(), 'region': self.getRegion(), 'year': self.getYear(), 'autoYrAttained':self.getAutoYrAttained()}
             hObjJSON=json.dumps(hObj,sort_keys=True)
