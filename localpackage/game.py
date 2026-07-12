@@ -110,8 +110,12 @@ class game():
                 # this method blends the rates together after each switch point
                 # after each switch point the discount FACTOR is multiplied by the new discount FACTOR
                 # to calculate this you 1) calculate the discount FACTOR 2) convert that back to an equivalent discount rate
-                if yrs == 0:  # deal with special case
-                    return 1
+                if yrs == 0:  # deal with special case: return the first (short) rate,
+                    # not the sentinel 1 (a 100% rate). At yrs=0 discountFactor is 1 regardless,
+                    # but INTERESTHOUSE/REVERSION read this rate for a >0 deferral (see F28),
+                    # so it must be a real rate.
+                    rates = self.getMultipleRates()
+                    return rates[0]['rate'] if rates else self.discountRate
                 cumDF = 1
                 last_switch = 0
                 for r in self.getMultipleRates():
@@ -140,6 +144,13 @@ class game():
                     if yrs <= r['switch']:
                         self.discountRateOptions[h] = r['rate']
                         return r['rate']
+                # yrs beyond the final switch point: use the last (long) rate rather than
+                # falling off the end and returning None (which 500s downstream). (F42)
+                rates = self.getMultipleRates()
+                if rates:
+                    self.discountRateOptions[h] = rates[-1]['rate']
+                    return rates[-1]['rate']
+                return self.discountRate
             elif DRMethod == 'SINGLE':
                 return self.discountRate
             elif DRMethod == 'STEPPED':
@@ -295,13 +306,25 @@ class game():
 
     def validateMultipleRates(self):
         # check rates within bounds and switch is monotonically increasing
+        rates = self.getMultipleRates()
+        # getShortRate/getLongRate/getSwitch index [0] and [1], so at least 2 entries are
+        # required; fewer (or empty) would IndexError building originalValues (F41).
+        if len(rates) < 2:
+            errors.add("Fewer than two multiple rates supplied")
+            return False
         last_switch = 0
-        for r in self.getMultipleRates():
+        for r in rates:
+            if not ('rate' in r and 'switch' in r):
+                errors.add("Multiple-rate entry missing 'rate'/'switch'")
+                return False
+            if not isinstance(r['rate'], (int, float)) or not isinstance(r['switch'], (int, float)):
+                errors.add("Multiple-rate 'rate'/'switch' not numeric")
+                return False
             if not r['switch'] > last_switch:
-                errors.append("Not monotonically increasing")
+                errors.add("Not monotonically increasing")  # F39/F46: was errors.append (no such method)
                 return False
             if r['rate'] > 0.3 or r['rate'] < -0.3:
-                errors.append("Rate out of bounds")
+                errors.add("Rate out of bounds")
                 return False
             last_switch = r['switch']
         return True
@@ -311,6 +334,11 @@ class game():
         return {'rows': self.processRows(), 'summary': self.getSummaryStatsClaimants(), 'errorLog': errors.getLog()}
 
     def __init__(self, attributes):
+        # The errors log is a process-wide singleton (errorLogging.errors); on a warm Cloud
+        # Function instance it would otherwise leak this request's errors into later responses
+        # and grow unbounded. Reset it at the start of every game/request. (F43/F44/F45)
+        errors.clear()
+
         self.discountRateOptions = {}  # dictionary to store hashes of results
 
         self.function = "MULTIPLIER"  # default
@@ -391,7 +419,10 @@ class game():
             self.multipleRates.clear()
             [self.multipleRates.append(r) for r in attributes['game']['multipleRates']]
             if not self.validateMultipleRates():
-                self.multipleRates = defaultMultipleRates
+                # Copy the module-level default list of dicts; assigning it directly would let a
+                # later setShortRate()/setSwitch() mutate the shared default for every subsequent
+                # request on a warm instance. (F39/F46)
+                self.multipleRates = [dict(r) for r in defaultMultipleRates]
                 print('Invalid multiple rates supplied; default used.')
                 errors.add('Invalid multiple rates supplied; default used.')
 
