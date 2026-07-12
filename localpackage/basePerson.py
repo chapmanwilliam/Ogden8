@@ -290,22 +290,30 @@ class baseperson():
                           DRMethodOverride=DRMethodOverride, overrides=overrides)
 
     def getStateRetirementAge(self):
-        # returns state retirement age from government web-site
-        dob = self.getDOB()
-        yr = str(dob.year)
-        mo = str(dob.month).zfill(2)
-        dy = str(dob.day).zfill(2)
-        urlsuffix = yr + "-" + mo + "-" + dy
-        url = 'https://www.gov.uk/state-pension-age/y/age/'
-        response = requests.get(url + urlsuffix)
-        if response:
-            y = re.search('Your State Pension age is (\d+) years', response.text)
-            if y:
-                return int(y[1])
-            else:
-                return None
-        else:
-            return None
+        # returns state retirement age from the government web-site.
+        # Guarded with a timeout, try/except and a per-person cache: process() calls this for
+        # every claimant that lacks a 'retirement' attribute, so an un-timed/unguarded live GET
+        # would hang or 500 the whole /Process/ request on any gov.uk slowness or outage. (F21/F27)
+        # NOTE (F27): the whole-years regex ignores the ', N months' suffix and the pre-Dec-1953
+        # sex-dependent flow, so transitional-band DOBs are approximate — a local SPA table
+        # (VBA ModuleSPA) would remove both the network dependency and this inaccuracy. Flagged.
+        if hasattr(self, '_stateRetirementAge'):
+            return self._stateRetirementAge
+        result = None
+        try:
+            dob = self.getDOB()
+            urlsuffix = str(dob.year) + "-" + str(dob.month).zfill(2) + "-" + str(dob.day).zfill(2)
+            url = 'https://www.gov.uk/state-pension-age/y/age/'
+            response = requests.get(url + urlsuffix, timeout=5)
+            if response:
+                y = re.search('Your State Pension age is (\d+) years', response.text)
+                if y:
+                    result = int(y[1])
+        except Exception as e:
+            errors.add("Could not fetch State Pension age: " + str(e))
+            result = None
+        self._stateRetirementAge = result
+        return result
 
     def setDirty(self, dirty=True):
         # Invalidate cached curves/SAR/mortality results so they are rebuilt on next use.
@@ -490,7 +498,7 @@ class baseperson():
 
         expected_years = self.M(point1, point2, freq, options)  # array of 4
         yrs = self.getAgeFromPoint(point1) - self.getAge()
-        accelerated_receipt = discountFactor(yrs, self.getdiscountRate())
+        accelerated_receipt = discountFactor(yrs, self.getdiscountRate(yrs=yrs))  # pass yrs (F28)
         past_expected_years = expected_years[0]
         interest_expected_years = expected_years[1]
         future_expected_years = 1 - pow(DF_HOUSE, expected_years[2]) * accelerated_receipt
@@ -507,7 +515,7 @@ class baseperson():
 
         expected_years = self.M(point1, point2, freq, options)  # array of 4
         yrs = self.getAgeFromPoint(point1) - self.getAge()
-        accelerated_receipt = discountFactor(yrs, self.getdiscountRate())
+        accelerated_receipt = discountFactor(yrs, self.getdiscountRate(yrs=yrs))  # pass yrs (F28)
         past_expected_years = expected_years[0]
         interest_expected_years = -expected_years[1]
         future_expected_years = pow(DF_HOUSE, expected_years[2]) * accelerated_receipt
@@ -598,6 +606,12 @@ class baseperson():
         if age1 == None: return None  # i.e. if nothing valid submitted return None
         if point2: age2 = self.getAgeFromPoint(point2)
 
+        # A discount rate of exactly -1 (-100%) makes discountFactor/termCertain return None,
+        # which then TypeError-crashes the numpy curve build; return a per-row error instead. (F52/F59)
+        if self.getdiscountRate(discountRate=discountRate, DRMethodOverride=DRMethodOverride) == -1:
+            msg = "Discount rate of -1 (-100%) is invalid"
+            return msg, msg, msg, msg
+
         c = self.getCurve()
 
         if 'D' in options:
@@ -605,8 +619,8 @@ class baseperson():
         else:
             co = self.getCont()
         if (freq == 'A'):
-            result1 = c.M(age1, age2, freq="Y", cont=co, options="M", discountRate=discountRate,
-                          DRMethodOverride=DRMethodOverride);  # expected years
+            if age2 is None:
+                age2 = 125  # 'A' averages a value over the period; a missing To defaults to LIFE (F20)
             result2 = c.M(age1, age2, freq="Y", cont=co, options=options,
                           discountRate=discountRate, DRMethodOverride=DRMethodOverride);  # normal multiplier
             past=result2[0]

@@ -1,6 +1,7 @@
 from datetime import timedelta
 from localpackage.basePerson import baseperson
 from localpackage.utils import parsedateString
+from localpackage.errorLogging import errors
 
 
 class person(baseperson):
@@ -57,19 +58,28 @@ class person(baseperson):
         self.aai = None  # age at injury
         self.doi = None  # date of injury
 
-        # Fatal inputs
-        if 'dod' in self.attributes and not 'aad' in self.attributes:
+        # Fatal inputs. Guard the both-supplied case and coerce a string aad (Sheets often
+        # serialises numbers as strings); previously either case left the claimant silently
+        # non-fatal with no error, so fatal-specific results ran on the wrong (living) basis. (F47)
+        hasDod = 'dod' in self.attributes and self.attributes['dod'] not in (None, '')
+        hasAad = 'aad' in self.attributes and self.attributes['aad'] not in (None, '')
+        if hasDod and hasAad:
+            errors.add("Both aad and dod supplied for claimant; using dod")
+            hasAad = False
+        if hasDod:
             if type(self.attributes['dod']) is str:
                 self.attributes['dod'] = parsedateString(self.attributes['dod'])
             self.dod = self.attributes['dod']
-            self.aad = (self.dod - self.dob).days / 365.25
-            self.fatal = True
-
-        if 'aad' in self.attributes and not 'dod' in self.attributes:
-            if type(self.attributes['aad']) is int or type(self.attributes['aad']) is float:
-                self.aad = self.attributes['aad']
+            if self.dod is not None:
+                self.aad = (self.dod - self.dob).days / 365.25
+                self.fatal = True
+        elif hasAad:
+            try:
+                self.aad = float(self.attributes['aad'])
                 self.dod = self.dob + timedelta(days=(self.aad * 365.25))
                 self.fatal = True
+            except (ValueError, TypeError):
+                errors.add("Invalid aad (age at death): " + str(self.attributes['aad']))
 
         if 'fatal' in self.attributes:
             self.fatal = self.attributes['fatal']
