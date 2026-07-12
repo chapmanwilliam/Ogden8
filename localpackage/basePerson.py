@@ -799,6 +799,50 @@ class baseperson():
         }
         return {'result': list(result), 'explanation': explanation}
 
+    def explainAggInt(self, point1, point2=None, freq="Y", options='AMI', discountRate=None,
+                      DRMethodOverride=None, overrides=None, includeTable=False, joint=False):
+        # AGGINT / JAGGINT explanation: the implied aggregate interest RATE (audit only; the tuple
+        # return is unchanged). Mirrors VBA AGGINT_CORE = interestMultiplier / withoutInterest, where
+        # withoutInterest = withInterest(total) - interest. JAGGINT = AGGINT with 'D' added. (EXPLAIN)
+        opts = (options or 'AMI').upper()
+        if 'I' not in opts:
+            opts += 'I'  # AGGINT needs interest present
+        if joint and 'D' not in opts:
+            opts += 'D'
+        label = 'JAGGINT' if joint else 'AGGINT'
+
+        # Underlying multiplier explanation (joint when 'D' is present).
+        if 'D' in opts:
+            under = self.explainJoint(point1, point2, freq, opts, discountRate, DRMethodOverride,
+                                      overrides, includeTable)
+        else:
+            under = self.explain(point1, point2, freq, opts, discountRate, DRMethodOverride,
+                                 overrides, includeTable)
+        res = under['result']
+        total = res[3]
+        interest = res[1]
+        withoutInterest = total - interest
+        if withoutInterest == 0:
+            aggint = None
+            note = 'division by zero (withInterest - interest == 0)'
+        else:
+            aggint = interest / withoutInterest
+            note = None
+        explanation = {
+            'function': label,
+            'multiplier': under['explanation'],
+            'aggInt': {
+                'withInterest': total,
+                'interest': interest,
+                'withoutInterest': withoutInterest,
+                'aggInt': aggint,
+                'aggIntPercent': (None if aggint is None else round(aggint * 100, 4)),
+                'formula': 'interest / (withInterest - interest)',
+                'note': note,
+            },
+        }
+        return {'result': list(res), 'explanation': explanation}
+
     def explainDispatch(self, function, point1, point2=None, freq="Y", options='AMI',
                         discountRate=None, DRMethodOverride=None, overrides=None, includeTable=False):
         # Routes an EXPLAIN request by function name. (EXPLAIN)
@@ -806,6 +850,12 @@ class baseperson():
         if f == 'JMULTIPLIER':
             return self.explainJoint(point1, point2, freq, options, discountRate, DRMethodOverride,
                                      overrides, includeTable)
+        if f == 'AGGINT':
+            return self.explainAggInt(point1, point2, freq, options, discountRate, DRMethodOverride,
+                                      overrides, includeTable, joint=False)
+        if f == 'JAGGINT':
+            return self.explainAggInt(point1, point2, freq, options, discountRate, DRMethodOverride,
+                                      overrides, includeTable, joint=True)
         return self.explain(point1, point2, freq, options, discountRate, DRMethodOverride,
                             overrides, includeTable)
 

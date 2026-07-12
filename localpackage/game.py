@@ -209,7 +209,7 @@ class game():
         # EXPLAIN: when the explain flag is set, MULTIPLIER/JMULTIPLIER/AGGINT/JAGGINT rows return
         # {result, explanation} alongside the tuple. Only active when the flag is present, so the
         # default output is unchanged. (EXPLAIN)
-        if self.explain and self.function in ("MULTIPLIER", "JMULTIPLIER"):
+        if self.explain and self.function in ("MULTIPLIER", "JMULTIPLIER", "AGGINT", "JAGGINT"):
             fn = self.function
             return [maybe(self.getClaimant(row['name'])).explainDispatch(
                 fn, row['fromAge'], row['toAge'], freq=row['freq'], options=row['options'],
