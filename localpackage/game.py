@@ -226,8 +226,7 @@ class game():
             return [maybe(self.getClaimant(row['name'])).REVERSION(row['fromAge'], row['toAge']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "REVISEDAGE":
-            return [maybe([self.getClaimant(row['name']).getRevisedAge()]).or_else(
-                [None]) for row in self.rows]
+            return [[maybe(self.getClaimant(row['name'])).getRevisedAge().or_else(None)] for row in self.rows]
         elif self.function == "DF":
             return [maybe(self.getClaimant(row['name'])).M(row['fromAge'],
                                                            options='A',
@@ -243,48 +242,63 @@ class game():
                                                            overrides=row['overrides']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "EAD":
-            return [maybe([self.getClaimant(row['name']).getEAD()]).or_else(
-                [None]) for row in self.rows]
+            return [[maybe(self.getClaimant(row['name'])).getEAD().or_else(None)] for row in self.rows]
         elif self.function == "EDD":
-            return [maybe([json.dumps(self.getClaimant(row['name']).getEDD().isoformat())]).or_else(
-                [None]) for row in self.rows]
+            # Return a plain d/m/y string; do NOT json.dumps here (main.py serialises once more,
+            # so the old inner json.dumps double-encoded the value). (F61)
+            return [[maybe(self.getClaimant(row['name'])).getEDD().strftime('%d/%m/%Y').or_else(None)]
+                    for row in self.rows]
         elif self.function == "TABLE_E":
-            return [maybe([self.getClaimant(row['name']).getTableE()]).or_else(
-                [None]) for row in self.rows]
+            return [[maybe(self.getClaimant(row['name'])).getTableE().or_else(None)] for row in self.rows]
         elif self.function == "TABLE_F":
-            return [maybe([self.getClaimant(row['name']).getTableF()]).or_else(
-                [None]) for row in self.rows]
+            return [[maybe(self.getClaimant(row['name'])).getTableF().or_else(None)] for row in self.rows]
         elif self.function == "LE":
-            return [maybe(self.getClaimant(row['name']).LE()).or_else(
+            return [maybe(self.getClaimant(row['name'])).LE().or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "LM":
-            return [maybe(self.getClaimant(row['name']).LM(row['discountRate'],
-                                                           DRMethodOverride=row['DRMethodOverride'],
-                                                           overrides=row['overrides'])).or_else(
+            return [maybe(self.getClaimant(row['name'])).LM(row['discountRate'],
+                                                            DRMethodOverride=row['DRMethodOverride'],
+                                                            overrides=row['overrides']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "PM":
-            return [maybe(self.getClaimant(row['name']).PM(row['discountRate'],
-                                                           DRMethodOverride=row['DRMethodOverride'],
-                                                           overrides=row['overrides'])).or_else(
+            return [maybe(self.getClaimant(row['name'])).PM(row['discountRate'],
+                                                            DRMethodOverride=row['DRMethodOverride'],
+                                                            overrides=row['overrides']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "EM":
-            return [maybe(self.getClaimant(row['name']).EM(row['discountRate'],
-                                                           DRMethodOverride=row['DRMethodOverride'],
-                                                           overrides=row['overrides'])).or_else(
+            return [maybe(self.getClaimant(row['name'])).EM(row['discountRate'],
+                                                            DRMethodOverride=row['DRMethodOverride'],
+                                                            overrides=row['overrides']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "AEM":
-            return [maybe(self.getClaimant(row['name']).AEM(row['discountRate'],
-                                                            DRMethodOverride=row['DRMethodOverride'],
-                                                            overrides=row['overrides'])).or_else(
+            return [maybe(self.getClaimant(row['name'])).AEM(row['discountRate'],
+                                                             DRMethodOverride=row['DRMethodOverride'],
+                                                             overrides=row['overrides']).or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "JLE":
-            return [maybe(self.getClaimant(row['name']).JLE()).or_else(
+            return [maybe(self.getClaimant(row['name'])).JLE().or_else(
                 [None, None, None, None]) for row in self.rows]
         elif self.function == "JLM":
-            return [maybe(self.getClaimant(row['name']).JLM(row['discountRate'],
-                                                            DRMethodOverride=row['DRMethodOverride'],
-                                                            overrides=row['overrides'])).or_else(
+            return [maybe(self.getClaimant(row['name'])).JLM(row['discountRate'],
+                                                             DRMethodOverride=row['DRMethodOverride'],
+                                                             overrides=row['overrides']).or_else(
                 [None, None, None, None]) for row in self.rows]
+        else:
+            # Unrecognised function: log it and return per-row nulls instead of a bare None
+            # (which made the endpoint respond 200 with body 'null' and no diagnostic). (F56/F62)
+            errors.add("Unknown function: " + str(self.function))
+            return [[None, None, None, None] for row in self.rows]
+
+    def processRowsInterestHouse(self):
+        # Endpoint wrapper for /InterestHouse/ (main.py) — previously undefined, so the route
+        # 500'd on every call. Mirrors the INTERESTHOUSE branch of processRows. (F24/F25)
+        return [maybe(self.getClaimant(row['name'])).INTERESTHOUSE(row['fromAge'], row['toAge']).or_else(
+            [None, None, None, None]) for row in self.rows]
+
+    def processRowsReversion(self):
+        # Endpoint wrapper for /Reversion/ (main.py) — previously undefined. (F24/F25)
+        return [maybe(self.getClaimant(row['name'])).REVERSION(row['fromAge'], row['toAge']).or_else(
+            [None, None, None, None]) for row in self.rows]
 
     def getMultipleRates(self):
         return self.multipleRates
