@@ -224,43 +224,41 @@ class curve():
             s = 'Age ' + '{:.2f}'.format(fromAge) + ' to {:.2f}'.format(toAge) + ' : ' + s
         return s
 
+    def _integralFromStart(self, values, age):
+        # The single integration primitive. Trapezoidally integrates `values` over the shared
+        # Rng from the start of the range up to `age`, closing off the final partial segment by
+        # linear interpolation at the exact `age`. Replaces the old Tx() and its duplicated
+        # "additional chunk" code (the F5/F7 fragility site) with one place that does the work.
+        mask = self.Rng <= age
+        x = self.Rng[mask]
+        if len(x) == 0:
+            return 0.0
+        v = values[mask]
+        return np.trapz(v, x) + 0.5 * (v[-1] + np.interp(age, self.Rng, values)) * (age - x[-1])
+
+    def area(self, values, fromAge, toAge):
+        # Trapezoidal integral of `values` over [fromAge, toAge] on the shared Rng, with
+        # interpolated partial segments at both bounds (telescoped from the cumulative primitive).
+        if fromAge >= toAge:
+            return 0.0
+        return self._integralFromStart(values, toAge) - self._integralFromStart(values, fromAge)
+
     def cont(self, fromAge, toAge, options, discountRate=None, DRMethodOverride=None):
+        # VBA principle: interest = (multiplier WITH interest) - (multiplier WITHOUT interest),
+        # integrated over the same span. _Lx carries the interest factor (=1 in the future, so
+        # interest accrues only in the past); _LxNoI is the same curve without it.
+        # Grouping is preserved from the legacy Tx-difference so results are byte-for-byte identical:
+        #   interest        = (I_Lx(to) - I_NoI(to)) - (I_Lx(from) - I_NoI(from))
+        #   withoutInterest = I_NoI(to) - I_NoI(from)      [= area(_LxNoI, from, to)]
         if fromAge < toAge:
-            Tx1I, Tx1 = self.Tx(fromAge, options, discountRate=discountRate, DRMethodOverride=None)
-            Tx2I, Tx2 = self.Tx(toAge, options, discountRate=discountRate, DRMethodOverride=None)
-            interest = Tx2I - Tx1I
-            withoutInterest = Tx2 - Tx1
+            wI_to = self._integralFromStart(self._Lx, toAge)
+            wI_from = self._integralFromStart(self._Lx, fromAge)
+            nI_to = self._integralFromStart(self._LxNoI, toAge)
+            nI_from = self._integralFromStart(self._LxNoI, fromAge)
+            interest = (wI_to - nI_to) - (wI_from - nI_from)
+            withoutInterest = nI_to - nI_from
             return interest, withoutInterest
         return 0, 0
-
-    def Tx(self, age, options, discountRate=None, DRMethodOverride=None):
-        if age < 0: return 0, 0
-        a = self.Rng[self.Rng <= age]
-        if len(a) == 0: return 0, 0
-        #        if age>a[-1]: age=a[-1]
-        #        if age<a[0]:age=a[0]
-        Lx = self._Lx[self.Rng <= age]
-        LnoI = self._LxNoI[self.Rng <= age]
-        y = np.trapz(Lx, a)  # with interest
-        ynoI = np.trapz(LnoI, a)  # withoutinterest
-
-        # additional chunk
-        lowerL = Lx[-1]
-        higherLpast, higherLinterest, higherLfuture, higherLtotal = self.Lx(age, options=options, discountRate=discountRate, DRMethodOverride=DRMethodOverride)
-        yrsBetween = age - a[-1]
-        additionalChunk = 0.5 * (lowerL + higherLtotal) * yrsBetween  # with interest
-
-        # additional chunk
-        lowerL = LnoI[-1]
-        higherLpast, higherLinterest, higherLfuture, higherLtotal = self.Lx(age, options, discountRate=discountRate, DRMethodOverride=DRMethodOverride)
-        yrsBetween = age - a[-1]
-        additionalChunknoI = 0.5 * (lowerL + higherLpast + higherLfuture) * yrsBetween  # without interest
-
-        withInterest = y + additionalChunk
-        withoutInterest = ynoI + additionalChunknoI
-        interest = withInterest - withoutInterest
-
-        return interest, withoutInterest
 
     def Lx(self, age, options, discountRate=None, DRMethodOverride=None):
 
