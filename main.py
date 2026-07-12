@@ -2,211 +2,88 @@ from localpackage.game import game
 from fastapi import FastAPI
 
 import json
+import math
 
-app=FastAPI()
+# NOTE (F60): the FastAPI app/decorators below are dead scaffolding — the untyped `request`
+# parameter cannot be served as a real ASGI route (every POST 422s). In production Google Cloud
+# Functions invokes these handler functions directly with a flask-style request, which is the
+# path they are written for. Left in place pending confirmation of the deployment config;
+# recommend removing the FastAPI wrapper (and the fastapi dependency) if ASGI is not used.
+app = FastAPI()
+
+# CORS headers for the actual request and for the preflight (OPTIONS) request.
+CORS_HEADERS = {'Access-Control-Allow-Origin': '*'}
+PREFLIGHT_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Max-Age': '3600',
+}
+
+
+def _sanitize(obj):
+    # json.dumps emits NaN/Infinity, which Apps Script's JSON.parse rejects. Replace any
+    # non-finite float with null so the Sheet always receives valid JSON. (F57)
+    if isinstance(obj, float):
+        return obj if math.isfinite(obj) else None
+    if isinstance(obj, (list, tuple)):
+        return [_sanitize(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: _sanitize(v) for k, v in obj.items()}
+    return obj
+
+
+def _attributes(request):
+    request_json = request.get_json()  # dict, or a JSON string that needs loading
+    if isinstance(request_json, dict):
+        return request_json
+    return json.loads(request_json)
+
+
+def _handle(request, compute):
+    # Shared handler: CORS preflight, JSON parse, compute, and a single try/except so a
+    # malformed payload or an internal error returns a parseable JSON error WITH CORS headers
+    # instead of a bare 500 with no body. (F58)
+    if request.method == 'OPTIONS':
+        return ('', 204, PREFLIGHT_HEADERS)
+    try:
+        attributes = _attributes(request)
+        result = compute(attributes)
+        return (json.dumps(_sanitize(result)), 200, CORS_HEADERS)
+    except Exception as e:
+        return (json.dumps({'error': str(e)}), 400, CORS_HEADERS)
+
 
 @app.post("/Multiplier/")
 def Multiplier(request):
-    """Responds to any HTTP request.
-    Args:
-        request (flask.Request): HTTP request object.
-    Returns:
-        The response text or any set of values that can be turned into a
-        Response object using
-        `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
-    """
-    # Set CORS headers for the preflight request
-    if request.method == 'OPTIONS':
-        # Allows GET requests from any origin with the Content-Type
-        # header and caches preflight response for an 3600s
-        headers = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Max-Age': '3600'
-        }
-
-        return ('', 204, headers)
-
-    # Set CORS headers for the main request
-    headers = {
-        'Access-Control-Allow-Origin': '*'
-    }
-
-    request_json = request.get_json() #gets json string from request
-
-    if isinstance(request_json,dict):
-        attributes=request_json #it is already a dictionary
-    else:
-        attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
-
-    #returns an array of tuples (past,interest,future,total), one for each row
-
-    return (json.dumps(game(attributes=attributes).processRows()), 200, headers)
+    # returns an array of (past, interest, future, total) tuples, one per input row
+    return _handle(request, lambda a: game(attributes=a).processRows())
 
 
 @app.post("/InterestHouse/")
 def InterestHouse(request):
-    """Responds to any HTTP request.
-    Args:
-        request (flask.Request): HTTP request object.
-    Returns:
-        The response text or any set of values that can be turned into a
-        Response object using
-        `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
-    """
-    # Set CORS headers for the preflight request
-    if request.method == 'OPTIONS':
-        # Allows GET requests from any origin with the Content-Type
-        # header and caches preflight response for an 3600s
-        headers = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Max-Age': '3600'
-        }
+    return _handle(request, lambda a: game(attributes=a).processRowsInterestHouse())
 
-        return ('', 204, headers)
-
-    # Set CORS headers for the main request
-    headers = {
-        'Access-Control-Allow-Origin': '*'
-    }
-
-    request_json = request.get_json() #gets json string from request
-
-    if isinstance(request_json,dict):
-        attributes=request_json #it is already a dictionary
-    else:
-        attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
-
-    #returns an array of tuples (past,interest,future,total), one for each row
-
-    return (json.dumps(game(attributes=attributes).processRowsInterestHouse()), 200, headers)
 
 @app.post("/Reversion/")
 def Reversion(request):
-    """Responds to any HTTP request.
-    Args:
-        request (flask.Request): HTTP request object.
-    Returns:
-        The response text or any set of values that can be turned into a
-        Response object using
-        `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
-    """
-    # Set CORS headers for the preflight request
-    if request.method == 'OPTIONS':
-        # Allows GET requests from any origin with the Content-Type
-        # header and caches preflight response for an 3600s
-        headers = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Max-Age': '3600'
-        }
+    return _handle(request, lambda a: game(attributes=a).processRowsReversion())
 
-        return ('', 204, headers)
-
-    # Set CORS headers for the main request
-    headers = {
-        'Access-Control-Allow-Origin': '*'
-    }
-
-    request_json = request.get_json() #gets json string from request
-
-    if isinstance(request_json,dict):
-        attributes=request_json #it is already a dictionary
-    else:
-        attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
-
-    #returns an array of tuples (past,interest,future,total), one for each row
-
-    return (json.dumps(game(attributes=attributes).processRowsReversion()), 200, headers)
 
 @app.post("/Cont/")
 def Cont(request):
-    """Responds to any HTTP request.
-    Args:
-        request (flask.Request): HTTP request object.
-    Returns:
-        The response text or any set of values that can be turned into a
-        Response object using
-        `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
-    """
-    # Set CORS headers for the preflight request
-    if request.method == 'OPTIONS':
-        # Allows GET requests from any origin with the Content-Type
-        # header and caches preflight response for an 3600s
-        headers = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Max-Age': '3600'
-        }
+    def compute(attributes):
+        g = game(attributes=attributes)
+        name = attributes.get('name')  # was attributes['name'] -> KeyError if absent (F58)
+        claimant = g.getClaimant(name)
+        if claimant is None:  # unknown name: other endpoints degrade; /Cont/ used to crash (F58)
+            raise ValueError("Unknown or missing claimant name: " + str(name))
+        return claimant.getAutoCont()
 
-        return ('', 204, headers)
-
-    # Set CORS headers for the main request
-    headers = {
-        'Access-Control-Allow-Origin': '*'
-    }
-
-    request_json = request.get_json() #gets json string from request
-
-    if isinstance(request_json,dict):
-        attributes=request_json #it is already a dictionary
-    else:
-        attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
-
-    #returns an array of tuples (past,interest,future,total), one for each row
-
-    g=game(attributes=attributes)
-
-    name=attributes['name']
-
-    cont=g.getClaimant(name).getAutoCont()
-
-
-    return (json.dumps(cont), 200, headers)
+    return _handle(request, compute)
 
 
 @app.post("/Process/")
 def Process(request):
-    """Responds to any HTTP request.
-    Args:
-        request (flask.Request): HTTP request object.
-    Returns:
-        The response text or any set of values that can be turned into a
-        Response object using
-        `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
-    """
-    # Set CORS headers for the preflight request
-    if request.method == 'OPTIONS':
-        # Allows GET requests from any origin with the Content-Type
-        # header and caches preflight response for an 3600s
-        headers = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Max-Age': '3600'
-        }
-
-        return ('', 204, headers)
-
-    # Set CORS headers for the main request
-    headers = {
-        'Access-Control-Allow-Origin': '*'
-    }
-
-    request_json = request.get_json() #gets json string from request
-
-    if isinstance(request_json,dict):
-        attributes=request_json #it is already a dictionary
-    else:
-        attributes=json.loads(request_json) #takes a json string and loads it into python dictionary
-
-    #returns an array of tuples (past,interest,future,total), one for each row and summary statistics for each claimant
-
-    #print('Got here')
-
-    return (json.dumps(game(attributes=attributes).process()), 200, headers)
+    # returns per-row tuples plus per-claimant summary statistics
+    return _handle(request, lambda a: game(attributes=a).process())
