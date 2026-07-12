@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from localpackage.utils import years, regions, sexes
+from localpackage.errorLogging import errors
 import os
 import json
 
@@ -145,7 +146,14 @@ class dataSet():
 
         self.loaddataSetCSV()
 
-        if self.dfCohort.empty or self.dfPeriod.empty: return False
+        if self.dfCohort.empty or self.dfPeriod.empty:
+            # Mortality CSV missing (bad/mis-cased region, unsupported year/sex). Returning a bare
+            # False here made callers subscript False -> TypeError 500. Log and return a degenerate
+            # no-data curve so the request degrades instead of crashing. (F53)
+            errors.add("Mortality data not found for sex/region/year (" +
+                       str(self.getSex()) + "/" + str(self.getRegion()) + "/" + str(self.getYear()) + ")")
+            baseAge = self.getAge()
+            return np.array([1.0, 1.0]), np.array([baseAge, baseAge + 1.0])
 
         intAge = int(revisedAge)
         fraction = revisedAge - intAge
@@ -162,17 +170,23 @@ class dataSet():
                 elif bornYear in self.dfCohort.columns:  # otherwise use cohort data
                     col = self.dfCohort[bornYear][self.dfCohort.index >= age]
                 else:
-                    # Error - the request is outside the scope of the data
-                    print('Insufficient data')
-                    return None
+                    # Year of birth outside the cohort table: clamp to the nearest available
+                    # birth-year column (the VBA clamps Year to the table edge) rather than
+                    # returning None, which the caller subscripts -> crash. (F37)
+                    ccols = self.dfCohort.columns
+                    clamped = min(max(bornYear, int(ccols.min())), int(ccols.max()))
+                    errors.add("Year of birth outside cohort table; clamped to " + str(clamped))
+                    col = self.dfCohort[clamped][self.dfCohort.index >= age]
             else:  # don't use projection
                 if self.calcYrAttained() in self.dfPeriod.columns:
                     # get the data going downwards from age
                     col = self.dfPeriod.loc[age:, self.calcYrAttained()]
                 else:
-                    # Error - the request is outside the scope of the data
-                    print('Insufficient data')
-                    return None
+                    # Year attained outside the period table: clamp to the nearest column. (F37)
+                    pcols = self.dfPeriod.columns
+                    clamped = min(max(self.calcYrAttained(), int(pcols.min())), int(pcols.max()))
+                    errors.add("Year attained outside period table; clamped to " + str(clamped))
+                    col = self.dfPeriod.loc[age:, clamped]
 
             return np.array(col)
 

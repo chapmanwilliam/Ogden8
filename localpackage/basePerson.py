@@ -753,9 +753,20 @@ class baseperson():
         self.fatal = False
         self.dependenton = None
 
-        self.year = attributes['dataSet']['year']
-        self.region = attributes['dataSet']['region']
-        self.yrAttainedIn = attributes['dataSet']['yrAttainedIn']
+        # Coerce dataSet fields: a text-formatted Sheets cell can send these as strings.
+        # year/yrAttainedIn are used in integer arithmetic (calcYrAttained - age); region is
+        # used to build the mortality-CSV filename (case-sensitive on the Linux prod fs). (F37/F53)
+        try:
+            self.year = int(attributes['dataSet']['year'])
+        except (ValueError, TypeError):
+            self.year = attributes['dataSet']['year']
+            errors.add("dataSet 'year' is not an integer")
+        self.region = str(attributes['dataSet']['region']).strip().upper()
+        try:
+            self.yrAttainedIn = int(attributes['dataSet']['yrAttainedIn'])
+        except (ValueError, TypeError):
+            self.yrAttainedIn = attributes['dataSet']['yrAttainedIn']
+            errors.add("dataSet 'yrAttainedIn' is not an integer")
 
         if 'name' in attributes:
             self.name = attributes['name']
