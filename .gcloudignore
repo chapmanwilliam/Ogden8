@@ -1,0 +1,28 @@
+# What NOT to upload when deploying the Cloud Run function.
+# Keep: main.py, localpackage/ (incl. localpackage/Data), requirements.txt.
+
+.git/
+.gitignore
+.gcloudignore
+.idea/
+.claude/
+.ipynb_checkpoints/
+*.ipynb
+
+# Python venv & caches (huge / rebuilt on deploy)
+.venv/
+__pycache__/
+*.pyc
+
+# Local-only Fable review tooling — never deploy
+FABLE_REVIEW_INSTRUCTIONS.md
+FABLE_REVIEW_FINDINGS.md
+fable_test_harness.py
+install_full.log
+
+# Client-side / docs (not needed by the function)
+gsheets/
+CLAUDE.md
+README.md
+LICENSE
+GoogleSheets

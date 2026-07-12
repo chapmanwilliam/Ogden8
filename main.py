@@ -1,15 +1,7 @@
 from localpackage.game import game
-from fastapi import FastAPI
 
 import json
 import math
-
-# NOTE (F60): the FastAPI app/decorators below are dead scaffolding — the untyped `request`
-# parameter cannot be served as a real ASGI route (every POST 422s). In production Google Cloud
-# Functions invokes these handler functions directly with a flask-style request, which is the
-# path they are written for. Left in place pending confirmation of the deployment config;
-# recommend removing the FastAPI wrapper (and the fastapi dependency) if ASGI is not used.
-app = FastAPI()
 
 # CORS headers for the actual request and for the preflight (OPTIONS) request.
 CORS_HEADERS = {'Access-Control-Allow-Origin': '*'}
@@ -54,23 +46,22 @@ def _handle(request, compute):
         return (json.dumps({'error': str(e)}), 400, CORS_HEADERS)
 
 
-@app.post("/Multiplier/")
+# These handlers are invoked directly by the Google Cloud (Cloud Run) Functions runtime with a
+# flask-style `request`; the deployed entry point is `Process`. (A former FastAPI wrapper here was
+# dead scaffolding — F60 — and was removed because its pinned starlette blocked the build.)
 def Multiplier(request):
     # returns an array of (past, interest, future, total) tuples, one per input row
     return _handle(request, lambda a: game(attributes=a).processRows())
 
 
-@app.post("/InterestHouse/")
 def InterestHouse(request):
     return _handle(request, lambda a: game(attributes=a).processRowsInterestHouse())
 
 
-@app.post("/Reversion/")
 def Reversion(request):
     return _handle(request, lambda a: game(attributes=a).processRowsReversion())
 
 
-@app.post("/Cont/")
 def Cont(request):
     def compute(attributes):
         g = game(attributes=attributes)
@@ -83,20 +74,19 @@ def Cont(request):
     return _handle(request, compute)
 
 
-@app.post("/Process/")
 def Process(request):
     # returns per-row tuples plus per-claimant summary statistics
     return _handle(request, lambda a: game(attributes=a).process())
 
 
-@app.post("/Explain/")
 def Explain(request):
-    # EXPLAIN: returns, per MULTIPLIER row, {result, explanation} — a structured audit trail of
-    # how the multiplier was computed. Forces explain on; pass explainTable:true in the payload
-    # for the per-age breakdown table. Additive endpoint; does not affect the others. (EXPLAIN)
+    # EXPLAIN: returns, per MULTIPLIER row, {result, explanation} — a structured audit trail of how
+    # the multiplier was computed. Forces explain on; pass explainTable:true for the per-age table.
+    # Additive endpoint; does not affect the others. (EXPLAIN)
     def compute(a):
         a = dict(a)
         a['explain'] = True
         a.setdefault('function', 'MULTIPLIER')
         return game(attributes=a).processRows()
+
     return _handle(request, compute)
