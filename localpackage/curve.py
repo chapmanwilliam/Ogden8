@@ -392,7 +392,69 @@ class curve():
         LxNoI = np.prod(A, axis=0)
         Lx = np.prod(B, axis=0)
 
-        result = {'LxNoI': LxNoI, 'Lx': Lx, 'Rng': Rng}
+        # Also cache the individual factor arrays so the EXPLAIN feature can report the actual
+        # per-age factors (survival, discount, interest, deceased) that produced the curve,
+        # rather than re-deriving them. Additive — does not affect the return value. (EXPLAIN)
+        result = {'LxNoI': LxNoI, 'Lx': Lx, 'Rng': Rng,
+                  'components': {'disc': _disc, 'survival': _Lx, 'interest': _interest,
+                                 'deceased': _deceased, 'cont': _cont}}
         self.curveOptions[h] = result
 
         return LxNoI, Lx, Rng
+
+    def getCurveComponents(self, options, cont=1, discountRate=None, DRMethodOverride=None):
+        # Returns the cached per-age factor arrays for the given options (building the curve if
+        # needed). Used by the EXPLAIN feature. (EXPLAIN)
+        self.getCurve(options=options, cont=cont, discountRate=discountRate, DRMethodOverride=DRMethodOverride)
+        h = None
+        # re-derive the same hash the getCurve just used by calling it again is wasteful; instead
+        # find the entry we just stored. getCurve stores under its own hash; recompute that hash:
+        if self.getUseMultipleRates() and DRMethodOverride != 'SINGLE':
+            hObj = {'useMultipleRates': True, 'rates': self.getMultipleRates(), 'DRMethodOverride': DRMethodOverride, 'rowRate': discountRate, 'options': options, 'sex': self.getSex(), 'revisedage': self.getRevisedAge(), 'region': self.getRegion(), 'year': self.getYear(), 'autoYrAttained': self.getAutoYrAttained()}
+        else:
+            hObj = {'useMultipleRates': False, 'rate': self.getdiscountRate(yrs=0, discountRate=discountRate), 'options': options, 'sex': self.getSex(), 'revisedage': self.getRevisedAge(), 'region': self.getRegion(), 'year': self.getYear(), 'autoYrAttained': self.getAutoYrAttained()}
+        h = hash(json.dumps(hObj, sort_keys=True))
+        r = self.curveOptions[h]
+        return r['LxNoI'], r['Lx'], r['Rng'], r['components']
+
+    def explainTable(self, age1, age2, options, cont=1, discountRate=None, DRMethodOverride=None):
+        # Builds the per-age breakdown table mirroring the VBA cCurve.sumUnderCurve outputArr:
+        # for each segment [x1,x2] within [age1,age2], the trapezoidal area of the product curve
+        # WITH interest and WITHOUT interest (and their difference = the interest area), plus the
+        # per-node factor values. Reuses the same area() primitive and getCurve arrays that
+        # produce the multiplier, so the table reconciles exactly to the returned tuple. (EXPLAIN)
+        LxNoI, Lx, Rng, comp = self.getCurveComponents(options, cont=cont,
+                                                        discountRate=discountRate, DRMethodOverride=DRMethodOverride)
+        # breakpoints: age1, age2, and every curve node strictly between them
+        interior = [float(a) for a in Rng if age1 < a < age2]
+        pts = [age1] + interior + [age2]
+        pts = sorted(set(pts))
+
+        def interp(arr, a):
+            return float(np.interp(a, Rng, arr))
+
+        rows = []
+        sumWithI = 0.0
+        sumWithoutI = 0.0
+        sumInterest = 0.0
+        for x1, x2 in zip(pts[:-1], pts[1:]):
+            areaWithI = self.area(Lx, x1, x2)
+            areaWithoutI = self.area(LxNoI, x1, x2)
+            interestArea = areaWithI - areaWithoutI
+            sumWithI += areaWithI
+            sumWithoutI += areaWithoutI
+            sumInterest += interestArea
+            rows.append({
+                'age': round(x1, 4),
+                'nextAge': round(x2, 4),
+                'survivalLx': interp(comp['survival'], x1),   # MM: survival probability
+                'DF': interp(comp['disc'], x1),               # discount factor (A)
+                'IM': interp(comp['interest'], x1),           # interest multiplier (I)
+                'MMD': interp(comp['deceased'], x1),          # deceased-dependant factor (D)
+                'product': interp(Lx, x1),                    # product of all factors (with I)
+                'areaWithI': areaWithI,
+                'areaWithoutI': areaWithoutI,
+                'interestArea': interestArea,
+            })
+        totals = {'sumAreaWithI': sumWithI, 'sumAreaWithoutI': sumWithoutI, 'sumInterestArea': sumInterest}
+        return rows, totals

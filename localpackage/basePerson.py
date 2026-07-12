@@ -628,6 +628,108 @@ class baseperson():
         #        c.getPlot(result, age1, age2, freq, co, options)
         return result
 
+    def _ageToDate(self, age):
+        # Convert an age on this claimant's timeline to a calendar date (d/m/y string). (EXPLAIN)
+        try:
+            return (self.getDOB() + timedelta(days=age * 365.25)).strftime('%d/%m/%Y')
+        except Exception:
+            return None
+
+    def explain(self, point1, point2=None, freq="Y", options='AMI', discountRate=None,
+                DRMethodOverride=None, overrides=None, includeTable=False):
+        # Returns {'result': (past, interest, future, total), 'explanation': {...}} — a structured,
+        # additive audit trail of a single-life MULTIPLIER. Mirrors the VBA =EXPLAIN(cell) content
+        # (inputs echo, discount basis, interest = area(withInterest) - area(withoutInterest), and
+        # the per-age breakdown table from cCurve.sumUnderCurve). It never alters the tuple. (EXPLAIN)
+        # Extension points for JMULTIPLIER (joint) and AGGINT (aggregate interest rate) are noted
+        # in the returned 'extensionPoints' and are intentionally not implemented yet.
+        from localpackage.utils import explainDiscountsText, explainFrequencyText, returnFreq
+
+        result = self.M(point1, point2, freq=freq, options=options, discountRate=discountRate,
+                        DRMethodOverride=DRMethodOverride, overrides=overrides)
+
+        # Resolve the ages the way M does (after any overrides M applied and restored).
+        opts = (options or 'AMI').upper()
+        age1 = self.getAgeFromPoint(point1)
+        age2 = self.getAgeFromPoint(point2) if point2 else None
+        trialAge = self.getAge()
+        revAge = self.getRevisedAge()
+
+        header = {
+            'claimant': self.getName(),
+            'sex': self.getSex(),
+            'ageAtTrial': round(trialAge, 4),
+            'revisedAge': (round(revAge, 4) if abs(revAge - trialAge) > 1e-9 else None),
+            'trialDate': self.gettrialDate().strftime('%d/%m/%Y'),
+            'fromAge': (round(age1, 4) if age1 is not None else None),
+            'toAge': (round(age2, 4) if age2 is not None else None),
+            'fromDate': (self._ageToDate(age1) if age1 is not None else None),
+            'toDate': (self._ageToDate(age2) if age2 is not None else None),
+            'frequency': freq,
+            'frequencyText': explainFrequencyText(freq),
+            'options': opts,
+            'optionsText': explainDiscountsText(opts),
+            'discountRate': self.getdiscountRate(discountRate=discountRate, DRMethodOverride=DRMethodOverride),
+            'discountMethod': (DRMethodOverride or (self.parent.getDRMethod() if self.parent.getUseMultipleRates() else 'SINGLE')),
+            'mortalityBasis': {
+                'year': self.getYear(), 'region': self.getRegion(),
+                'projection': self.getProjection(), 'yrAttainedIn': self.getYrAttainedIn(),
+            },
+            'sarBasis': ('Court Funds Office Special Account Rate schedule (localpackage/Data/SAR.csv)'
+                         if 'I' in opts else None),
+        }
+
+        decomposition = {
+            'past': {'value': result[0],
+                     'formula': 'area(without-interest product) over [from, min(trial, to)]'},
+            'interest': {'value': result[1],
+                         'formula': 'area(with-interest product) - area(without-interest product) over the past sub-period'},
+            'future': {'value': result[2],
+                       'formula': 'area(without-interest product) over [max(trial, from), to]'},
+            'total': {'value': result[3], 'formula': 'past + interest + future'},
+        }
+
+        explanation = {
+            'function': 'MULTIPLIER',
+            'header': header,
+            'decomposition': decomposition,
+            'extensionPoints': {
+                'JMULTIPLIER': 'joint-life / dependency explanation not yet implemented (see basePerson.JM)',
+                'AGGINT': 'aggregate interest-rate explanation not yet implemented',
+            },
+        }
+
+        # Per-age breakdown table (only when requested and only for the continuous trapezoidal
+        # path, whose areas reconcile to the tuple; the discrete/pure-'A' analytic paths use a
+        # different decomposition and are left as an extension point).
+        st, en, factor, tinterval = returnFreq(freq, age1, age2)
+        continuous = not (st or en)
+        pureA = (opts == 'A' and not self.getUseMultipleRates())
+        if includeTable and age2 is not None and continuous and not pureA and 'D' not in opts:
+            co = self.getCont()
+            rows, totals = self.getCurve().explainTable(age1, age2, opts, cont=co,
+                                                        discountRate=discountRate, DRMethodOverride=DRMethodOverride)
+            for r in rows:
+                r['date'] = self._ageToDate(r['age'])
+            # Self-check: the table must reconcile to the returned tuple.
+            reconciles = (abs(totals['sumAreaWithI'] - result[3]) < 1e-6 and
+                          abs(totals['sumInterestArea'] - result[1]) < 1e-6)
+            assert reconciles, ("EXPLAIN table does not reconcile to the multiplier: "
+                                f"sumAreaWithI={totals['sumAreaWithI']} vs total={result[3]}, "
+                                f"sumInterestArea={totals['sumInterestArea']} vs interest={result[1]}")
+            explanation['table'] = {
+                'columns': ['age', 'date', 'nextAge', 'survivalLx', 'DF', 'IM', 'MMD',
+                            'product', 'areaWithI', 'areaWithoutI', 'interestArea'],
+                'rows': rows,
+                'totals': totals,
+                'reconciles': reconciles,
+            }
+        elif includeTable:
+            explanation['tableNote'] = ('Per-age table available only for continuous, single-life, '
+                                        'non-pure-acceleration multipliers; not built for this case.')
+
+        return {'result': list(result), 'explanation': explanation}
+
     def getStdLE(self):  # i.e. the LE with normal life expectancy
         return np.trapz(self.getdataSet().getLx(self.age, LxOnly=True))
 

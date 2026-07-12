@@ -87,3 +87,16 @@ def Cont(request):
 def Process(request):
     # returns per-row tuples plus per-claimant summary statistics
     return _handle(request, lambda a: game(attributes=a).process())
+
+
+@app.post("/Explain/")
+def Explain(request):
+    # EXPLAIN: returns, per MULTIPLIER row, {result, explanation} — a structured audit trail of
+    # how the multiplier was computed. Forces explain on; pass explainTable:true in the payload
+    # for the per-age breakdown table. Additive endpoint; does not affect the others. (EXPLAIN)
+    def compute(a):
+        a = dict(a)
+        a['explain'] = True
+        a.setdefault('function', 'MULTIPLIER')
+        return game(attributes=a).processRows()
+    return _handle(request, compute)

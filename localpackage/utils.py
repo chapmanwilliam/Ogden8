@@ -32,6 +32,36 @@ def isfloat(value):
         return False
 
 
+def explainDiscountsText(options):
+    # Human-readable description of the discount/option letters (mirrors VBA ExplainDiscounts). (EXPLAIN)
+    o = (options or '').upper()
+    parts = []
+    if 'M' in o: parts.append('mortality')
+    if 'A' in o: parts.append('accelerated receipt')
+    if 'D' in o: parts.append('mortality of a deceased dependant')
+    if 'C' in o: parts.append('contingencies other than mortality')
+    s = ('discounted for ' + ', '.join(parts[:-1]) + (' and ' if len(parts) > 1 else '') + parts[-1]) if parts else 'no discounts'
+    if 'I' in o:
+        s += ', with interest on past losses'
+    return s
+
+
+def explainFrequencyText(freq):
+    # Human-readable description of the frequency code (mirrors VBA ExplainFrequency). (EXPLAIN)
+    f = (freq or 'Y').upper()
+    start = f.startswith('<')
+    end = f.endswith('>')
+    core = f.strip('<').strip('>')
+    unit = core[-1] if core else 'Y'
+    num = core[:-1] if len(core) > 1 else '1'
+    units = {'Y': 'year', 'M': 'month', 'W': 'week', 'D': 'day', 'A': 'period (averaged)'}
+    base = 'continuous' if unit == 'Y' and num == '1' and not start and not end else ('every ' + num + ' ' + units.get(unit, unit))
+    if unit == 'Y' and num == '1' and not start and not end:
+        return 'continuous (annual, mid-year convention)'
+    timing = ' in advance' if start else (' in arrears' if end else '')
+    return base + timing
+
+
 def returnFreq(freq, fromAge=None, toAge=None):
     # where freq is a string '<3Y' meaning every 3 years starting at the first date
     # returns tuple of timedelta and whether < or >
