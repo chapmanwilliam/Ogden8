@@ -635,26 +635,16 @@ class baseperson():
         except Exception:
             return None
 
-    def explain(self, point1, point2=None, freq="Y", options='AMI', discountRate=None,
-                DRMethodOverride=None, overrides=None, includeTable=False):
-        # Returns {'result': (past, interest, future, total), 'explanation': {...}} — a structured,
-        # additive audit trail of a single-life MULTIPLIER. Mirrors the VBA =EXPLAIN(cell) content
-        # (inputs echo, discount basis, interest = area(withInterest) - area(withoutInterest), and
-        # the per-age breakdown table from cCurve.sumUnderCurve). It never alters the tuple. (EXPLAIN)
-        # Extension points for JMULTIPLIER (joint) and AGGINT (aggregate interest rate) are noted
-        # in the returned 'extensionPoints' and are intentionally not implemented yet.
+    def _multiplierExplanation(self, result, age1, age2, freq, opts, includeTable,
+                               discountRate, DRMethodOverride, functionLabel):
+        # Shared builder: header + decomposition + optional per-age table for a curve-based
+        # multiplier (single-life MULTIPLIER, or the direct joint curve where opts contains 'D').
+        # The per-age table reuses the same area() primitive that computed the tuple and asserts
+        # it reconciles. (EXPLAIN)
         from localpackage.utils import explainDiscountsText, explainFrequencyText, returnFreq
 
-        result = self.M(point1, point2, freq=freq, options=options, discountRate=discountRate,
-                        DRMethodOverride=DRMethodOverride, overrides=overrides)
-
-        # Resolve the ages the way M does (after any overrides M applied and restored).
-        opts = (options or 'AMI').upper()
-        age1 = self.getAgeFromPoint(point1)
-        age2 = self.getAgeFromPoint(point2) if point2 else None
         trialAge = self.getAge()
         revAge = self.getRevisedAge()
-
         header = {
             'claimant': self.getName(),
             'sex': self.getSex(),
@@ -678,7 +668,6 @@ class baseperson():
             'sarBasis': ('Court Funds Office Special Account Rate schedule (localpackage/Data/SAR.csv)'
                          if 'I' in opts else None),
         }
-
         decomposition = {
             'past': {'value': result[0],
                      'formula': 'area(without-interest product) over [from, min(trial, to)]'},
@@ -688,30 +677,19 @@ class baseperson():
                        'formula': 'area(without-interest product) over [max(trial, from), to]'},
             'total': {'value': result[3], 'formula': 'past + interest + future'},
         }
+        explanation = {'function': functionLabel, 'header': header, 'decomposition': decomposition}
 
-        explanation = {
-            'function': 'MULTIPLIER',
-            'header': header,
-            'decomposition': decomposition,
-            'extensionPoints': {
-                'JMULTIPLIER': 'joint-life / dependency explanation not yet implemented (see basePerson.JM)',
-                'AGGINT': 'aggregate interest-rate explanation not yet implemented',
-            },
-        }
-
-        # Per-age breakdown table (only when requested and only for the continuous trapezoidal
-        # path, whose areas reconcile to the tuple; the discrete/pure-'A' analytic paths use a
-        # different decomposition and are left as an extension point).
         st, en, factor, tinterval = returnFreq(freq, age1, age2)
         continuous = not (st or en)
         pureA = (opts == 'A' and not self.getUseMultipleRates())
-        if includeTable and age2 is not None and continuous and not pureA and 'D' not in opts:
-            co = self.getCont()
+        if includeTable and age2 is not None and continuous and not pureA:
+            # 'D' in opts is a joint (dependency) curve: use the dependants' contingency basis,
+            # matching what M() passed; MMD reflects the deceased-survival factor. (EXPLAIN/JMULTIPLIER)
+            co = self.getContDependentsOn() if 'D' in opts else self.getCont()
             rows, totals = self.getCurve().explainTable(age1, age2, opts, cont=co,
                                                         discountRate=discountRate, DRMethodOverride=DRMethodOverride)
             for r in rows:
                 r['date'] = self._ageToDate(r['age'])
-            # Self-check: the table must reconcile to the returned tuple.
             reconciles = (abs(totals['sumAreaWithI'] - result[3]) < 1e-6 and
                           abs(totals['sumInterestArea'] - result[1]) < 1e-6)
             assert reconciles, ("EXPLAIN table does not reconcile to the multiplier: "
@@ -725,10 +703,111 @@ class baseperson():
                 'reconciles': reconciles,
             }
         elif includeTable:
-            explanation['tableNote'] = ('Per-age table available only for continuous, single-life, '
-                                        'non-pure-acceleration multipliers; not built for this case.')
+            explanation['tableNote'] = ('Per-age table available only for continuous, '
+                                        'non-pure-acceleration (curve-based) multipliers; not built for this case.')
+        return explanation
 
+    def explain(self, point1, point2=None, freq="Y", options='AMI', discountRate=None,
+                DRMethodOverride=None, overrides=None, includeTable=False):
+        # Structured, additive audit trail of a single-life MULTIPLIER. Returns
+        # {'result': [past, interest, future, total], 'explanation': {...}}; never alters the tuple.
+        result = self.M(point1, point2, freq=freq, options=options, discountRate=discountRate,
+                        DRMethodOverride=DRMethodOverride, overrides=overrides)
+        opts = (options or 'AMI').upper()
+        age1 = self.getAgeFromPoint(point1)
+        age2 = self.getAgeFromPoint(point2) if point2 else None
+        expl = self._multiplierExplanation(result, age1, age2, freq, opts, includeTable,
+                                           discountRate, DRMethodOverride, 'MULTIPLIER')
+        return {'result': list(result), 'explanation': expl}
+
+    def explainJoint(self, point1, point2=None, freq="Y", options='AMI', discountRate=None,
+                     DRMethodOverride=None, overrides=None, includeTable=False):
+        # JMULTIPLIER explanation. Two branches (mirrors basePerson.JM). (EXPLAIN/JMULTIPLIER)
+        opts = (options or 'AMI').upper()
+        result = self.JM(point1, point2, freq, opts, discountRate, DRMethodOverride, overrides)
+
+        if not self.parent.getUseTablesEF():
+            # Direct joint-curve branch (the VBA path = MULTIPLIER + 'D'): the joint curve already
+            # includes the deceased-survival (MMD) factor, so the same per-age table + decomposition
+            # reconcile directly to the joint tuple.
+            jopts = opts if 'D' in opts else opts + 'D'
+            age1 = self.getAgeFromPoint(point1)
+            age2 = self.getAgeFromPoint(point2) if point2 else None
+            expl = self._multiplierExplanation(result, age1, age2, freq, jopts, includeTable,
+                                               discountRate, DRMethodOverride, 'JMULTIPLIER')
+            expl['branch'] = 'direct joint curve (useTablesEF=False)'
+            return {'result': list(result), 'explanation': expl}
+
+        # Tables E/F branch (Python-only; NO joint curve to integrate). Structure the explanation
+        # as: the shortest-LE life's own MULTIPLIER explanation, then the E/F scaling steps.
+        shortestLEname = self.getShortestLEname()
+        claimant = self.parent.getClaimant(shortestLEname)
+
+        def translate(p):
+            if isinstance(p, bool):
+                return p
+            if isinstance(p, (int, float, np.integer, np.floating)):
+                return min(125, p + (claimant.getAge() - self.getAge()))
+            return p
+
+        tp1, tp2 = translate(point1), translate(point2)
+        sopts = opts.replace('D', '')  # the shortest life's own (single-life) multiplier
+        # Build the shortest life's explanation on a non-fatal copy, exactly as MifNotDead does.
+        copyme = copy.deepcopy(claimant)
+        copyme.fatal = False
+        copyme.refresh()
+        shortExpl = copyme.explain(tp1, tp2, freq, sopts, discountRate, DRMethodOverride, None, includeTable)
+        m = shortExpl['result']
+
+        deps = self.getClaimantsDependentOn()
+        depDetails = [{'name': dep,
+                       'tableE': self.parent.getClaimant(dep).getTableE(),
+                       'tableF': self.parent.getClaimant(dep).getTableF()} for dep in deps]
+        TableE = math.prod([d['tableE'] for d in depDetails]) if depDetails else 1
+        TableF = math.prod([d['tableF'] for d in depDetails]) if depDetails else 1
+
+        comp_past = m[0] * TableE
+        comp_interest = m[1] * TableE
+        comp_future = m[2] * TableF
+        comp_total = comp_past + comp_interest + comp_future
+
+        reconciles = (abs(comp_total - result[3]) < 1e-6 and abs(comp_interest - result[1]) < 1e-6)
+        # interest.E == (E/F multiplier WITH interest) - (WITHOUT interest) — the F19 self-check.
+        withoutTotal = comp_past + comp_future
+        interestScalingCheck = abs((result[3] - withoutTotal) - comp_interest) < 1e-6
+        assert reconciles, (f"E/F components {comp_total} do not sum to the joint tuple {result[3]}")
+        assert interestScalingCheck, "E/F interest.E != (withInterest - withoutInterest)"
+
+        explanation = {
+            'function': 'JMULTIPLIER',
+            'branch': 'Tables E/F (useTablesEF=True)',
+            'shortestLife': {'name': claimant.getName(), 'result': m,
+                             'explanation': shortExpl['explanation']},
+            'scaling': {
+                'dependants': depDetails,
+                'TableE': TableE,
+                'TableE_derivation': 'product over dependants of Table E (= average survival probability from date of death to trial)',
+                'TableF': TableF,
+                'TableF_derivation': 'product over dependants of Table F (= survival probability at trial)',
+            },
+            'composition': {
+                'formula': 'resM = [m_past*TableE, m_interest*TableE, m_future*TableF]',
+                'past': comp_past, 'interest': comp_interest, 'future': comp_future, 'total': comp_total,
+            },
+            'reconciles': reconciles,
+            'interestScalingCheck': interestScalingCheck,
+        }
         return {'result': list(result), 'explanation': explanation}
+
+    def explainDispatch(self, function, point1, point2=None, freq="Y", options='AMI',
+                        discountRate=None, DRMethodOverride=None, overrides=None, includeTable=False):
+        # Routes an EXPLAIN request by function name. (EXPLAIN)
+        f = (function or 'MULTIPLIER').upper()
+        if f == 'JMULTIPLIER':
+            return self.explainJoint(point1, point2, freq, options, discountRate, DRMethodOverride,
+                                     overrides, includeTable)
+        return self.explain(point1, point2, freq, options, discountRate, DRMethodOverride,
+                            overrides, includeTable)
 
     def getStdLE(self):  # i.e. the LE with normal life expectancy
         return np.trapz(self.getdataSet().getLx(self.age, LxOnly=True))

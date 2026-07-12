@@ -206,12 +206,13 @@ class game():
         # rows is a list of rows of form
         # row={'name': 'CHRISTOPHER','fromAge':55, 'toAge':125, 'freq': 'Y', 'status': 'Injured', 'options':'AMIC'}
 
-        # EXPLAIN: when the explain flag is set, MULTIPLIER rows return {result, explanation}
-        # alongside the tuple. Only active when the flag is present, so default output is
-        # unchanged. (EXPLAIN) — JMULTIPLIER/AGGINT explanation is a future extension.
-        if self.explain and self.function == "MULTIPLIER":
-            return [maybe(self.getClaimant(row['name'])).explain(
-                row['fromAge'], row['toAge'], freq=row['freq'], options=row['options'],
+        # EXPLAIN: when the explain flag is set, MULTIPLIER/JMULTIPLIER/AGGINT/JAGGINT rows return
+        # {result, explanation} alongside the tuple. Only active when the flag is present, so the
+        # default output is unchanged. (EXPLAIN)
+        if self.explain and self.function in ("MULTIPLIER", "JMULTIPLIER"):
+            fn = self.function
+            return [maybe(self.getClaimant(row['name'])).explainDispatch(
+                fn, row['fromAge'], row['toAge'], freq=row['freq'], options=row['options'],
                 discountRate=row['discountRate'], DRMethodOverride=row['DRMethodOverride'],
                 overrides=row['overrides'], includeTable=self.explainTable).or_else(
                 {'result': [None, None, None, None], 'explanation': None}) for row in self.rows]
