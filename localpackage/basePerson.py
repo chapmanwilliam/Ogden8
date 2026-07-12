@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 import re
-import requests
 from localpackage.dataSet import dataSet
+from localpackage.spa import StatePensionAge
 from localpackage.curve import curve
 from localpackage.SAR import SAR
 from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, isfloat, parsedate, \
@@ -290,28 +290,16 @@ class baseperson():
                           DRMethodOverride=DRMethodOverride, overrides=overrides)
 
     def getStateRetirementAge(self):
-        # returns state retirement age from the government web-site.
-        # Guarded with a timeout, try/except and a per-person cache: process() calls this for
-        # every claimant that lacks a 'retirement' attribute, so an un-timed/unguarded live GET
-        # would hang or 500 the whole /Process/ request on any gov.uk slowness or outage. (F21/F27)
-        # NOTE (F27): the whole-years regex ignores the ', N months' suffix and the pre-Dec-1953
-        # sex-dependent flow, so transitional-band DOBs are approximate — a local SPA table
-        # (VBA ModuleSPA) would remove both the network dependency and this inaccuracy. Flagged.
+        # State Pension age computed purely locally from the claimant's DOB and sex via the
+        # ported VBA ModuleSPA rules (Pensions Acts 1995/2011/2014), including every transitional
+        # monthly band. This replaces the former live gov.uk HTTP lookup: process() calls this for
+        # every claimant, so there is now NO network dependency to hang or 500 the request, and the
+        # transitional-band accuracy the web regex missed is captured exactly. (F21/F27)
+        # Returns years (may be fractional, e.g. 66.25); None for invalid input.
         if hasattr(self, '_stateRetirementAge'):
             return self._stateRetirementAge
-        result = None
-        try:
-            dob = self.getDOB()
-            urlsuffix = str(dob.year) + "-" + str(dob.month).zfill(2) + "-" + str(dob.day).zfill(2)
-            url = 'https://www.gov.uk/state-pension-age/y/age/'
-            response = requests.get(url + urlsuffix, timeout=5)
-            if response:
-                y = re.search('Your State Pension age is (\d+) years', response.text)
-                if y:
-                    result = int(y[1])
-        except Exception as e:
-            errors.add("Could not fetch State Pension age: " + str(e))
-            result = None
+        spa = StatePensionAge(self.getDOB(), self.getSex())
+        result = None if (spa is None or spa < 0) else spa
         self._stateRetirementAge = result
         return result
 
