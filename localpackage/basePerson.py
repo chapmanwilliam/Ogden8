@@ -268,6 +268,20 @@ class baseperson():
             resM[1] = m[1] * TableE  # interest accrues on the past loss, which is itself scaled by Table E
             resM[2] = m[2] * TableF
             resM[3] = resM[0] + resM[1] + resM[2]
+
+            # Regression self-check (with-minus-without principle, agreed with the user).
+            # The E/F interest term must equal the E/F multiplier WITH interest minus the same
+            # multiplier WITHOUT interest. Recompute the shortest life's multiplier with the
+            # interest factor removed and difference the E/F totals:
+            #   (m0.E + m1.E + m2.F) - (m0.E + m2.F) == m1.E == resM[1].
+            if 'I' in options:
+                mNoI = claimant.MifNotDead(translatePoint(point1), translatePoint(point2), freq,
+                                           options=options.replace('I', ''), discountRate=discountRate,
+                                           DRMethodOverride=DRMethodOverride, overrides=None)
+                withoutTotal = mNoI[0] * TableE + mNoI[2] * TableF
+                assert math.isclose(resM[3] - withoutTotal, resM[1], rel_tol=1e-9, abs_tol=1e-12), \
+                    "E/F interest inconsistent with with-minus-without: " \
+                    f"{resM[3] - withoutTotal} vs resM[1]={resM[1]}"
             return resM
         else:
             if not "D" in options:
