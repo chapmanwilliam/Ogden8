@@ -44,6 +44,9 @@ def returnFreq(freq, fromAge=None, toAge=None):
     if freq[-1] == '>': en = True
     if st and en: st = en = False  # if both True turn them False
     f = freq.strip('<').strip('>')  # remove arrows
+    if len(f) < 1:  # e.g. a bare '<' or '>' -> nothing left to index. (F49)
+        errors.add("'Frequency' invalid")
+        return st, en, 1, None
     p = f[-1]  # get main period Y,M,W,D
     if len(f) > 1:
         if isfloat(f[:-1]):
@@ -52,6 +55,10 @@ def returnFreq(freq, fromAge=None, toAge=None):
             n = 1
     else:
         n = 1
+
+    if n <= 0:  # a zero/negative count would ZeroDivisionError (factor = 1.0/n) or invert. (F34/F49)
+        errors.add("'Frequency' invalid")
+        return st, en, 1, None
 
     factor = 1.0
 
@@ -128,10 +135,21 @@ def parsedate(text):
 
 def parsedateString(text):
     # text is of format d/m/y
-    parts = text.split('/')
-    d = int(parts[0])
-    m = int(parts[1])
-    y = int(parts[2])
+    try:
+        parts = str(text).split('/')
+        if len(parts) != 3:
+            errors.add("Date not in d/m/y format: " + str(text))
+            return None
+        d = int(parts[0])
+        m = int(parts[1])
+        y = int(parts[2])
+    except (ValueError, TypeError):
+        errors.add("Invalid date: " + str(text))
+        return None
+    if y < 100:
+        # Pivot 2-digit years (Excel convention: <30 -> 20xx, else 19xx) so '27/2/85' is 1985,
+        # not the year 85 AD. (F50) — flagged: pivot window is a convention choice.
+        y += 2000 if y < 30 else 1900
     return datetime(y, m, d)
 
 
@@ -139,16 +157,17 @@ def parseOverrides(text):
     # text is like this:
     # {DRMethod: BLENDED, ShortRate: -3%, LongRate: 3%, SingleRate: 2%, Sex: MALE, Age: 20, DependentOn: Norman, Region: UK }
     result = {}
-    text = text.upper()  # make all upper case
     text = text.replace("{", "").replace("}", "")  # remove braces
     textSplit = text.split(',')  # split at the commas
     for x in textSplit:  # iterate through each split
-        y = x.split(":")  # split at the colon
-        f = y[0].strip()  # the function
-        p = y[1].strip()  # the override
+        y = x.split(":", 1)  # split at the FIRST colon only
+        if len(y) < 2:  # segment without a colon (typo / trailing comma) -> skip, don't IndexError (F22/F48)
+            if x.strip():
+                errors.add("Override segment without a colon ignored: " + x.strip())
+            continue
+        f = y[0].strip().upper()  # the key (upper-cased for matching)
+        p = y[1].strip()  # the value — kept verbatim so mixed-case names (DependentOn) survive (F30/F48)
         if f in overrides:  # if a valid function
             result[f] = p
-        else:
-            #errors.append(f + ' not a valid override')
-            z=10
+        #else: unrecognised override key — silently ignored (as before)
     return result

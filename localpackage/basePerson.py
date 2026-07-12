@@ -457,8 +457,16 @@ class baseperson():
     def getContDependentsOn(self):
         dependentonlist = self.getClaimantsDependentOn()
         if len(dependentonlist) == 0: return 1  # i.e. not dependent on anyone
-        conts = np.array([self.getClaimant(dependenton).getCont() for dependenton in dependentonlist])
-        return np.average(conts)  # take average of those dependent on
+        conts = []
+        for dependenton in dependentonlist:
+            c = self.getClaimant(dependenton)
+            if c is None:  # named dependee not in the game (e.g. typo/case mismatch) -> skip, log (F30)
+                errors.add("Dependent-on claimant not found: " + str(dependenton))
+                continue
+            conts.append(c.getCont())
+        if len(conts) == 0:
+            return 1
+        return np.average(np.array(conts))  # take average of those dependent on
 
     def getAutoCont(self):
         Tables = self.getTablesAD()
@@ -507,28 +515,50 @@ class baseperson():
         result = [past_expected_years, interest_expected_years, future_expected_years, total]
         return result
 
+    def _overrideRate(self, s):
+        # Parse an override rate that may be written as a percent ('2%' -> 0.02) or a decimal
+        # ('0.02'); the documented override format uses the percent form. (F29)
+        s = str(s).strip()
+        try:
+            if s.endswith('%'):
+                return float(s[:-1]) / 100.0
+            return float(s)
+        except ValueError:
+            errors.add("Invalid override rate: " + s)
+            return None
+
     def setOverrides(self, overrides):
         result = parseOverrides(overrides)
         if 'SEX' in result:
-            self.setSex(result['SEX'])
+            self.setSex(result['SEX'].upper())  # enum value -> upper (parseOverrides keeps values verbatim)
         if 'AGE' in result:
-            self.setAge(float(result['AGE']))
+            try:
+                self.setAge(float(result['AGE']))
+            except ValueError:
+                errors.add("Invalid override age: " + str(result['AGE']))
         if 'DEPENDENTON' in result:
-            self.setDependentOn(result['DEPENDENTON'])
+            self.setDependentOn(result['DEPENDENTON'])  # kept verbatim: claimant names are case-sensitive (F30)
         if 'DRMETHOD' in result:
-            self.parent.setDRMethod(result['DRMETHOD'])
-            if result['DRMETHOD'] == 'SINGLE':
+            drm = result['DRMETHOD'].upper()
+            self.parent.setDRMethod(drm)
+            if drm == 'SINGLE':
                 self.parent.setUseMultipleRates(False)
             else:
                 self.parent.setUseMultipleRates(True)
         if 'SHORTRATE' in result:
-            self.parent.setShortRate(float(result['SHORTRATE']))
+            r = self._overrideRate(result['SHORTRATE'])
+            if r is not None: self.parent.setShortRate(r)
         if 'LONGRATE' in result:
-            self.parent.setLongRate(float(result['LONGRATE']))
+            r = self._overrideRate(result['LONGRATE'])
+            if r is not None: self.parent.setLongRate(r)
         if 'SINGLERATE' in result:
-            self.parent.setSingleRate(float(result['SINGLERATE']))
+            r = self._overrideRate(result['SINGLERATE'])
+            if r is not None: self.parent.setSingleRate(r)
         if 'SWITCH' in result:
-            self.parent.setSwitch(float(result['SWITCH']))
+            try:
+                self.parent.setSwitch(float(result['SWITCH']))
+            except ValueError:
+                errors.add("Invalid override switch: " + str(result['SWITCH']))
 
     def getOriginalValues(self):
         return self.originalValues
