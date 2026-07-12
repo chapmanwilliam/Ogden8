@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
+from localpackage.errorLogging import errors
 
 class SAR():
     def __init__(self, parent):
@@ -35,7 +36,10 @@ class SAR():
 
 
         def createHashObject():
-            return hash(self.gettrialDate())
+            # Rng is the claimant's age at each SAR rate-change date, computed from getDOB(),
+            # so the DOB (which an {Age:...} override rewrites via setAge) must be in the key;
+            # keying on trialDate alone let an override on one row corrupt interest on others. (F35)
+            return hash((self.gettrialDate(), self.getDOB()))
 
         # First check if we already have calculated this one for a given SINGLE discount rate
         h = createHashObject()
@@ -48,6 +52,16 @@ class SAR():
         #add extra row if necessary
         dfSAR=dfSAR[:self.gettrialDate()]
 
+        if len(dfSAR) == 0:
+            # Trial date earlier than the first SAR row (01/10/1965): dfSAR.iloc[-1] would
+            # IndexError. No published rate covers the period, so no statutory interest is
+            # computable — return a flat (no-interest) 2-point curve and log the error. (F54)
+            errors.add('Trial date earlier than the first Special Account Rate (01/10/1965); interest not computed')
+            ageTrial = (self.gettrialDate() - self.getDOB()).days / 365.25
+            Lx = np.array([1.0, 1.0])
+            Rng = np.array([ageTrial - 1.0, ageTrial])
+            self.SAROptions[h] = {'Lx': Lx, 'Rng': Rng}
+            return Lx, Rng
 
         if dfSAR.iloc[-1].name<self.gettrialDate():
             a=pd.Series({'Rate':0.2},name=self.gettrialDate()) #arbitrary rate
