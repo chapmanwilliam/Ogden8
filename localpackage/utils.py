@@ -13,7 +13,7 @@ discountOptions = ['A', 'M', 'I', 'C', 'D']
 DRMethods = ['BLENDED', 'SWITCHED', 'SINGLE', 'STEPPED']  # STEPPED is dispatched in getdiscountRate (F55)
 overrides = ['DRMETHOD', 'SHORTRATE', 'LONGRATE', 'SINGLERATE', 'SWITCH', 'SEX', 'AGE', 'DEPENDENTON', 'REGION']
 
-defaultdiscountRate = -0.25 / 100
+defaultdiscountRate = 0.5 / 100
 defaultSwiftCarpenterDiscountRate = 5 / 100
 defaultOgden = 8
 Ogden = [7, 8]
