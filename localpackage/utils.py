@@ -5,7 +5,7 @@ from localpackage.errorLogging import errors
 
 sexes = ['Male', 'Female']
 regions = ['UK', 'EW', 'EN', 'SC', 'WA', 'NI', 'GB']
-years = [2008, 2018]
+years = [2008, 2018, 2024]
 wordPoints = ['TRIAL', 'LIFE', 'RETIREMENT', 'INJURY']
 plusMinus = ['+', '-']
 fr = ['Y', 'M', 'W', 'D', 'A']
