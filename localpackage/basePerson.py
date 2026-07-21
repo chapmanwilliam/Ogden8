@@ -257,6 +257,14 @@ class baseperson():
                                     discountRate=discountRate,
                                     DRMethodOverride=DRMethodOverride,
                                     overrides=None)  # multiplier for person with shortest LE if not dead
+            # M() reports input errors by returning the message in all four elements. Scaling
+            # those by Table E below raises TypeError ("can't multiply sequence by non-int")
+            # and kills the whole request, instead of returning a per-row error the way the
+            # non-E/F branch does. Propagate them unchanged.
+            if m is None:
+                return None
+            if any(isinstance(v, str) for v in m):
+                return m
             TableEs = [self.parent.getClaimant(dep).getTableE() for dep in
                        self.getClaimantsDependentOn()]  # list of TableE for each dependent
             TableE = math.prod(TableEs)
@@ -274,10 +282,15 @@ class baseperson():
             # multiplier WITHOUT interest. Recompute the shortest life's multiplier with the
             # interest factor removed and difference the E/F totals:
             #   (m0.E + m1.E + m2.F) - (m0.E + m2.F) == m1.E == resM[1].
-            if 'I' in options:
+            # Skip when stripping 'I' would leave an EMPTY options string: M() treats '' as the
+            # 'AMI' default (there is no way to express "no discounts"), so mNoI would come back
+            # as a full AMI multiplier and the check would compare unlike quantities.
+            if 'I' in options and options.replace('I', ''):
                 mNoI = claimant.MifNotDead(translatePoint(point1), translatePoint(point2), freq,
                                            options=options.replace('I', ''), discountRate=discountRate,
                                            DRMethodOverride=DRMethodOverride, overrides=None)
+                if mNoI is None or any(isinstance(v, str) for v in mNoI):
+                    return resM  # cannot run the self-check; the primary result is still sound
                 withoutTotal = mNoI[0] * TableE + mNoI[2] * TableF
                 assert math.isclose(resM[3] - withoutTotal, resM[1], rel_tol=1e-9, abs_tol=1e-12), \
                     "E/F interest inconsistent with with-minus-without: " \
@@ -628,6 +641,106 @@ class baseperson():
         #        c.getPlot(result, age1, age2, freq, co, options)
         return result
 
+    def MDiff(self, point1, point2=None, freq="Y", optionsA='AMI', optionsB='AM', discountRate=None,
+              DRMethodOverride=None, overrides=None):
+        # The marginal effect on the multiplier of the option letters in optionsA but not in optionsB,
+        # i.e. M(optionsA) - M(optionsB) element-wise over (past, interest, future, total).
+        #
+        # This is a marginal contribution CONDITIONAL on the letters common to both sides, not a
+        # standalone decomposition: the five factors multiply inside the integral (curve.getCurve),
+        # so marginals taken from separate calls will not sum back to the total multiplier.
+        #
+        # NB the interest element of any single M() call is already M(...I...) - M(...same minus I...)
+        # by construction (curve.py splits past/interest by the with-minus-without principle), so
+        # MDiff is not needed to isolate 'I' - read element [1] of a normal M() call instead.
+        a = (optionsA or '').upper()
+        b = (optionsB or '').upper()
+
+        # An empty options string silently defaults to 'AMI' in M(), so differencing against one
+        # would return a plausible-looking number that attributes nothing. Require both explicitly.
+        if not a or not b:
+            msg = "\'Discount\' options must be given explicitly on both sides of a difference"
+            return msg, msg, msg, msg
+        for l in a + b:
+            if l not in discountOptions:
+                msg = "\'Discount\' options invalid"
+                return msg, msg, msg, msg
+
+        # Under Tables E/F a 'D' reroutes M() to the JM scaling path, so the two sides would be
+        # computed by different algorithms and their difference would not attribute anything.
+        if self.parent.getUseTablesEF() and (('D' in a) != ('D' in b)):
+            msg = "Cannot difference the \'D\' option under Tables E/F"
+            return msg, msg, msg, msg
+
+        resA = self.M(point1, point2, freq, a, discountRate, DRMethodOverride, overrides)
+        resB = self.M(point1, point2, freq, b, discountRate, DRMethodOverride, overrides)
+        if resA is None or resB is None:
+            return None
+        # M() reports input errors as strings in all four elements; propagate rather than subtract.
+        for r in (resA, resB):
+            if any(isinstance(v, str) for v in r):
+                return r
+        return tuple(x - y for x, y in zip(resA, resB))
+
+    def _withInterest(self, options):
+        # AGGINTRATE/JAGGINTRATE presuppose interest. Without 'I' the interest element is 0 and the
+        # function would return a perfectly plausible 0.00% next to a healthy multiplier, so
+        # inject it rather than answer a question that was not asked.
+        o = (options or 'AMI').upper()
+        return o if 'I' in o else o + 'I'
+
+    def _aggInt(self, res):
+        # Aggregate interest rate = interest / past, where 'past' is the NO-INTEREST past
+        # multiplier (curve.py: withoutInterest = nI_to - nI_from). Interest accrues only on
+        # past loss, so the past multiplier is the right denominator.
+        # NB this DIVERGES from the VBA/client convention of interest/(total-interest), which
+        # is interest/(past+future). The two are identical for a wholly-past period, where
+        # future is 0 - i.e. wherever the rate is actually meaningful. They differ for a
+        # period straddling trial, where including the future multiplier in the denominator
+        # materially understates the rate (8.72% vs 15.28% on a [50,70] test span).
+        # Both terms scale linearly with the annual sum, so the rate is independent of the
+        # money; it is the survival-weighted mean of the per-year interest factors.
+        if res is None:
+            return None
+        if any(isinstance(v, str) for v in res):
+            return res[0]  # propagate the input error reported by M()/JM()
+        if not res[0]:
+            # No past period, so no past loss to carry interest, and this would be 0/0. The
+            # client-side AGGINTRATE returns 0/future = 0 here, which reads as a finding of
+            # "no interest" beside a perfectly healthy multiplier; it is almost always user
+            # error, so say so instead.
+            return "No past period: aggregate interest undefined"
+        return res[1] / res[0]
+
+    def AGGINTRATE(self, point1, point2=None, freq="Y", options='AMI', discountRate=None,
+                   DRMethodOverride=None, overrides=None):
+        # The aggregate interest rate on the past loss over [point1, point2], as a decimal
+        # (0.19784468 = 19.784468%): the single percentage which, applied to the past loss,
+        # reproduces the interest element of the corresponding multiplier.
+        # Named to match the client-side AGGINTRATE, but see _aggInt: the denominator here is
+        # 'past', not the client's 'total - interest'. Same answer for a wholly-past period,
+        # higher (and more defensible) for one straddling trial.
+        # NB the client's AGGINT is a DIFFERENT quantity - the absolute interest multiplier,
+        # i.e. element [1] of M() - not a rate.
+        # NB over a range this is the rate for a loss accruing on the given freq pattern -
+        # interest depends on WHEN each pound was lost, so a front- or back-loaded loss has a
+        # different true rate. For a one-off (no point2) there is a single date and no such
+        # assumption, so the figure is exact.
+        return self._aggInt(self.M(point1, point2, freq, self._withInterest(options), discountRate,
+                                   DRMethodOverride, overrides))
+
+    def JAGGINTRATE(self, point1, point2=None, freq="Y", options='AMI', discountRate=None,
+                    DRMethodOverride=None, overrides=None):
+        # Joint-life counterpart of AGGINTRATE, pairing with JMULTIPLIER/JM the way AGGINTRATE
+        # pairs with MULTIPLIER/M. The formula is identical; only the routing differs, so that
+        # the rate always corresponds to the multiplier it sits beside.
+        # The ratio is invariant to any factor scaling past and interest EQUALLY, so under
+        # Tables E/F the TableE scaling cancels exactly, and for a one-off the
+        # mortality/dependency factors cancel too. It differs from AGGINTRATE only over a
+        # range, where past mortality re-weights which dates dominate the average.
+        return self._aggInt(self.JM(point1, point2, freq, self._withInterest(options), discountRate,
+                                    DRMethodOverride, overrides))
+
     def _ageToDate(self, age):
         # Convert an age on this claimant's timeline to a calendar date (d/m/y string). (EXPLAIN)
         try:
@@ -821,23 +934,32 @@ class baseperson():
         res = under['result']
         total = res[3]
         interest = res[1]
+        past = res[0]
         withoutInterest = total - interest
-        if withoutInterest == 0:
+        # Headline figure must be what AGGINTRATE/JAGGINTRATE actually return, or the audit
+        # would explain a different number from the cell it is explaining.
+        aggint = self._aggInt(res)
+        note = None
+        if not isinstance(aggint, float):
+            note = str(aggint)
             aggint = None
-            note = 'division by zero (withInterest - interest == 0)'
-        else:
-            aggint = interest / withoutInterest
-            note = None
+        # The VBA figure is retained for reference: AGGINT_CORE divides by (total - interest)
+        # = past + future, which agrees with interest/past for a wholly-past period and
+        # understates the rate for one straddling trial. See _aggInt.
+        vba = None if withoutInterest == 0 else interest / withoutInterest
         explanation = {
             'function': label,
             'multiplier': under['explanation'],
             'aggInt': {
                 'withInterest': total,
                 'interest': interest,
+                'past': past,
                 'withoutInterest': withoutInterest,
                 'aggInt': aggint,
                 'aggIntPercent': (None if aggint is None else round(aggint * 100, 4)),
-                'formula': 'interest / (withInterest - interest)',
+                'formula': 'interest / past',
+                'vbaAggInt': vba,
+                'vbaFormula': 'interest / (withInterest - interest)',
                 'note': note,
             },
         }
@@ -850,10 +972,12 @@ class baseperson():
         if f == 'JMULTIPLIER':
             return self.explainJoint(point1, point2, freq, options, discountRate, DRMethodOverride,
                                      overrides, includeTable)
-        if f == 'AGGINT':
+        # AGGINTRATE/JAGGINTRATE are the client-facing UDF names for the same quantity; the
+        # bare AGGINT/JAGGINT spellings are kept so existing EXPLAIN callers still route.
+        if f in ('AGGINT', 'AGGINTRATE'):
             return self.explainAggInt(point1, point2, freq, options, discountRate, DRMethodOverride,
                                       overrides, includeTable, joint=False)
-        if f == 'JAGGINT':
+        if f in ('JAGGINT', 'JAGGINTRATE'):
             return self.explainAggInt(point1, point2, freq, options, discountRate, DRMethodOverride,
                                       overrides, includeTable, joint=True)
         return self.explain(point1, point2, freq, options, discountRate, DRMethodOverride,

@@ -209,7 +209,8 @@ class game():
         # EXPLAIN: when the explain flag is set, MULTIPLIER/JMULTIPLIER/AGGINT/JAGGINT rows return
         # {result, explanation} alongside the tuple. Only active when the flag is present, so the
         # default output is unchanged. (EXPLAIN)
-        if self.explain and self.function in ("MULTIPLIER", "JMULTIPLIER", "AGGINT", "JAGGINT"):
+        if self.explain and self.function in ("MULTIPLIER", "JMULTIPLIER", "AGGINT", "JAGGINT",
+                                              "AGGINTRATE", "JAGGINTRATE"):
             fn = self.function
             return [maybe(self.getClaimant(row['name'])).explainDispatch(
                 fn, row['fromAge'], row['toAge'], freq=row['freq'], options=row['options'],
@@ -231,6 +232,23 @@ class game():
                                                             DRMethodOverride=row['DRMethodOverride'],
                                                             overrides=row['overrides']).or_else(
                 [None, None, None, None]) for row in self.rows]
+        elif self.function == "AGGINTRATE":
+            # Single-value return (the rate), so a one-element row like REVISEDAGE/TABLE_E.
+            return [[maybe(self.getClaimant(row['name'])).AGGINTRATE(row['fromAge'], row['toAge'],
+                                                                     freq=row['freq'],
+                                                                     options=row['options'],
+                                                                     discountRate=row['discountRate'],
+                                                                     DRMethodOverride=row['DRMethodOverride'],
+                                                                     overrides=row['overrides']).or_else(None)]
+                    for row in self.rows]
+        elif self.function == "JAGGINTRATE":
+            return [[maybe(self.getClaimant(row['name'])).JAGGINTRATE(row['fromAge'], row['toAge'],
+                                                                      freq=row['freq'],
+                                                                      options=row['options'],
+                                                                      discountRate=row['discountRate'],
+                                                                      DRMethodOverride=row['DRMethodOverride'],
+                                                                      overrides=row['overrides']).or_else(None)]
+                    for row in self.rows]
         elif self.function == "INTERESTHOUSE":
             return [maybe(self.getClaimant(row['name'])).INTERESTHOUSE(row['fromAge'], row['toAge']).or_else(
                 [None, None, None, None]) for row in self.rows]
