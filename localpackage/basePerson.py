@@ -177,6 +177,26 @@ class baseperson():
     def LE(self):  # Life expectancy
         return self.M(self.age, 125, options='MI')
 
+    def LEDOD(self):
+        # Life expectancy as at the DATE OF DEATH, for a fatal claimant.
+        #
+        # LE() answers the "but for the death" question from the TRIAL date, which is the
+        # framing Knauer v MoJ [2016] UKSC 9 requires for future dependency. LEDOD answers
+        # the same question from the date of death: but for the death, how much longer
+        # would she have been expected to live, measured from when she died.
+        #
+        # The two are the same underlying claim expressed from different dates - both imply
+        # the same expected age at death - so LEDOD exceeds LE by roughly the death-to-trial
+        # period, net of the selection effect of having survived it.
+        #
+        # For a living claimant the two dates coincide, so this returns LE().
+        if not self.isFatal():
+            return self.LE()
+        # options='M', NOT 'MI'. Date of death to trial is a PAST period, so the 'I' that
+        # LE() carries would accrue SAR interest into what must be a pure mortality figure -
+        # 0.3001 of spurious interest on the reference case, taking 33.9221 to 34.2221.
+        return self.M(self.getAAD(), 125, options='M')
+
     def LM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Life multiplier
         return self.M('TRIAL', 'LIFE', options='AMI', discountRate=discountRate, DRMethodOverride=DRMethodOverride,
                       overrides=overrides)

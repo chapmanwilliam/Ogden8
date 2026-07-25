@@ -285,6 +285,11 @@ class game():
         elif self.function == "LE":
             return [maybe(self.getClaimant(row['name'])).LE().or_else(
                 [None, None, None, None]) for row in self.rows]
+        elif self.function == "LEDOD":
+            # Life expectancy as at the date of death (fatal claimants); same as LE for the
+            # living. Additive - no existing function's output changes.
+            return [maybe(self.getClaimant(row['name'])).LEDOD().or_else(
+                [None, None, None, None]) for row in self.rows]
         elif self.function == "LM":
             return [maybe(self.getClaimant(row['name'])).LM(row['discountRate'],
                                                             DRMethodOverride=row['DRMethodOverride'],
