@@ -43,12 +43,18 @@ class person(baseperson):
 
     def getEAD(self):
         # return expected age at death
+        #
+        # For a fatal claimant this is the age they would have been expected to reach had
+        # they survived the date of actual death: age at death plus the life expectancy at
+        # that date. Built from that pair directly.
+        #
+        # Deriving it from the trial age instead (AAT + LE) takes a SECOND mortality lookup
+        # at a different age, and the cohort follows from year-attained minus age, so the two
+        # lookups imply different birth years and describe slightly different people - worth
+        # about 0.02 of a year on the reference case, and avoidable.
+        if self.isFatal():
+            return self.getAAD() + self.LEDOD()[3]
         return self.getAAT() + self.LE()[3]
-
-        if self.getAAD():
-            return self.getAAD()
-        else:
-            return self.getAAT() + self.LE()[3]
 
     def setUp(self):
 
