@@ -28,7 +28,9 @@ class baseperson():
 
         results['dfprod'] = results['mort%'] * (results['age'] - 0.5)
         mean = results['dfprod'].sum()
-        EAD = self.LE()[3] + self.getAge()
+        # (Removed a dead `EAD = self.LE()[3] + self.getAge()`: assigned, never read, and
+        # carrying the pre-fix formula that adds a trial-anchored LE to an age it was not
+        # measured from. Use getEAD() if this plot ever needs the figure.)
 
         results['dfdev'] = (((results['age'] - 0.5) - mean) ** 2) * results['mort%']
         stdev = results['dfdev'].sum() ** 0.5
