@@ -1,5 +1,5 @@
 import math
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.parser import parse
 from localpackage.errorLogging import errors
 
@@ -201,3 +201,56 @@ def parseOverrides(text):
             result[f] = p
         #else: unrecognised override key — silently ignored (as before)
     return result
+
+
+# ---------------------------------------------------------------------------
+# Age / date arithmetic
+#
+# Ages are measured in ANNIVERSARY years, not days/365.25. Someone born on
+# 1 January 1980 is exactly 45.000000 on 1 January 2025, not 45.002053 - the
+# flat 365.25 divisor never lands on a whole number and drifts with leap years.
+#
+# This also makes the Sheets add-on self-consistent: its Apps Script client
+# already measures age with moment's diff(dob, 'years', true), which is
+# anniversary-based (Parameter checks.js getAge/getAgeFromDate, Code.js:502,533),
+# while this engine used 365.25 - so a claimant had two different ages inside one
+# product. The Excel add-in uses the same anniversary rule (DateUtils.yrsGap,
+# ported from VBA YRSGAP).
+#
+# The pair below must stay exact inverses: yrsGap(d, addYears(d, y)) == y.
+# ---------------------------------------------------------------------------
+
+def _anniversary(d, year):
+    # d's day-and-month in `year`. A 29 February date falls back to 28 February
+    # in a non-leap year, which is the convention both other products use.
+    try:
+        return d.replace(year=year)
+    except ValueError:
+        return d.replace(year=year, day=28)
+
+
+def yrsGap(d1, d2):
+    # Fractional years from d1 to d2, anniversary-based. Negative if d2 < d1.
+    if d2 < d1:
+        return -yrsGap(d2, d1)
+    years = d2.year - d1.year
+    anniversary = _anniversary(d1, d2.year)
+    if d2 < anniversary:
+        years -= 1
+        prev = _anniversary(d1, d2.year - 1)
+        span = (anniversary - prev).days
+        return years + (d2 - prev).days / span
+    nxt = _anniversary(d1, d2.year + 1)
+    span = (nxt - anniversary).days
+    return years + (d2 - anniversary).days / span
+
+
+def addYears(d, yrs):
+    # Inverse of yrsGap: the date `yrs` fractional years after d.
+    whole = int(yrs // 1)
+    frac = yrs - whole
+    base = _anniversary(d, d.year + whole)
+    if frac == 0:
+        return base
+    nxt = _anniversary(d, d.year + whole + 1)
+    return base + timedelta(days=round((nxt - base).days * frac))

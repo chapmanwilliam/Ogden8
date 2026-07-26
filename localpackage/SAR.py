@@ -1,3 +1,4 @@
+from localpackage.utils import yrsGap, addYears
 import numpy as np
 import pandas as pd
 import os
@@ -57,7 +58,7 @@ class SAR():
             # IndexError. No published rate covers the period, so no statutory interest is
             # computable — return a flat (no-interest) 2-point curve and log the error. (F54)
             errors.add('Trial date earlier than the first Special Account Rate (01/10/1965); interest not computed')
-            ageTrial = (self.gettrialDate() - self.getDOB()).days / 365.25
+            ageTrial = yrsGap(self.getDOB(), self.gettrialDate())
             Lx = np.array([1.0, 1.0])
             Rng = np.array([ageTrial - 1.0, ageTrial])
             self.SAROptions[h] = {'Lx': Lx, 'Rng': Rng}
@@ -82,7 +83,7 @@ class SAR():
 
         dfSAR['cumaggInt']=dfSAR['aggInt'].cumsum()
         dfSAR['Lx']=dfSAR['cumaggInt']+1
-        dfSAR['age']=dfSAR['tvalue'].apply(lambda x: (x-self.getDOB()).days/365.25) #age of person
+        dfSAR['age']=dfSAR['tvalue'].apply(lambda x: yrsGap(self.getDOB(), x)) #age of person
 
         days=np.array(dfSAR['days'])
         self._pastDays=np.cumsum(days)

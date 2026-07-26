@@ -8,7 +8,7 @@ from localpackage.spa import StatePensionAge
 from localpackage.curve import curve
 from localpackage.SAR import SAR
 from localpackage.utils import wordPoints, plusMinus, returnFreq, ContDetailsdefault, is_date, isfloat, parsedate, \
-    parsedateString, discountOptions, fr, discountFactor, defaultSwiftCarpenterDiscountRate, DRMethods, parseOverrides
+    parsedateString, discountOptions, fr, discountFactor, defaultSwiftCarpenterDiscountRate, DRMethods, parseOverrides, yrsGap, addYears
 from localpackage.errorLogging import errors
 import math
 import seaborn as sns
@@ -417,7 +417,7 @@ class baseperson():
 
     def setDOB(self, dob):
         self.dob = dob
-        self.age = (self.gettrialDate() - self.dob).days / 365.25
+        self.age = yrsGap(self.dob, self.gettrialDate())
         self.setDirty(True)
 
     def getAge(self):
@@ -425,16 +425,16 @@ class baseperson():
 
     def setAge(self, age):
         self.age = age
-        self.dob = self.gettrialDate() - timedelta(days=(self.age * 365.25))
+        self.dob = addYears(self.gettrialDate(), -self.age)
 
     def getAAT(self):
         # return age at trial (will be different if this is a fatal case from age)
-        return (self.gettrialDate() - self.dob).days / 365.25
+        return yrsGap(self.dob, self.gettrialDate())
 
     def getAAI(self):
         # return age at injury
         if self.getDOI():
-            return (self.getDOI() - self.getDOB()).days / 365.25
+            return yrsGap(self.getDOB(), self.getDOI())
         return None
 
     def getdeltaLE(self):
@@ -766,7 +766,7 @@ class baseperson():
     def _ageToDate(self, age):
         # Convert an age on this claimant's timeline to a calendar date (d/m/y string). (EXPLAIN)
         try:
-            return (self.getDOB() + timedelta(days=age * 365.25)).strftime('%d/%m/%Y')
+            return addYears(self.getDOB(), age).strftime('%d/%m/%Y')
         except Exception:
             return None
 
@@ -1047,7 +1047,7 @@ class baseperson():
             # i.e. age
             age = point
         elif type(point) is datetime:
-            age = (point - self.dob).days / 365.25
+            age = yrsGap(self.dob, point)
         elif type(point) is str:  # for entries like TRIAL, LIFE
             if isfloat(point):
                 # A bare numeric string (e.g. "45" from a text-formatted Sheets cell) is an AGE.
@@ -1184,10 +1184,10 @@ class baseperson():
             if type(attributes['dob']) is str:
                 attributes['dob'] = parsedateString(attributes['dob'])
             self.dob = attributes['dob']
-            self.age = (self.gettrialDate() - self.dob).days / 365.25
+            self.age = yrsGap(self.dob, self.gettrialDate())
         if 'age' in attributes and not 'dob' in attributes:
             self.age = attributes['age']
-            self.dob = self.gettrialDate() - timedelta(days=(self.age * 365.25))
+            self.dob = addYears(self.gettrialDate(), -self.age)
 
         if not 'age' in attributes and not 'dob' in attributes:
             print("Missing age information for person")

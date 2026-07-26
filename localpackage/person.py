@@ -1,6 +1,6 @@
 from datetime import timedelta
 from localpackage.basePerson import baseperson
-from localpackage.utils import parsedateString
+from localpackage.utils import parsedateString, yrsGap, addYears
 from localpackage.errorLogging import errors
 
 
@@ -32,14 +32,14 @@ class person(baseperson):
     def getAAD(self):
         # return age at death of deceased person
         if self.getDOD():
-            return (self.getDOD() - self.getDOB()).days / 365.25
+            return yrsGap(self.getDOB(), self.getDOD())
         return None
 
     def getEDD(self):
         # return expected date of death
         EAD = self.getEAD()
         dob = self.getDOB()
-        return dob + timedelta(days=(EAD * 365.25))
+        return addYears(dob, EAD)
 
     def getEAD(self):
         # return expected age at death
@@ -77,12 +77,12 @@ class person(baseperson):
                 self.attributes['dod'] = parsedateString(self.attributes['dod'])
             self.dod = self.attributes['dod']
             if self.dod is not None:
-                self.aad = (self.dod - self.dob).days / 365.25
+                self.aad = yrsGap(self.dob, self.dod)
                 self.fatal = True
         elif hasAad:
             try:
                 self.aad = float(self.attributes['aad'])
-                self.dod = self.dob + timedelta(days=(self.aad * 365.25))
+                self.dod = addYears(self.dob, self.aad)
                 self.fatal = True
             except (ValueError, TypeError):
                 errors.add("Invalid aad (age at death): " + str(self.attributes['aad']))
