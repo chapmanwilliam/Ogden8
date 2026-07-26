@@ -206,6 +206,23 @@ class dataSet():
         Lx = np.cumprod(1 - Qx)  # Lx (mortality only)
         Rng = np.array([self.getAge() + x for x in range(0, Lx.size)])  # Range
 
+        # Extend the range to age 125 if the mortality column ran out first.
+        #
+        # Lx's length comes from the column for the REVISED age (ages int(revisedAge)..125)
+        # but Rng is indexed from the CHRONOLOGICAL age, so an impaired claimant - whose
+        # revised age is higher - gets a curve that stops early. With deltaLE -5 on a
+        # claimant aged 34.115 the range ended at 121.115 instead of 125.115.
+        #
+        # For mortality this is invisible: survival is already 0 by then, which is exactly
+        # why the padding value is 0. It bit anything integrating the curve numerically over
+        # a period reaching past the truncation - notably 'AI'. Options 'A' alone escaped it
+        # only because curve.Multiplier takes a closed-form termCertain shortcut for that one
+        # case, so A and AI disagreed on a wholly future period, which they never should.
+        if Rng.size and Rng[-1] < 125:
+            extra = int(np.ceil(125 - Rng[-1]))
+            Lx = np.append(Lx, np.zeros(extra))
+            Rng = np.append(Rng, [Rng[-1] + x for x in range(1, extra + 1)])
+
         result = {'Lx': Lx, 'Rng': Rng}
         self.dataSetOptions[h] = result
 
