@@ -222,11 +222,28 @@ class baseperson():
         return self.M('TRIAL', 'LIFE', options='AMI', discountRate=discountRate, DRMethodOverride=DRMethodOverride,
                       overrides=overrides)
 
+    def getStartWork(self):
+        # Age at which the claimant would have started work, or None if not supplied.
+        return getattr(self, 'startwork', None)
+
     def EM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Earnings multiplier
+        # Start at the later of the start-work age and the trial age. A claimant who has
+        # not started work yet is not losing earnings: a 14-year-old with a start-work age
+        # of 21 loses nothing until 21, and starting at trial overstated the multiplier by
+        # six years of childhood (56.005553 against 49.787375 on the reference case).
+        #
+        # 'startwork' is optional. When it is absent - as it is from every payload the
+        # Apps Script client currently sends - this is exactly the old behaviour, so no
+        # existing workbook changes.
+        start = 'TRIAL'
+        sw = self.getStartWork()
+        if sw is not None and sw > self.getAge():
+            start = sw
+
         if hasattr(self, 'retirement'):
-            return self.M('TRIAL', self.retirement, options='AMI', discountRate=discountRate,
+            return self.M(start, self.retirement, options='AMI', discountRate=discountRate,
                           DRMethodOverride=DRMethodOverride, overrides=overrides)
-        return self.M('TRIAL', self.getStateRetirementAge(), options='AMI', discountRate=discountRate,
+        return self.M(start, self.getStateRetirementAge(), options='AMI', discountRate=discountRate,
                       DRMethodOverride=DRMethodOverride, overrides=overrides)
 
     def AEM(self, discountRate=None, DRMethodOverride=None, overrides=None):  # Adjusted earnings multiplier
@@ -1224,6 +1241,13 @@ class baseperson():
         if 'retirement' in attributes:
             if type(attributes['retirement']) is int or type(attributes['retirement']) is float:
                 self.retirement = attributes['retirement']
+
+        # Age at which the claimant would have started work. Optional: when absent, EM
+        # starts at trial exactly as before, so no existing payload changes behaviour.
+        # The Apps Script client does not send this yet - the sidebar has no field for it.
+        if 'startwork' in attributes:
+            if type(attributes['startwork']) is int or type(attributes['startwork']) is float:
+                self.startwork = attributes['startwork']
 
         # Life expectancy inputs
         c = 0
