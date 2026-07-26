@@ -9,12 +9,20 @@ Tables=['A','B','C','D']
 Qual7=['D','G','O']
 Qual8=['1','2','3']
 # Education-level label equivalence between Ogden 7 (D=Degree, G=GCSE-A-level, O=Other/below)
-# and Ogden 8 (1/2/3). Lets a claimant configured with either label set work under either
-# edition, and in particular lets the historical default qualification 'D' resolve under the
-# default Ogden 8 (to '1'=Degree, preserving the default's original meaning). (F26/F38/F51)
-# NOTE: this D/G/O <-> 1/2/3 mapping is a domain assumption (flagged in the review).
-Qual7to8={'D':'1','G':'2','O':'3'}
-Qual8to7={'1':'D','2':'G','3':'O'}
+# and Ogden 8 (Level 3 / 2 / 1). Lets a claimant configured with either label set work under
+# either edition. (F26/F38/F51)
+#
+# D maps to 3, NOT to 1. This was the other way round and inverted the education axis: a
+# degree-educated claimant carrying the Ogden 7 label was priced on the Ogden 8 "below GCSE"
+# column. On Table D (disabled female, employed) that returned 0.22 against a correct 0.60.
+#
+# The tables settle it without needing to rely on how the levels are named. Reading the two
+# CSVs column by column, 7TableA D/G/O = 0.92/0.92/0.87 at 20-24 against 8TableA 3/2/1 =
+# 0.91/0.91/0.87: the columns correspond in file order. And the 16-19 band is blank in the
+# D column of every Ogden 7 table and in the 3 column of every Ogden 8 table - nobody holds a
+# degree at 16 - which pins D to 3 independently of the values.
+Qual7to8={'D':'3','G':'2','O':'1'}
+Qual8to7={'3':'D','2':'G','1':'O'}
 FALLBACK_CONT=0.9  # VBA Claimant.getCont returns 0.9 when the table value is <=0 / NaN / absent
 Employment=['Employed','Unemployed']
 header7 = pd.MultiIndex.from_product([Employment, Qual7], names=['Employment', 'Qualification'])
