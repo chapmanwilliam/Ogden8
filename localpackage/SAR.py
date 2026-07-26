@@ -83,7 +83,9 @@ class SAR():
 
         dfSAR['cumaggInt']=dfSAR['aggInt'].cumsum()
         dfSAR['Lx']=dfSAR['cumaggInt']+1
-        dfSAR['age']=dfSAR['tvalue'].apply(lambda x: yrsGap(self.getDOB(), x)) #age of person
+        # Trial-relative, matching baseperson.ageAtDate (see there for why).
+        _ageTrial = yrsGap(self.getDOB(), self.gettrialDate())
+        dfSAR['age']=dfSAR['tvalue'].apply(lambda x: _ageTrial - yrsGap(x, self.gettrialDate())) #age of person
 
         days=np.array(dfSAR['days'])
         self._pastDays=np.cumsum(days)

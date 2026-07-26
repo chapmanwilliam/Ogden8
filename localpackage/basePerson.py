@@ -176,6 +176,25 @@ class baseperson():
     def getName(self):
         return self.name
 
+    def ageAtDate(self, d):
+        # Age at a date, measured RELATIVE TO THE TRIAL DATE rather than from DOB.
+        #
+        # The anniversary convention is not additive - the denominator is the length of
+        # the anniversary year, which depends on the anchor date - so yrsGap(dob, d) and
+        # age - yrsGap(d, trial) are not the same number. Both are defensible: the first
+        # makes every age exact from birth, the second makes the SPAN between two points
+        # exactly the elapsed time between their dates.
+        #
+        # Multipliers integrate over a period, so the span is what has to be right; a
+        # period from injury to trial must be worth exactly the time that passed. The
+        # Excel add-in resolves points this way too (PointResolver: ageAtTrial +
+        # yrsGap(trialDate, date)), so the two products now agree.
+        return self.age - yrsGap(d, self.gettrialDate())
+
+    def dateAtAge(self, age):
+        # Inverse of ageAtDate.
+        return addYears(self.gettrialDate(), age - self.age)
+
     def LE(self):  # Life expectancy
         return self.M(self.age, 125, options='MI')
 
@@ -434,7 +453,7 @@ class baseperson():
     def getAAI(self):
         # return age at injury
         if self.getDOI():
-            return yrsGap(self.getDOB(), self.getDOI())
+            return self.ageAtDate(self.getDOI())
         return None
 
     def getdeltaLE(self):
@@ -766,7 +785,7 @@ class baseperson():
     def _ageToDate(self, age):
         # Convert an age on this claimant's timeline to a calendar date (d/m/y string). (EXPLAIN)
         try:
-            return addYears(self.getDOB(), age).strftime('%d/%m/%Y')
+            return self.dateAtAge(age).strftime('%d/%m/%Y')
         except Exception:
             return None
 
@@ -1047,7 +1066,7 @@ class baseperson():
             # i.e. age
             age = point
         elif type(point) is datetime:
-            age = yrsGap(self.dob, point)
+            age = self.ageAtDate(point)
         elif type(point) is str:  # for entries like TRIAL, LIFE
             if isfloat(point):
                 # A bare numeric string (e.g. "45" from a text-formatted Sheets cell) is an AGE.

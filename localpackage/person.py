@@ -32,7 +32,7 @@ class person(baseperson):
     def getAAD(self):
         # return age at death of deceased person
         if self.getDOD():
-            return yrsGap(self.getDOB(), self.getDOD())
+            return self.ageAtDate(self.getDOD())
         return None
 
     def getEDD(self):
@@ -77,12 +77,12 @@ class person(baseperson):
                 self.attributes['dod'] = parsedateString(self.attributes['dod'])
             self.dod = self.attributes['dod']
             if self.dod is not None:
-                self.aad = yrsGap(self.dob, self.dod)
+                self.aad = self.ageAtDate(self.dod)
                 self.fatal = True
         elif hasAad:
             try:
                 self.aad = float(self.attributes['aad'])
-                self.dod = addYears(self.dob, self.aad)
+                self.dod = self.dateAtAge(self.aad)
                 self.fatal = True
             except (ValueError, TypeError):
                 errors.add("Invalid aad (age at death): " + str(self.attributes['aad']))
