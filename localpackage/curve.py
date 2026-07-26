@@ -343,6 +343,25 @@ class curve():
 
         rp = expand_past_range()
         rf = self.getdataSet().getLx(self.getRevisedAge())[1][self.getdataSet().getLx(self.getRevisedAge())[1] >= age]  # range in the future
+
+        # Make the past/future split land on the TRIAL AGE.
+        #
+        # Rng is an annual grid anchored at getAge(), which for a FATAL claimant is the age
+        # at death - so the first grid point on or after trial can fall short of the trial
+        # age itself (0.2767 of a year on the reference case). expand_past_range() already
+        # drops its last element expecting the future range to start exactly at trial, so
+        # that sliver belonged to neither side and was taking the past's factors.
+        #
+        # It matters for the C letter, which applies to FUTURE loss only: the sliver kept
+        # contingency 1 instead of the claimant's factor, so a fatal claimant's effective
+        # contingency came out ABOVE their real one (0.850516 against 0.85).
+        #
+        # For a living claimant the grid starts at the trial age already, so this is a no-op
+        # - which also keeps _Lxf aligned, since that branch uses the raw Lx array whose
+        # length must match rf. The fatal branch interpolates via transformLx and is
+        # unaffected by the extra node.
+        if rf.size == 0 or rf[0] > age:
+            rf = np.concatenate(([age], rf))
         Rng = np.concatenate((rp, rf))  # range past and future
 
         # defaults
