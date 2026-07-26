@@ -149,6 +149,30 @@ class curve():
     def getdependentson(self):
         return self.parent.getClaimantsDependentOn()
 
+    def getDependeeContingencyStartAge(self):
+        # THIS claimant's age at the point the dependency contingency starts running, i.e. at
+        # the deceased's date of death. Returned on the claimant's own age axis, because that
+        # is what Rng is measured in.
+        #
+        # None when there is nobody to take it from: no dependees, a dependee who is still
+        # alive (a dependency on a living person is not counterfactual, so nothing bites in
+        # the past), or a dependee with no date of death recorded.
+        #
+        # With several fatal dependees the earliest death is used. getContDependentsOn already
+        # averages their contingencies into the single `cont` passed here, so there is only one
+        # figure to place; starting it at the earliest death is the generalisation that matches
+        # the one-dependee case exactly. The Excel add-in models a single dependee.
+        ages = []
+        for name in self.getdependentson():
+            deceased = self.getClaimant(name)
+            if deceased is None or not deceased.isFatal():
+                continue
+            dod = deceased.getDOD()
+            if dod is None:
+                continue
+            ages.append(self.parent.ageAtDate(dod))
+        return min(ages) if ages else None
+
     def getClaimant(self, name):
         return self.parent.getClaimant(name)
 
@@ -337,6 +361,22 @@ class curve():
             rp=rp[:-1] #get rid of last element to avoid duplication of age at trial
             yrrp = np.arange(rp[0], rp[-1], 1)  # and for every year
             res = np.concatenate((rp, yrrp))  # join them
+            # The dependency contingency is a STEP at the deceased's date of death: 1 before,
+            # cont after. The trapezoid rule is only exact where the integrand is straight
+            # between nodes, so a step landing mid-segment gets smeared across it - and the
+            # size of the error depends on where the step happens to fall relative to a mesh
+            # that has nothing to do with it. On the reference case that was worth 0.7% of a
+            # past dependency multiplier, and the Excel add-in (different past mesh) smeared
+            # it differently, so the two products disagreed for no principled reason.
+            #
+            # A node pair straddling the death resolves it exactly: the lower node still
+            # carries 1, the upper carries cont, and the smear is confined to the gap between
+            # them. EPS is well above the 1e-9 dedupe threshold used elsewhere and far below
+            # any real mesh spacing.
+            dodAge = self.getDependeeContingencyStartAge()
+            if dodAge is not None and res.size and res[0] < dodAge < res[-1]:
+                EPS = 1e-6
+                res = np.concatenate((res, [dodAge - EPS, dodAge]))
             return np.sort(res, axis=None)  # sort them
 
         age = self.getAge()
@@ -392,7 +432,24 @@ class curve():
             _interest = np.concatenate((_interestp, _interestf))
         # cont
         if 'C' in options:
-            _contp = np.full((rp.size), 1)
+            _contp = np.full((rp.size), 1.0)
+            # A dependency claim's contingency runs from the deceased's DATE OF DEATH, not
+            # from trial - so unlike an ordinary contingency it does bite on past rows.
+            #
+            # The claimant's own past loss is evidenced rather than predicted, so a
+            # contingency for being out of work has no place in it. A dependency claim is
+            # different: from the moment the deceased died the period is counterfactual, and
+            # the chance they would have been out of work for reasons other than mortality
+            # applies to the years since their death just as much as to the years ahead.
+            #
+            # Previously the past array was 1 unconditionally, which understated the
+            # deduction on every fatal-dependency schedule with a gap between death and
+            # trial. The Excel add-in has always done it this way; this brings the engine
+            # into line. (See DIVERGENCES.md D3 in the Excel repo.)
+            if 'D' in options:
+                dodAge = self.getDependeeContingencyStartAge()
+                if dodAge is not None:
+                    _contp = np.where(rp >= dodAge, float(cont), 1.0)
             _contf = np.full((rf.size), cont)
             _cont = np.concatenate((_contp, _contf))
         # deceased
