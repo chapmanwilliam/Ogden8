@@ -799,6 +799,41 @@ class baseperson():
         return self._aggInt(self.JM(point1, point2, freq, self._withInterest(options), discountRate,
                                     DRMethodOverride, overrides))
 
+    def _sarFactor(self, age):
+        # Aggregate special-account factor accruing from `age` to trial, as a decimal.
+        # Read straight off the SAR curve (trial-anchored: 0 at and after trial) rather than
+        # through the M() curve machinery, whose past/future split is anchored at death for a
+        # fatal claimant and would zero out post-death dates. Dates before the first published
+        # rate clamp to the full aggregate (Lx[0]).
+        Lx, Rng = self.getSAR().getLx()
+        return float(np.interp(age, Rng, Lx, left=Lx[0], right=1.0)) - 1.0
+
+    def AGGINT(self, point1, point2=None):
+        # The aggregate special-account interest factor on a ONE-OFF loss incurred at point1,
+        # accruing to point2 (default: trial), as a decimal (0.180382 = 18.0382%).
+        # Counterpart of AGGINTRATE, which is the single rate on a PERIODIC loss over
+        # [point1, point2] - here the two points bound the ACCRUAL, not a loss period.
+        # Pure SAR: mortality, discounting and contingencies play no part, so it matches the
+        # published-rates day count exactly, in fatal cases too - which is why, uniquely
+        # among the multiplier family, it takes no freq/options/rate/override arguments.
+        # The SAR anchor makes aggregate(p1 -> p2) = aggregate(p1 -> trial) -
+        # aggregate(p2 -> trial), which is how the trial default falls out.
+        self.setOriginalValues()  # undo any per-row {AGE:...} override left by an earlier row
+        if point1 in (None, ''):
+            return None
+        age1 = self.getAgeFromPoint(point1)
+        if age1 is None:
+            return "'From' date invalid"
+        if point2 in (None, ''):
+            age2 = None  # trial anchor: factor 0
+        else:
+            age2 = self.getAgeFromPoint(point2)
+            if age2 is None:
+                return "'To' date invalid"
+            if age1 > age2:
+                return "'From' point is later than 'To' point: no interest accrues"
+        return self._sarFactor(age1) - (0.0 if age2 is None else self._sarFactor(age2))
+
     def _ageToDate(self, age):
         # Convert an age on this claimant's timeline to a calendar date (d/m/y string). (EXPLAIN)
         try:
@@ -1023,6 +1058,31 @@ class baseperson():
         }
         return {'result': list(res), 'explanation': explanation}
 
+    def explainAggIntFactor(self, point1, point2=None):
+        # AGGINT explanation: the one-off aggregate SAR factor from point1 to point2 (default
+        # trial), as the difference of the two trial-anchored factors - see AGGINT. (EXPLAIN)
+        def factor(point):
+            age = self.getAgeFromPoint(point)
+            return None if age is None else self._sarFactor(age)
+
+        result = self.AGGINT(point1, point2)
+        note = None
+        if not isinstance(result, float):
+            note = None if result is None else str(result)
+            result = None
+        explanation = {
+            'function': 'AGGINT',
+            'aggInt': {
+                'fromFactor': factor(point1),
+                'toFactor': (0.0 if point2 in (None, '') else factor(point2)),
+                'aggInt': result,
+                'aggIntPercent': (None if result is None else round(result * 100, 4)),
+                'formula': "SAR aggregate(from -> trial) - SAR aggregate(to -> trial); 'to' defaults to trial (0)",
+                'note': note,
+            },
+        }
+        return {'result': [None, result, None, result], 'explanation': explanation}
+
     def explainDispatch(self, function, point1, point2=None, freq="Y", options='AMI',
                         discountRate=None, DRMethodOverride=None, overrides=None, includeTable=False):
         # Routes an EXPLAIN request by function name. (EXPLAIN)
@@ -1030,9 +1090,12 @@ class baseperson():
         if f == 'JMULTIPLIER':
             return self.explainJoint(point1, point2, freq, options, discountRate, DRMethodOverride,
                                      overrides, includeTable)
-        # AGGINTRATE/JAGGINTRATE are the client-facing UDF names for the same quantity; the
-        # bare AGGINT/JAGGINT spellings are kept so existing EXPLAIN callers still route.
-        if f in ('AGGINT', 'AGGINTRATE'):
+        # AGGINT is the one-off factor between two dates; AGGINTRATE the rate on a periodic
+        # loss. Before the semantics split, bare AGGINT meant the rate - it now routes to the
+        # factor explanation, matching what an =AGGINT(...) cell actually shows.
+        if f == 'AGGINT':
+            return self.explainAggIntFactor(point1, point2)
+        if f == 'AGGINTRATE':
             return self.explainAggInt(point1, point2, freq, options, discountRate, DRMethodOverride,
                                       overrides, includeTable, joint=False)
         if f in ('JAGGINT', 'JAGGINTRATE'):

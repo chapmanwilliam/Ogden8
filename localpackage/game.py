@@ -241,6 +241,13 @@ class game():
                                                                      DRMethodOverride=row['DRMethodOverride'],
                                                                      overrides=row['overrides']).or_else(None)]
                     for row in self.rows]
+        elif self.function == "AGGINT":
+            # One-off aggregate interest factor: fromAge = date the loss was incurred,
+            # toAge = accrual end (defaults to trial). Pure SAR, so unlike the rest of the
+            # multiplier family it takes no freq/options/rate/override arguments.
+            return [[maybe(self.getClaimant(row['name'])).AGGINT(row['fromAge'],
+                                                                 row['toAge']).or_else(None)]
+                    for row in self.rows]
         elif self.function == "JAGGINTRATE":
             return [[maybe(self.getClaimant(row['name'])).JAGGINTRATE(row['fromAge'], row['toAge'],
                                                                       freq=row['freq'],
