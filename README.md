@@ -10,3 +10,8 @@ It is kept current by [sar-watch](https://github.com/chapmanwilliam/sar-watch),
 a daily job that appends each announced change to all three repos and
 redeploys this function. Edit it by hand only to correct history, and then
 update the copies too.
+
+`GET https://europe-west2-ogden8.cloudfunctions.net/ogden-2/sar` returns the
+table as JSON (`rates: [{date, ratePct}]`, plus `last`). The web page and the
+Excel add-in read it from there at runtime, keeping their bundled copies only
+as an offline fallback, and sar-watch checks it after every deploy.

@@ -1,4 +1,5 @@
 from localpackage.game import game
+from localpackage import sartable
 
 import json
 import math
@@ -7,7 +8,7 @@ import math
 CORS_HEADERS = {'Access-Control-Allow-Origin': '*'}
 PREFLIGHT_HEADERS = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST',
+    'Access-Control-Allow-Methods': 'GET, POST',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '3600',
 }
@@ -74,8 +75,31 @@ def Cont(request):
     return _handle(request, compute)
 
 
+def _is_sar_request(request):
+    # GET .../ogden-2/sar (or ?sar) returns the Special Account Rate table. Every other
+    # request is the JSON POST the clients have always sent.
+    if request.method != 'GET':
+        return False
+    path = (request.path or '').rstrip('/')
+    return path.endswith('/sar') or path == 'sar' or 'sar' in request.args
+
+
+def Sar(request):
+    # The canonical Special Account Rate table, so clients can read it live and sar-watch
+    # can confirm a deploy landed. Cached for an hour at most: a rate change is announced
+    # weeks ahead of its effective date, so an hour's staleness never changes an answer.
+    try:
+        body = json.dumps(sartable.table())
+        return (body, 200, {**CORS_HEADERS, 'Content-Type': 'application/json',
+                            'Cache-Control': 'public, max-age=3600'})
+    except Exception as e:
+        return (json.dumps({'error': str(e)}), 500, CORS_HEADERS)
+
+
 def Process(request):
     # returns per-row tuples plus per-claimant summary statistics
+    if _is_sar_request(request):
+        return Sar(request)
     return _handle(request, lambda a: game(attributes=a).process())
 
 
