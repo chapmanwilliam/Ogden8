@@ -3,7 +3,7 @@ import json
 from pymaybe import maybe
 from localpackage.person import person
 from localpackage.TablesAD import TablesAD
-from localpackage.utils import defaultdiscountRate, defaultOgden, Ogden, parsedateString, DRMethods, \
+from localpackage.utils import defaultDiscountRate, defaultOgden, Ogden, parsedateString, DRMethods, \
     defaultMultipleRates
 from localpackage.errorLogging import errors
 
@@ -435,7 +435,7 @@ class game():
         if 'discountRate' in attributes['game']:  # if discountrate supplied, accept; otherwise use default
             self.discountRate = attributes['game']['discountRate']
         else:
-            self.discountRate = defaultdiscountRate
+            self.discountRate = defaultDiscountRate()
 
         if 'Ogden' in attributes['game']:  # if correct Ogden supplied, accept; otherwise use default
             if attributes['game']['Ogden'] in Ogden:

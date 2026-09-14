@@ -1,5 +1,5 @@
 from localpackage.game import game
-from localpackage import sartable
+from localpackage import sartable, pidrtable
 
 import json
 import math
@@ -96,10 +96,32 @@ def Sar(request):
         return (json.dumps({'error': str(e)}), 500, CORS_HEADERS)
 
 
+def _is_pidr_request(request):
+    # GET .../ogden-2/pidr (or ?pidr) returns the Personal Injury Discount Rate table.
+    if request.method != 'GET':
+        return False
+    path = (request.path or '').rstrip('/')
+    return path.endswith('/pidr') or path == 'pidr' or 'pidr' in request.args
+
+
+def Pidr(request):
+    # The canonical discount rate table, so the web page can pick its default rate live and
+    # sar-watch can confirm a deploy landed. Cached for an hour at most, as /sar is; a new
+    # rate is announced weeks ahead of its effective date, so an hour's staleness is harmless.
+    try:
+        body = json.dumps(pidrtable.table())
+        return (body, 200, {**CORS_HEADERS, 'Content-Type': 'application/json',
+                            'Cache-Control': 'public, max-age=3600'})
+    except Exception as e:
+        return (json.dumps({'error': str(e)}), 500, CORS_HEADERS)
+
+
 def Process(request):
     # returns per-row tuples plus per-claimant summary statistics
     if _is_sar_request(request):
         return Sar(request)
+    if _is_pidr_request(request):
+        return Pidr(request)
     return _handle(request, lambda a: game(attributes=a).process())
 
 

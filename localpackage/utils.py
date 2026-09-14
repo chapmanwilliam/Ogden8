@@ -13,7 +13,15 @@ discountOptions = ['A', 'M', 'I', 'C', 'D']
 DRMethods = ['BLENDED', 'SWITCHED', 'SINGLE', 'STEPPED']  # STEPPED is dispatched in getdiscountRate (F55)
 overrides = ['DRMETHOD', 'SHORTRATE', 'LONGRATE', 'SINGLERATE', 'SWITCH', 'SEX', 'AGE', 'DEPENDENTON', 'REGION']
 
-defaultdiscountRate = 0.5 / 100
+def defaultDiscountRate():
+    # The England and Wales Personal Injury Discount Rate in force today, as a decimal,
+    # from the canonical table in Data/PIDR.csv (kept current by sar-watch). Read at each
+    # call rather than at import, so a rate that takes effect on a later day is picked up
+    # that day without an instance restart.
+    from localpackage import pidrtable
+    return pidrtable.current_rate('EW') / 100
+
+
 defaultSwiftCarpenterDiscountRate = 5 / 100
 defaultOgden = 8
 Ogden = [7, 8]
